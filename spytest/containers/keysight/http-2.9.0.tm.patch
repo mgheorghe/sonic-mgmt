@@ -1,0 +1,13 @@
+https://stackoverflow.com/questions/56964628/file-upload-issue-using-httpgeturl-in-tcl-contain-http-2-9-package
+https://core.tcl-lang.org/tcl/tktview/f81beca7afabb3d2d395bd979607eda184622f7a
+--- ./http-2.9.0.tm	2019-07-31 17:11:59.066937587 -0700
++++ ./http-2.9.0.tm2	2019-07-31 17:13:01.000000000 -0700
+@@ -1308,7 +1308,7 @@
+     # Initialisation to {auto *} now done in geturl, KeepSocket and DoneRequest.
+     # We are concerned here with the request (write) not the response (read).
+     lassign [fconfigure $sock -translation] trRead trWrite
+-    fconfigure $sock -translation [list $trRead crlf] \
++    fconfigure $sock -translation [list binary crlf] \
+ 		     -buffersize $state(-blocksize)
+ 
+     # The following is disallowed in safe interpreters, but the socket is
