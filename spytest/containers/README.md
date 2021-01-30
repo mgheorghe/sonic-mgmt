@@ -14,7 +14,11 @@ http://downloads.ixiacom.com/support/downloads_and_updates/public/ixnetwork/9.10
 # run tests
 ```
 docker run --network host -v $PWD:/data --mount src=/etc/localtime,target=/etc/localtime,type=bind,readonly -it spytest/keysight bash
-cd /data/sonic-mgmt
+cd /data/sonic-mgmt/spytest
+
+https://github.com/Azure/sonic-mgmt/blob/master/spytest/Doc/intro.md
+ - do the steps in "Testbed" section
+ - copy the file testbed_file.yaml ./testbeds/
+
+./bin/spytest --testbed-file ./testbeds/testbed_file.yaml --logs-path ./logs --log-level debug --test-suite community-legacy
 ```
-
-
