@@ -5,7 +5,6 @@ import logging
 
 from tests.common.fixtures.ptfhost_utils import copy_ptftests_directory   # lgtm[py/unused-import]
 from tests.ptf_runner import ptf_runner
-from tests.common.devices import AnsibleHostBase
 from tests.common.fixtures.conn_graph_facts import conn_graph_facts
 from tests.common.utilities import wait_until
 from tests.common.helpers.assertions import pytest_assert
@@ -20,18 +19,24 @@ pytestmark = [
     pytest.mark.usefixtures('disable_route_checker_module')
 ]
 
+# The dir will be deleted from host, so be sure not to use system dir
+TEST_DIR = "/tmp/acstests/"
+
 @pytest.fixture(scope="module")
 def common_setup_teardown(ptfhost):
     logger.info("########### Setup for lag testing ###########")
 
+    ptfhost.shell("mkdir -p {}".format(TEST_DIR))
     # Copy PTF test into PTF-docker for test LACP DU
     test_files = ['lag_test.py', 'acs_base_test.py', 'router_utils.py']
     for test_file in test_files:
         src = "../ansible/roles/test/files/acstests/%s" % test_file
-        dst = "/tmp/%s" % test_file
+        dst = TEST_DIR + test_file
         ptfhost.copy(src=src, dest=dst)
 
     yield ptfhost
+
+    ptfhost.file(path=TEST_DIR, state="absent")
 
 class LagTest:
     def __init__(self, duthost, tbinfo, ptfhost, nbrhosts, fanouthosts, conn_graph_facts):
@@ -53,6 +58,9 @@ class LagTest:
         po_interfaces = lag_facts['lags'][lag_name]['po_config']['ports']
         intf          = lag_facts['lags'][lag_name]['po_config']['ports'].keys()[0]
         return intf, po_interfaces
+
+    def __get_lag_intf_namespace_id(self, lag_facts, lag_name):
+        return (lag_facts['lags'][lag_name]['po_namespace_id'])
 
     def __check_flap(self, lag_facts, lag_name):
         po_intf_num  = len(lag_facts['lags'][lag_name]['po_config']['ports'])
@@ -78,14 +86,14 @@ class LagTest:
             'ether_type': 0x8809,
             'interval_count': 3
         }
-        ptf_runner(self.ptfhost, '/tmp', "lag_test.LacpTimingTest", '/root/ptftests', params=params)
+        ptf_runner(self.ptfhost, TEST_DIR, "lag_test.LacpTimingTest", '/root/ptftests', params=params)
 
     def __verify_lag_minlink(
         self,
         host,
         lag_name,
-        intf,
-        neighbor_intf, po_interfaces, po_flap, deselect_time, wait_timeout = 30):
+        lag_facts,
+        neighbor_intf, deselect_time, wait_timeout = 30):
         delay = 5
 
         try:
@@ -93,11 +101,17 @@ class LagTest:
 
             # Let PortalChannel react to neighbor interface shutdown
             time.sleep(deselect_time)
+            intf, po_interfaces = self.__get_lag_intf_info(lag_facts, lag_name)
+            po_flap             = self.__check_flap(lag_facts, lag_name)
+            namespace_id        = self.__get_lag_intf_namespace_id(lag_facts, lag_name)
+            namespace_prefix = '-n ' + str(namespace_id) if namespace_id else ''
+
 
             # Verify PortChannel interfaces are up correctly
             for po_intf in po_interfaces.keys():
                 if po_intf != intf:
-                    command = 'bash -c "teamdctl %s state dump" | python -c "import sys, json; print json.load(sys.stdin)[\'ports\'][\'%s\'][\'runner\'][\'selected\']"' % (lag_name, po_intf)
+                    command = 'bash -c "teamdctl %s %s state dump" | python -c "import sys, json; print json.load(sys.stdin)[\'ports\'][\'%s\'][\'runner\'][\'selected\']"' \
+                    % (namespace_prefix, lag_name, po_intf)
                     wait_until(wait_timeout, delay, self.__check_shell_output, self.duthost, command)
 
             # Refresh lag facts
@@ -120,13 +134,13 @@ class LagTest:
             # Verify PortChannel interfaces are up correctly
             for po_intf in po_interfaces.keys():
                 if po_intf != intf:
-                    command = 'bash -c "teamdctl %s state dump" | python -c "import sys, json; print json.load(sys.stdin)[\'ports\'][\'%s\'][\'link\'][\'up\']"' % (lag_name, po_intf)
+                    command = 'bash -c "teamdctl %s %s state dump" | python -c "import sys, json; print json.load(sys.stdin)[\'ports\'][\'%s\'][\'link\'][\'up\']"'\
+                              % (namespace_prefix, lag_name, po_intf)
                     wait_until(wait_timeout, delay, self.__check_shell_output, self.duthost, command)
 
-    def run_single_lag_lacp_rate_test(self, lag_name):
+    def run_single_lag_lacp_rate_test(self, lag_name, lag_facts):
         logger.info("Start checking single lag lacp rate for: %s" % lag_name)
 
-        lag_facts           = self.__get_lag_facts()
         intf, po_interfaces = self.__get_lag_intf_info(lag_facts, lag_name)
         peer_device         = self.vm_neighbors[intf]['name']
 
@@ -170,28 +184,25 @@ class LagTest:
                     logger.info("Changing lacp rate to slow for %s in %s" % (neighbor_lag_member, peer_device))
                     vm_host.set_interface_lacp_rate_mode(neighbor_lag_member, 'normal')
 
-    def run_single_lag_test(self, lag_name):
+    def run_single_lag_test(self, lag_name, lag_facts):
         logger.info("Start checking single lag for: %s" % lag_name)
 
-        lag_facts           = self.__get_lag_facts()
-        intf, po_interfaces = self.__get_lag_intf_info(lag_facts, lag_name)
-        po_flap             = self.__check_flap(lag_facts, lag_name)
+        intf, _ = self.__get_lag_intf_info(lag_facts, lag_name)
 
         # Figure out fanout switches info if exists for the lag member and run minlink test
         if intf in self.fanout_neighbors.keys():
             peer_device   = self.fanout_neighbors[intf]['peerdevice']
             neighbor_intf = self.fanout_neighbors[intf]['peerport']
-            self.__verify_lag_minlink(self.fanouthosts[peer_device], lag_name, intf, neighbor_intf, po_interfaces, po_flap, deselect_time=5)
+            self.__verify_lag_minlink(self.fanouthosts[peer_device], lag_name, lag_facts, neighbor_intf, deselect_time=5)
 
         # Figure out remote VM and interface info for the lag member and run minlink test
         peer_device   = self.vm_neighbors[intf]['name']
         neighbor_intf = self.vm_neighbors[intf]['port']
-        self.__verify_lag_minlink(self.nbrhosts[peer_device]['host'], lag_name, intf, neighbor_intf, po_interfaces, po_flap, deselect_time=95)
+        self.__verify_lag_minlink(self.nbrhosts[peer_device]['host'], lag_name, lag_facts, neighbor_intf, deselect_time=95)
 
-    def run_lag_fallback_test(self, lag_name):
+    def run_lag_fallback_test(self, lag_name, lag_facts):
         logger.info("Start checking lag fall back for: %s" % lag_name)
 
-        lag_facts           = self.__get_lag_facts()
         intf, po_interfaces = self.__get_lag_intf_info(lag_facts, lag_name)
         po_fallback         = lag_facts['lags'][lag_name]['po_config']['runner']['fallback']
 
@@ -233,6 +244,14 @@ class LagTest:
             vm_host.no_shutdown(neighbor_intf)
             wait_until(wait_timeout, delay, self.__check_intf_state, vm_host, neighbor_intf, True)
 
+@pytest.fixture(autouse=True, scope='module')
+def skip_if_no_lags(duthosts):
+    def has_lags(dut):
+        lag_facts = dut.lag_facts(host = dut.hostname)['ansible_facts']['lag_facts']
+        return len(lag_facts['names']) > 0
+    some_dut_has_lags = any(has_lags(dut) for dut in duthosts)
+    pytest_require(some_dut_has_lags, 'No LAGs found in any DUT')
+
 @pytest.mark.parametrize("testcase", ["single_lag",
                                       "lacp_rate",
                                       "fallback"])
@@ -267,9 +286,9 @@ def test_lag(common_setup_teardown, duthosts, tbinfo, nbrhosts, fanouthosts, con
                     else:
                         some_test_ran = True
                         if testcase == "single_lag":
-                            test_instance.run_single_lag_test(lag_name)
+                            test_instance.run_single_lag_test(lag_name, lag_facts)
                         else:
-                            test_instance.run_single_lag_lacp_rate_test(lag_name)
+                            test_instance.run_single_lag_lacp_rate_test(lag_name, lag_facts)
                 else: # fallback testcase
                     try:
                         lag_facts['lags'][lag_name]['po_config']['runner']['fallback']
@@ -279,6 +298,6 @@ def test_lag(common_setup_teardown, duthosts, tbinfo, nbrhosts, fanouthosts, con
                         continue
                     else:
                         some_test_ran = True
-                        test_instance.run_lag_fallback_test(lag_name)
+                        test_instance.run_lag_fallback_test(lag_name, lag_facts)
 
     pytest_assert(some_test_ran, "Didn't run any test.")

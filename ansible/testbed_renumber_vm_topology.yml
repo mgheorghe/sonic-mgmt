@@ -44,11 +44,22 @@
 
   - name: Check that variable topo is defined
     fail: msg="Define topo variable with -e topo=something"
-    when: topo is not defined or topo not in topologies
+    when: topo is not defined
+
+  - set_fact:
+      base_topo: "{{ topo.split('_') | first }}"
+
+  - name: Check that variable topo is defined
+    fail: msg="Define topo variable with -e topo=something"
+    when: base_topo not in topologies
 
   - name: Check that variable ptf_imagename is defined
     fail: msg="Define ptf_imagename variable with -e ptf_imagename=something"
     when: ptf_imagename is not defined
+
+  - name: Disable package installation
+    set_fact:
+      package_installation: false
 
   - name: Load topo variables
     include_vars: "vars/topo_{{ topo }}.yml"

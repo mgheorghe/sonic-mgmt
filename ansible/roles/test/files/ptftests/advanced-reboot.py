@@ -1,5 +1,5 @@
 #
-# ptf --test-dir ptftests fast-reboot --qlen=1000 --platform remote -t 'verbose=True;dut_username="admin";dut_hostname="10.0.0.243";reboot_limit_in_seconds=30;portchannel_ports_file="/tmp/portchannel_interfaces.json";vlan_ports_file="/tmp/vlan_interfaces.json";ports_file="/tmp/ports.json";dut_mac="4c:76:25:f5:48:80";default_ip_range="192.168.0.0/16";vlan_ip_range="172.0.0.0/22";arista_vms="[\"10.0.0.200\",\"10.0.0.201\",\"10.0.0.202\",\"10.0.0.203\"]"' --platform-dir ptftests --disable-vxlan --disable-geneve --disable-erspan --disable-mpls --disable-nvgre
+# ptf --test-dir ptftests fast-reboot --qlen=1000 --platform remote -t 'verbose=True;dut_username="admin";dut_hostname="10.0.0.243";reboot_limit_in_seconds=30;portchannel_ports_file="/tmp/portchannel_interfaces.json";vlan_ports_file="/tmp/vlan_interfaces.json";ports_file="/tmp/ports.json";dut_mac="4c:76:25:f5:48:80";default_ip_range="192.168.0.0/16";vlan_ip_range="{\"Vlan100\": \"172.0.0.0/22\"}";arista_vms="[\"10.0.0.200\",\"10.0.0.201\",\"10.0.0.202\",\"10.0.0.203\"]"' --platform-dir ptftests --disable-vxlan --disable-geneve --disable-erspan --disable-mpls --disable-nvgre
 #
 #
 # This test checks that DUT is able to make FastReboot procedure
@@ -64,6 +64,7 @@ import scapy.all as scapyall
 import itertools
 from device_connection import DeviceConnection
 import multiprocessing
+import ast
 
 from arista import Arista
 import sad_path as sp
@@ -137,7 +138,6 @@ class ReloadTest(BaseTest):
         self.check_param('vlan_ports_file', '', required=True)
         self.check_param('ports_file', '', required=True)
         self.check_param('dut_mac', '', required=True)
-        self.check_param('dut_vlan_ip', '', required=True)
         self.check_param('default_ip_range', '', required=True)
         self.check_param('vlan_ip_range', '', required=True)
         self.check_param('lo_prefix', '10.1.0.32/32', required=False)
@@ -155,6 +155,8 @@ class ReloadTest(BaseTest):
         self.check_param('vnet', False, required=False)
         self.check_param('vnet_pkts', None, required=False)
         self.check_param('target_version', '', required=False)
+        self.check_param('bgp_v4_v6_time_diff', 40, required=False)
+        self.check_param('logfile_suffix', None, required=False)
         if not self.test_params['preboot_oper'] or self.test_params['preboot_oper'] == 'None':
             self.test_params['preboot_oper'] = None
         if not self.test_params['inboot_oper'] or self.test_params['inboot_oper'] == 'None':
@@ -166,10 +168,18 @@ class ReloadTest(BaseTest):
         else:
             self.sad_oper = self.test_params['inboot_oper']
 
-        if self.sad_oper:
-           self.log_file_name = '/tmp/%s-%s.log' % (self.test_params['reboot_type'], self.sad_oper)
+        if self.test_params['logfile_suffix']:
+            self.logfile_suffix = self.test_params['logfile_suffix']
+        else:
+            self.logfile_suffix = self.sad_oper
+
+        if self.logfile_suffix:
+           self.log_file_name = '/tmp/%s-%s.log' % (self.test_params['reboot_type'], self.logfile_suffix)
+           self.report_file_name = '/tmp/%s-%s.json' % (self.test_params['reboot_type'], self.logfile_suffix)
         else:
            self.log_file_name = '/tmp/%s.log' % self.test_params['reboot_type']
+           self.report_file_name = '/tmp/%s-report.json' % self.test_params['reboot_type']
+        self.report = dict()
         self.log_fp = open(self.log_file_name, 'w')
 
         self.packets_list = []
@@ -236,7 +246,6 @@ class ReloadTest(BaseTest):
             self.kvm_test = True
         else:
             self.kvm_test = False
-
         return
 
     def read_json(self, name):
@@ -250,19 +259,29 @@ class ReloadTest(BaseTest):
 
         return port_indices
 
-    def read_portchannel_ports(self):
-        content = self.read_json('portchannel_ports_file')
+    def read_vlan_portchannel_ports(self):
+        portchannel_content = self.read_json('portchannel_ports_file')
+        portchannel_names = [pc['name'] for pc in portchannel_content.values()]
+
+        vlan_content = self.read_json('vlan_ports_file')
+
+        ports_per_vlan = dict()
+        pc_in_vlan = []
+        for vlan in self.vlan_ip_range.keys():
+            ports_in_vlan = []
+            for ifname in vlan_content[vlan]['members']:
+                if ifname in portchannel_names:
+                    pc_in_vlan.append(ifname)
+                else:
+                    ports_in_vlan.append(self.port_indices[ifname])
+            ports_per_vlan[vlan] = ports_in_vlan
+
         pc_ifaces = []
-        for pc in content.values():
-            pc_ifaces.extend([self.port_indices[member] for member in pc['members']])
+        for pc in portchannel_content.values():
+            if not pc['name'] in pc_in_vlan:
+                pc_ifaces.extend([self.port_indices[member] for member in pc['members']])
 
-        return pc_ifaces
-
-    def read_vlan_ports(self):
-        content = self.read_json('vlan_ports_file')
-        if len(content) > 1:
-            raise Exception("Too many vlans")
-        return [self.port_indices[ifname] for ifname in content.values()[0]['members']]
+        return ports_per_vlan, pc_ifaces
 
     def check_param(self, param, default, required = False):
         if param not in self.test_params:
@@ -314,19 +333,21 @@ class ReloadTest(BaseTest):
 
     def generate_vlan_servers(self):
         vlan_host_map = defaultdict(dict)
-        vlan_ip_range = self.test_params['vlan_ip_range']
+        self.nr_vl_pkts = 0     # Number of packets from upper layer
+        for vlan, prefix in self.vlan_ip_range.items():
+            if not self.ports_per_vlan[vlan]:
+                continue
+            _, mask = prefix.split('/')
+            n_hosts = min(2**(32 - int(mask)) - 3, self.max_nr_vl_pkts)
 
-        _, mask = vlan_ip_range.split('/')
-        n_hosts = min(2**(32 - int(mask)) - 3, self.max_nr_vl_pkts)
+            for counter, i in enumerate(xrange(2, n_hosts + 2)):
+                mac = self.VLAN_BASE_MAC_PATTERN.format(counter)
+                port = self.ports_per_vlan[vlan][i % len(self.ports_per_vlan[vlan])]
+                addr = self.host_ip(prefix, i)
 
-        for counter, i in enumerate(xrange(2, n_hosts + 2)):
-            mac = self.VLAN_BASE_MAC_PATTERN.format(counter)
-            port = self.vlan_ports[i % len(self.vlan_ports)]
-            addr = self.host_ip(vlan_ip_range, i)
+                vlan_host_map[port][addr] = mac
 
-            vlan_host_map[port][addr] = mac
-
-        self.nr_vl_pkts = n_hosts
+            self.nr_vl_pkts += n_hosts
 
         return vlan_host_map
 
@@ -339,7 +360,7 @@ class ReloadTest(BaseTest):
 
     def dump_arp_responder_config(self, dump):
         # save data for arp_replay process
-        filename = "/tmp/from_t1.json" if self.sad_oper is None else "/tmp/from_t1_%s.json" % self.sad_oper
+        filename = "/tmp/from_t1.json" if self.logfile_suffix is None else "/tmp/from_t1_%s.json" % self.logfile_suffix
         with open(filename, "w") as fp:
             json.dump(dump, fp)
 
@@ -391,10 +412,17 @@ class ReloadTest(BaseTest):
         self.get_portchannel_info()
 
     def build_vlan_if_port_mapping(self):
-        content = self.read_json('vlan_ports_file')
-        if len(content) > 1:
-            raise Exception("Too many vlans")
-        return [(ifname, self.port_indices[ifname]) for ifname in content.values()[0]['members']]
+        portchannel_content = self.read_json('portchannel_ports_file')
+        portchannel_names = [pc['name'] for pc in portchannel_content.values()]
+
+        vlan_content = self.read_json('vlan_ports_file')
+        
+        vlan_if_port = []
+        for vlan in self.vlan_ip_range:
+            for ifname in vlan_content[vlan]['members']:
+                if ifname not in portchannel_names:
+                    vlan_if_port.append((ifname, self.port_indices[ifname]))
+        return vlan_if_port
 
     def populate_fail_info(self, fails):
         for key in fails:
@@ -435,8 +463,8 @@ class ReloadTest(BaseTest):
     def init_sad_oper(self):
         if self.sad_oper:
             self.log("Preboot/Inboot Operations:")
-            self.sad_handle = sp.SadTest(self.sad_oper, self.ssh_targets, self.portchannel_ports, self.vm_dut_map, self.test_params, self.vlan_ports)
-            (self.ssh_targets, self.portchannel_ports, self.neigh_vm, self.vlan_ports), (log_info, fails) = self.sad_handle.setup()
+            self.sad_handle = sp.SadTest(self.sad_oper, self.ssh_targets, self.portchannel_ports, self.vm_dut_map, self.test_params, self.vlan_ports, self.ports_per_vlan)
+            (self.ssh_targets, self.portchannel_ports, self.neigh_vm, self.vlan_ports, self.ports_per_vlan), (log_info, fails) = self.sad_handle.setup()
             self.populate_fail_info(fails)
             for log in log_info:
                 self.log(log)
@@ -491,13 +519,15 @@ class ReloadTest(BaseTest):
     def setUp(self):
         self.fails['dut'] = set()
         self.port_indices = self.read_port_indices()
-        self.portchannel_ports = self.read_portchannel_ports()
-        self.vlan_ports = self.read_vlan_ports()
+        self.vlan_ip_range = ast.literal_eval(self.test_params['vlan_ip_range'])
+        self.ports_per_vlan, self.portchannel_ports = self.read_vlan_portchannel_ports()
+        self.vlan_ports = []
+        for ports in self.ports_per_vlan.values():
+            self.vlan_ports += ports
         if self.sad_oper:
             self.build_peer_mapping()
             self.test_params['vlan_if_port'] = self.build_vlan_if_port_mapping()
 
-        self.vlan_ip_range = self.test_params['vlan_ip_range']
         self.default_ip_range = self.test_params['default_ip_range']
 
         self.limit = datetime.timedelta(seconds=self.test_params['reboot_limit_in_seconds'])
@@ -701,16 +731,17 @@ class ReloadTest(BaseTest):
         self.ping_dut_packet = str(packet)
 
     def generate_arp_ping_packet(self):
-        vlan_ip_range = self.test_params['vlan_ip_range']
+        vlan = next(k for k, v in self.ports_per_vlan.items() if v)
+        vlan_ip_range = self.vlan_ip_range[vlan]
 
-        vlan_port_canadiates = range(len(self.vlan_ports))
+        vlan_port_canadiates = range(len(self.ports_per_vlan[vlan]))
         vlan_port_canadiates.remove(0) # subnet prefix
         vlan_port_canadiates.remove(1) # subnet IP on dut
         src_idx  = random.choice(vlan_port_canadiates)
         vlan_port_canadiates.remove(src_idx)
         dst_idx  = random.choice(vlan_port_canadiates)
-        src_port = self.vlan_ports[src_idx]
-        dst_port = self.vlan_ports[dst_idx]
+        src_port = self.ports_per_vlan[vlan][src_idx]
+        dst_port = self.ports_per_vlan[vlan][dst_idx]
         src_addr = self.host_ip(vlan_ip_range, src_idx)
         dst_addr = self.host_ip(vlan_ip_range, dst_idx)
         src_mac  = self.hex_to_mac(self.vlan_host_map[src_port][src_addr])
@@ -760,9 +791,13 @@ class ReloadTest(BaseTest):
         self.reboot_start = None
         self.no_routing_start = None
         self.no_routing_stop = None
+        self.no_control_start = None
+        self.no_control_stop = None
         self.no_cp_replies = None
         self.upper_replies = []
         self.routing_always = False
+        self.total_disrupt_packets = None
+        self.total_disrupt_time = None
         self.ssh_jobs = []
         for addr in self.ssh_targets:
             q = Queue.Queue(1)
@@ -786,7 +821,58 @@ class ReloadTest(BaseTest):
         watcher = self.pool.apply_async(self.reachability_watcher)
         time.sleep(5)
 
-    def wait_until_reboot(self):
+    def get_warmboot_finalizer_state(self):
+        stdout, stderr, _ = self.dut_connection.execCommand('sudo systemctl is-active warmboot-finalizer.service')
+        if stderr:
+            self.fails['dut'].add("Error collecting Finalizer state. stderr: {}, stdout:{}".format(str(stderr), str(stdout)))
+            raise Exception("Error collecting Finalizer state. stderr: {}, stdout:{}".format(str(stderr), str(stdout)))
+        if not stdout:
+            self.log('Finalizer state not returned from DUT')
+            return ''
+
+        finalizer_state = stdout[0].strip()
+        return finalizer_state
+
+    def get_now_time(self):
+        stdout, stderr, _ = self.dut_connection.execCommand('date +"%Y-%m-%d %H:%M:%S"')
+        if stderr:
+            self.fails['dut'].add("Error collecting current date from DUT. stderr: {}, stdout:{}".format(str(stderr), str(stdout)))
+            raise Exception("Error collecting current date from DUT. stderr: {}, stdout:{}".format(str(stderr), str(stdout)))
+        if not stdout:
+            self.fails['dut'].add('Error collecting current date from DUT: empty value returned')
+            raise Exception('Error collecting current date from DUT: empty value returned')
+        return datetime.datetime.strptime(stdout[0].strip(), "%Y-%m-%d %H:%M:%S")
+
+    def check_warmboot_finalizer(self, finalizer_timeout):
+        self.wait_until_control_plane_up()
+        dut_datetime = self.get_now_time()
+        self.log('waiting for warmboot-finalizer service to become activating')
+        finalizer_state = self.get_warmboot_finalizer_state()
+
+        while finalizer_state != 'activating':
+            time.sleep(1)
+            dut_datetime_after_ssh = self.get_now_time()
+            time_passed = float(dut_datetime_after_ssh.strftime("%s")) - float(dut_datetime.strftime("%s"))
+            if time_passed > finalizer_timeout:
+                self.fails['dut'].add('warmboot-finalizer never reached state "activating"')
+                raise TimeoutError
+            finalizer_state = self.get_warmboot_finalizer_state()
+
+        self.log('waiting for warmboot-finalizer service to finish')
+        finalizer_state = self.get_warmboot_finalizer_state()
+        self.log('warmboot finalizer service state {}'.format(finalizer_state))
+        count = 0
+        while finalizer_state == 'activating':
+            finalizer_state = self.get_warmboot_finalizer_state()
+            self.log('warmboot finalizer service state {}'.format(finalizer_state))
+            time.sleep(10)
+            if count * 10 > int(self.test_params['warm_up_timeout_secs']):
+                self.fails['dut'].add('warmboot-finalizer.service did not finish')
+                raise TimeoutError
+            count += 1
+        self.log('warmboot-finalizer service finished')
+
+    def wait_until_control_plane_down(self):
         self.log("Wait until Control plane is down")
         self.timeout(self.wait_until_cpu_port_down, self.task_timeout, "DUT hasn't shutdown in {} seconds".format(self.task_timeout))
         if self.reboot_type == 'fast-reboot':
@@ -796,6 +882,12 @@ class ReloadTest(BaseTest):
             self.do_inboot_oper()
         self.reboot_start = datetime.datetime.now()
         self.log("Dut reboots: reboot start %s" % str(self.reboot_start))
+
+    def wait_until_control_plane_up(self):
+        self.log("Wait until Control plane is up")
+        self.timeout(self.wait_until_cpu_port_up, self.task_timeout, "DUT hasn't come back up in {} seconds".format(self.task_timeout))
+        self.no_control_stop = datetime.datetime.now()
+        self.log("Dut reboots: control plane up at %s" % str(self.no_control_stop))
 
     def handle_fast_reboot_health_check(self):
         self.log("Check that device is still forwarding data plane traffic")
@@ -813,6 +905,8 @@ class ReloadTest(BaseTest):
 
         try:
             async_cpu_up.get(timeout=self.task_timeout)
+            self.no_control_stop = self.cpu_state.get_state_time('up')
+            self.log("Control plane down stops %s" % str(self.no_control_stop))
         except TimeoutError as e:
             port_up_signal.set()
             self.log("DUT hasn't bootup in %d seconds" % self.task_timeout)
@@ -871,6 +965,7 @@ class ReloadTest(BaseTest):
 
         def wait_for_ssh_threads(signal):
             while any(thr.is_alive() for thr, _ in self.ssh_jobs) and not signal.is_set():
+                self.log('Waiting till SSH threads stop')
                 time.sleep(self.TIMEOUT)
 
             for thr, _ in self.ssh_jobs:
@@ -1045,6 +1140,30 @@ class ReloadTest(BaseTest):
 
         self.log("="*50)
 
+        if self.no_routing_stop and self.no_routing_start:
+            dataplane_downtime = (self.no_routing_stop - self.no_routing_start).total_seconds()
+        else:
+            dataplane_downtime = ""
+        if self.total_disrupt_time:
+            # Add total downtime (calculated in physical warmboot test using packet disruptions)
+            dataplane_downtime = self.total_disrupt_time
+        dataplane_report = dict()
+        dataplane_report["downtime"] = str(dataplane_downtime)
+        dataplane_report["lost_packets"] = str(self.total_disrupt_packets) \
+            if self.total_disrupt_packets is not None else ""
+        controlplane_report = dict()
+
+        if self.no_control_stop and self.no_control_start:
+            controlplane_downtime = (self.no_control_stop - self.no_control_start).total_seconds()
+        else:
+            controlplane_downtime = ""
+        controlplane_report["downtime"] = str(controlplane_downtime)
+        controlplane_report["arp_ping"] = "" # TODO
+        self.report["dataplane"] = dataplane_report
+        self.report["controlplane"] = controlplane_report
+        with open(self.report_file_name, 'w') as reportfile:
+            json.dump(self.report, reportfile)
+
         self.assertTrue(is_good, errors)
 
     def runTest(self):
@@ -1059,8 +1178,17 @@ class ReloadTest(BaseTest):
             thr = threading.Thread(target=self.reboot_dut)
             thr.setDaemon(True)
             thr.start()
+            self.wait_until_control_plane_down()
+            self.no_control_start = self.cpu_state.get_state_time('down')
 
-            self.wait_until_reboot()
+            if 'warm-reboot' in self.reboot_type:
+                finalizer_timeout = 60 + self.test_params['reboot_limit_in_seconds']
+                thr = threading.Thread(target=self.check_warmboot_finalizer,\
+                    kwargs={'finalizer_timeout': finalizer_timeout})
+                thr.setDaemon(True)
+                thr.start()
+                self.warmboot_finalizer_thread = thr
+
             if self.kvm_test:
                 self.handle_advanced_reboot_health_check_kvm()
                 self.handle_post_reboot_health_check_kvm()
@@ -1070,6 +1198,16 @@ class ReloadTest(BaseTest):
                 if 'warm-reboot' in self.reboot_type:
                     self.handle_warm_reboot_health_check()
                 self.handle_post_reboot_health_check()
+
+            if 'warm-reboot' in self.reboot_type:
+                total_timeout = finalizer_timeout + self.test_params['warm_up_timeout_secs']
+                start_time = datetime.datetime.now()
+                # Wait until timeout happens OR the IO test completes
+                while ((datetime.datetime.now() - start_time).seconds < total_timeout) and\
+                    self.warmboot_finalizer_thread.is_alive():
+                        time.sleep(0.5)
+                if self.warmboot_finalizer_thread.is_alive():
+                    self.fails['dut'].add("Warmboot Finalizer hasn't finished for {} seconds. Finalizer state: {}".format(total_timeout, self.get_warmboot_finalizer_state()))
 
             # Check sonic version after reboot
             self.check_sonic_version_after_reboot()
@@ -1123,11 +1261,14 @@ class ReloadTest(BaseTest):
         time.sleep(self.reboot_delay)
 
         self.log("Rebooting remote side")
-        stdout, stderr, return_code = self.dut_connection.execCommand("sudo " + self.reboot_type)
+        stdout, stderr, return_code = self.dut_connection.execCommand("sudo " + self.reboot_type, timeout=30)
         if stdout != []:
             self.log("stdout from %s: %s" % (self.reboot_type, str(stdout)))
         if stderr != []:
             self.log("stderr from %s: %s" % (self.reboot_type, str(stderr)))
+            self.fails['dut'].add("{} failed with error {}".format(self.reboot_type, stderr))
+            thread.interrupt_main()
+            raise Exception("{} failed with error {}".format(self.reboot_type, stderr))
         self.log("return code from %s: %s" % (self.reboot_type, str(return_code)))
 
         # Note: a timeout reboot in ssh session will return a 255 code
@@ -1147,8 +1288,10 @@ class ReloadTest(BaseTest):
         return stdout, stderr, return_code
 
     def peer_state_check(self, ip, queue):
-        ssh = Arista(ip, queue, self.test_params)
+        self.log('SSH thread for VM {} started'.format(ip))
+        ssh = Arista(ip, queue, self.test_params, log_cb=self.log)
         self.fails[ip], self.info[ip], self.cli_info[ip], self.logs_info[ip] = ssh.run()
+        self.log('SSH thread for VM {} finished'.format(ip))
 
     def wait_until_cpu_port_down(self, signal):
         while not signal.is_set():
@@ -1219,7 +1362,7 @@ class ReloadTest(BaseTest):
         self.sniffer_started.clear()
 
     def save_sniffed_packets(self):
-        filename = "/tmp/capture_%s.pcap" % self.sad_oper if self.sad_oper is not None else "/tmp/capture.pcap"
+        filename = "/tmp/capture_%s.pcap" % self.logfile_suffix if self.logfile_suffix is not None else "/tmp/capture.pcap"
         if self.packets:
             scapyall.wrpcap(filename, self.packets)
             self.log("Pcap file dumped to %s" % filename)
@@ -1373,7 +1516,7 @@ class ReloadTest(BaseTest):
             self.log("Gaps in forwarding not found.")
         self.log("Total incoming packets captured %d" % received_counter)
         if packets:
-            filename = '/tmp/capture_filtered.pcap' if self.sad_oper is None else "/tmp/capture_filtered_%s.pcap" % self.sad_oper
+            filename = '/tmp/capture_filtered.pcap' if self.logfile_suffix is None else "/tmp/capture_filtered_%s.pcap" % self.logfile_suffix
             scapyall.wrpcap(filename, packets)
             self.log("Filtered pcap dumped to %s" % filename)
 

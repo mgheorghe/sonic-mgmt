@@ -32,7 +32,7 @@ class ControlPlaneBaseTest(BaseTest):
     MAX_PORTS = 128
     PPS_LIMIT = 600
     PPS_LIMIT_MIN = PPS_LIMIT * 0.9
-    PPS_LIMIT_MAX = PPS_LIMIT * 1.1
+    PPS_LIMIT_MAX = PPS_LIMIT * 1.3
     NO_POLICER_LIMIT = PPS_LIMIT * 1.4
     TARGET_PORT = "3"  # Historically we have port 3 as a target port
     TASK_TIMEOUT = 300  # Wait up to 5 minutes for tasks to complete
@@ -54,6 +54,7 @@ class ControlPlaneBaseTest(BaseTest):
 
         self.myip = test_params.get('myip', None)
         self.peerip = test_params.get('peerip', None)
+        self.default_server_send_rate_limit_pps = test_params.get('send_rate_limit', 2000)
 
         self.needPreSend = None
 
@@ -132,6 +133,10 @@ class ControlPlaneBaseTest(BaseTest):
         while datetime.datetime.now() < end_time:
             testutils.send_packet(self, send_intf, packet)
             send_count += 1
+
+            # Depending on the server/platform combination it is possible for the server to
+            # overwhelm the DUT, so we add an artificial delay here to rate-limit the server.
+            time.sleep(1.0 / float(self.default_server_send_rate_limit_pps))
 
         self.log("Sent out %d packets in %ds" % (send_count, self.DEFAULT_SEND_INTERVAL_SEC))
 

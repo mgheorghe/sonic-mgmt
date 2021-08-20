@@ -195,21 +195,21 @@ class SflowTest(BaseTest):
         logging.info("packets collected from interfaces ifindex : %s" %data['flow_port_count'])
         logging.info("Expected number of packets from each port : %s to %s" % (100 * 0.6, 100 * 1.4))
         for port in self.interfaces:
-            ifindex = self.interfaces[port]['ifindex']
-            logging.info("....%s : Flow packets collected from port %s = %s"%(collector,port,data['flow_port_count'][ifindex]))
+            index = self.interfaces[port]['port_index'] ##NOTE: hsflowd is sending index instead of ifindex.
+            logging.info("....%s : Flow packets collected from port %s = %s"%(collector,port,data['flow_port_count'][index]))
             if port in self.enabled_intf :
                 # Checking samples with tolerance of 40 % as the sampling is random and  not deterministic.Over many samples it should converge to a mean of 1:N
                 # Number of packets sent = 100 * sampling rate of interface
-                self.assertTrue(100 * 0.6 <= data['flow_port_count'][ifindex] <= 100 * 1.4 ,
-                        "Expected Number of samples are not collected  collected from Interface %s  in collector %s , Received %s" %(port,collector,data['flow_port_count'][ifindex]))
+                self.assertTrue(100 * 0.6 <= data['flow_port_count'][index] <= 100 * 1.4 ,
+                        "Expected Number of samples are not collected  collected from Interface %s  in collector %s , Received %s" %(port,collector,data['flow_port_count'][index]))
             else:
-                self.assertTrue(data['flow_port_count'][ifindex] == 0 ,
+                self.assertTrue(data['flow_port_count'][index] == 0 ,
                                "Packets are collected from Non Sflow interface %s in collector %s"%(port,collector))
 
     #---------------------------------------------------------------------------
 
     def sendTraffic(self):
-        self.src_ip_list = ['192.158.8.1','192.168.16.1', '192.168.24.1','192.168.32.1']
+        src_ip_addr_templ = '192.168.{}.1'
         ip_dst_addr = '192.168.0.4'
         src_mac = self.dataplane.get_mac(0, 0)
         pktlen=100
@@ -217,7 +217,7 @@ class SflowTest(BaseTest):
         for j in range(0, 100, 1):
             index = 0
             for intf in self.interfaces:
-                ip_src_addr = str(self.src_ip_list[index])
+                ip_src_addr = src_ip_addr_templ.format(str(8 * index))
                 src_port = self.interfaces[intf]['ptf_indices']
                 dst_port = self.dst_port
                 tcp_pkt = simple_tcp_packet(pktlen=pktlen,
@@ -254,7 +254,7 @@ class SflowTest(BaseTest):
                time.sleep(self.polling_int)
         else:
            self.sendTraffic()
-           time.sleep(5)
+           time.sleep(10) # For Test Stability
         self.stop_collector = True
         thr1.join()
         thr2.join()

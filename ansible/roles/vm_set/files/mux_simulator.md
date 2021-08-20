@@ -62,6 +62,28 @@ sudo systemctl restart mux-simulator
 The mux-simulator service is shared by multiple dualtor test setups using the same test server. Any dualtor test setups using it is recorded in a persistent file on test server `{{ root_path }}/mux_simulator.setups.txt`. During `testbed-cli.sh add-topo`, the vm set name of current setup will be added into it. During `testbed-cli.sh remove-topo`, the vm set name of current setup will be removed from it. When the file is empty, the mux-simulator service will be stopped.
 
 
+## How to troubleshoot mux simulator
+By default, the mux-simulator service output its logs to `/tmp/mux_simulator.log`. Default debug level is INFO. If DEBUG level logging is needed for troubleshooting, please follow below steps:
+
+1. Stop the mux-simulator service.
+```
+sudo systemctl stop mux-simulator
+```
+2. Find out path of the mux_simulator.py script from the mux-simulator systemd service file.
+```
+cat /etc/systemd/system/mux-simulator.service
+```
+3. Manually run the mux_simulator.py script with `-v` option to **turn on DEBUG level logging**.
+```
+ sudo /usr/bin/env python /home/azure/veos-vm/mux_simulator.py 8080 -v
+```
+4. Try to call the mux simulator HTTP APIs and check the log file `/tmp/mux_simulator.log` for detailed logging.
+5. After troubleshooting is done, stop the manually started mux_simulator.py script (for example: Ctrl+C).
+6. Start the mux-simulator service again.
+```
+sudo systemctl start mux-simulator
+```
+
 ## APIs
 The APIs using json for data exchange.
 
@@ -70,43 +92,47 @@ The APIs using json for data exchange.
 * mux_status
 ```
 {
-  "active_port": "enp59s0f1.3216",
+  "active_port": "enp59s0f1.3532",
   "active_side": "upper_tor",
-  "bridge": "mbr-vms17-8-0",
+  "bridge": "mbr-vms21-3-0",
+  "flap_counter": 0,
   "flows": {
-    "enp59s0f1.3216": [
+    "enp59s0f1.3532": [
       {
         "action": "output",
-        "out_port": "muxy-vms17-8-0"
+        "out_port": "muxy-vms21-3-0"
       }
     ],
-    "muxy-vms17-8-0": [
+    "muxy-vms21-3-0": [
       {
         "action": "output",
-        "out_port": "enp59s0f1.3272"
+        "out_port": "enp59s0f1.3532"
       },
       {
         "action": "output",
-        "out_port": "enp59s0f1.3216"
+        "out_port": "enp59s0f1.3588"
       }
     ]
   },
-  "port_index": "0",
+  "healthy": true,
+  "port_index": 0,
   "ports": {
-    "nic": "muxy-vms17-8-0",
-    "upper_tor": "enp59s0f1.3216",
-    "lower_tor": "enp59s0f1.3272"
+    "lower_tor": "enp59s0f1.3588",
+    "nic": "muxy-vms21-3-0",
+    "upper_tor": "enp59s0f1.3532"
   },
-  "vm_set": "vms17-8"
+  "standby_port": "enp59s0f1.3588",
+  "standby_side": "lower_tor",
+  "vm_set": "vms21-3"
 }
 ```
 
 * all_mux_status
 ```
 {
-    "mbr-vms17-8-0": <mux_status>,
-    "mbr-vms17-8-2": <mux_status>,
-    "mbr-vms17-8-3": <mux_status>,
+    "mbr-vms21-3-0": <mux_status>,
+    "mbr-vms21-3-1": <mux_status>,
+    "mbr-vms21-3-2": <mux_status>,
     ...
 }
 ```
@@ -116,9 +142,13 @@ The APIs using json for data exchange.
 {
     "err_msg": <msg>
 }
+
+In case of the mux_simulator.py script is started with "-v" option, an extra "traceback" field will be included in the json response for troubleshooting.
 ```
 
 ### GET `/mux/<vm_set>/<port_index>`
+
+Get status of mux bridge specified by `vm_set` and `port_index`.
 
 * `vm_set`: Value of column `group_name` in `testbed.csv` of current testbed.
 * `port_index`: Index of DUT front panel port. Starting from `0`.
@@ -126,7 +156,10 @@ The APIs using json for data exchange.
 Response: `mux_status`
 
 ### POST `/mux/<vm_set>/<port_index>`
-Post json data format:
+
+Toggle active/standby side of mux bridge specified by `vm_set` and `port_index`.
+
+Format of json data required in POST:
 ```
 {
     "active_side": "upper_tor|lower_tor|toggle|random"
@@ -141,11 +174,14 @@ Post json data format:
 Response: `mux_status`
 
 ### GET `/mux/<vm_set>`
+
+Get status of all mux bridges belong to `vm_set`.
+
 Response: `all_mux_status`
 
 ### POST `/mux/<vm_set>`
 
-Post json data format:
+Format of json data required in POST:
 ```
 {
     "active_side": "upper_tor|lower_tor|toggle|random"
@@ -157,17 +193,81 @@ Response: `all_mux_status`
 
 ### POST `/mux/<vm_set>/<port_index>/<action>`
 
-* `action`: one of: `output`, `drop`.
+Set flow action to `output` or `drop` for specified interfaces on mux bridge specified by `vm_set` and `port_index`.
 
-Post json data format:
+* `action`: one of: `output`, `drop`, and `reset`
+
+#### When `action` is `output` or `drop`
+
+Format of json data required in POST:
 ```
 {
-    "out_ports": ["nic", "upper_tor", "lower_tor"],
+    "out_sides": ["nic", "upper_tor", "lower_tor"],
 }
 ```
 
-* `out_ports` is a list. It can contain single or multiple items from: `nic`, `upper_tor`, `lower_tor`.
+* `out_sides` is a list. It can contain single or multiple items from: `nic`, `upper_tor`, `lower_tor`.
 
-This API is to set specified out ports to `output` or `drop`.
+This API is to set specified out ports to `output` or `drop` when action is `output` or `drop`.
 
 Response: `mux_status`
+
+#### When `action` is `reset`
+
+No json data required in POST. This API is to recover the flows of current mux bridge to known good state:
+* Upstream flow: forward all packets received by `nic` to both `upper_tor` and `lower_tor`
+* Downstream flow: forward packets received by current active tor interface to `nic`. In case current active port is unknown, randomly choose an active interface from `upper_tor` and `lower_tor`. Then setup the downstream flow.
+
+Response: `mux_status`
+
+### POST `/mux/<vm_set>/reset`
+
+Recover flows of all mux bridges belong to `vm_set` to known good state.
+
+No json data required in POST. This API is to recover flows of all the mux bridges belong to the `vm_set` to known good state:
+* Upstream flow: forward all packets received by `nic` to both `upper_tor` and `lower_tor`
+* Downstream flow: forward packets received by current active tor interface to `nic`. In case current active port is unknown, randomly choose an active interface from `upper_tor` and `lower_tor`. Then setup the downstream flow.
+
+Response: `all_mux_status`
+
+### GET `/mux/<vm_set>/port_index>/flap_counter`
+
+Get flap counter of bridge specified by `vm_set` and `port_index`.
+
+Response:
+```
+{
+  <mux_bridge_name>: <flap_counter>
+}
+```
+
+Example:
+```
+{
+  "mbr-vms21-3-0": 3
+}
+```
+
+### GET `/mux/<vm_set>/flap_counter`
+
+Get flap counter of all bridges belong to `vm_set`.
+
+Response:
+```
+{
+  <mux_bridge_name>: <flap_counter>,
+  <mux_bridge_name>: <flap_counter>,
+  ...
+}
+```
+
+Example:
+```
+{
+  "mbr-vms21-3-0": 0,
+  "mbr-vms21-3-1": 0,
+  "mbr-vms21-3-10": 1,
+  "mbr-vms21-3-11": 0,
+  ...
+}
+```

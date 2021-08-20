@@ -1,9 +1,13 @@
-import pytest
-import logging
 import json
-import time
+import logging
 import os
+import pytest
+import random
+import time
 
+from collections import defaultdict
+
+from jinja2 import Template
 from common.helpers.assertions import pytest_require
 
 logger = logging.getLogger(__name__)
@@ -13,6 +17,13 @@ pytestmark = [
     pytest.mark.topology('util'),
     pytest.mark.disable_loganalyzer
 ]
+
+
+def test_cleanup_cache():
+    folder = '_cache'
+    if os.path.exists(folder):
+        os.system('rm -rf {}'.format(folder))
+
 
 def test_cleanup_testbed(duthosts, enum_dut_hostname, request, ptfhost):
     duthost = duthosts[enum_dut_hostname]
@@ -25,6 +36,12 @@ def test_cleanup_testbed(duthosts, enum_dut_hostname, request, ptfhost):
         duthost.shell("sudo rm -f /var/core/*", executable="/bin/bash")
         # Remove old dump files.
         duthost.shell("sudo rm -rf /var/dump/*", executable="/bin/bash")
+
+        # delete other log files that are more than a day old,
+        # this step is needed to remove some backup files or the debug files added by users
+        # which can create issue for log-analyzer
+        duthost.shell("sudo find /var/log/ -mtime +1 | sudo xargs rm -f",
+            module_ignore_errors=True, executable="/bin/bash")
 
     # Cleanup rsyslog configuration file that might have damaged by test_syslog.py
     if ptfhost:
@@ -42,7 +59,28 @@ def test_disable_container_autorestart(duthosts, enum_dut_hostname, disable_cont
 def collect_dut_info(dut):
     status = dut.show_interface(command='status')['ansible_facts']['int_status']
     features, _ = dut.get_feature_status()
-    return { 'intf_status' : status, 'features' : features }
+
+    if dut.sonichost.is_multi_asic:
+        front_end_asics = dut.get_frontend_asic_ids()
+        back_end_asic = dut.get_backend_asic_ids()
+
+    asic_services = defaultdict(list)
+    for service in dut.sonichost.DEFAULT_ASIC_SERVICES:
+        # for multi ASIC randomly select one frontend ASIC
+        # and one backend ASIC
+        if dut.sonichost.is_multi_asic:
+            fe = random.choice(front_end_asics)
+            be = random.choice(back_end_asic)
+            asic_services[service] = [
+                dut.get_docker_name(service, asic_index=fe),
+                dut.get_docker_name(service, asic_index=be)
+            ]
+
+    return {
+        "intf_status": status,
+        "features": features,
+        "asic_services": asic_services,
+    }
 
 
 def test_update_testbed_metadata(duthosts, tbinfo):
@@ -74,15 +112,10 @@ def test_disable_rsyslog_rate_limit(duthosts, enum_dut_hostname):
         # We don't want to fail here because it's an util
         logging.warn("Failed to retrieve feature status")
         return
-    cmd_disable_rate_limit = r"docker exec -i {} sed -i 's/^\$SystemLogRateLimit/#\$SystemLogRateLimit/g' /etc/rsyslog.conf"
-    cmd_reload = r"docker exec -i {} supervisorctl restart rsyslogd"
     for feature_name, state in features_dict.items():
-        if state == "disabled":
+        if 'enabled' not in state:
             continue
-        cmds = []
-        cmds.append(cmd_disable_rate_limit.format(feature_name))
-        cmds.append(cmd_reload.format(feature_name))
-        duthost.shell_cmds(cmds=cmds)
+        duthost.disable_syslog_rate_limit(feature_name)
 
 def collect_dut_lossless_prio(dut):
     config_facts = dut.config_facts(host=dut.hostname, source="running")['ansible_facts']
@@ -164,6 +197,51 @@ def test_update_saithrift_ptf(request, ptfhost):
         pytest.skip("Download failed/error while installing python saithrift package")
     ptfhost.shell("dpkg -i {}".format(os.path.join("/root", pkg_name)))
     logging.info("Python saithrift package installed successfully")
+
+def test_inject_y_cable_simulator_client(duthosts, enum_dut_hostname, tbinfo):
+    '''
+    Inject the Y cable simulator client to both ToRs in a dualtor testbed
+    '''
+    if 'dualtor' not in tbinfo['topo']['name']:
+        return
+
+    logger.info("Injecting Y cable simulator client to {}".format(enum_dut_hostname))
+    dut = duthosts[enum_dut_hostname]
+    mux_simulator_port = 8080
+    y_cable_sim_client_template_path = 'templates/y_cable_simulator_client.j2'
+
+    server_num = tbinfo['server'].split('_')[-1]
+    mux_simulator_server = dut.host.options['inventory_manager'] \
+                                    .get_hosts(pattern='vm_host_{}'.format(server_num))[0] \
+                                    .get_vars()['ansible_host']
+
+    template_args = {
+        'duts_map': json.dumps(tbinfo['duts_map'], sort_keys=True, indent=4),
+        'mux_simulator_server': mux_simulator_server,
+        'mux_simulator_port': mux_simulator_port,
+        'dut_name': enum_dut_hostname,
+        'group_name': tbinfo['group-name']
+    }
+
+    with open(y_cable_sim_client_template_path) as f:
+        template = Template(f.read())
+
+    rendered = template.render(template_args)
+
+    dut.copy(content=rendered, dest='/tmp/y_cable_simulator_client.py')
+    dut.shell('cp /tmp/y_cable_simulator_client.py /usr/lib/python3/dist-packages/')
+    dut.shell('docker cp /tmp/y_cable_simulator_client.py pmon:/usr/lib/python3/dist-packages/')
+    dut.shell('systemctl restart pmon')
+
+def test_stop_pfcwd(duthosts, enum_dut_hostname, tbinfo):
+    '''
+     Stop pfcwd on dual tor testbeds
+    '''
+    if 'dualtor' not in tbinfo['topo']['name']:
+        pytest.skip("Skip this test on non dualTOR testbeds")
+
+    dut = duthosts[enum_dut_hostname]
+    dut.command('pfcwd stop')
 
 """
     Separator for internal pretests.
