@@ -1,6 +1,6 @@
-# SONiC Testbed with Keysight IxNetwork as Traffic Generator
+# SONiC Testbed with Keysight IxNetwork/IxLoad as Traffic Generator
 
-This section gives an overview of the stand-alone testbed topology where SONiC DUT is directly connected with Keysight’s protocol emulator and traffic generator (IxNetwork).
+This section gives an overview of the stand-alone testbed topology where SONiC DUT is directly connected with Keysight’s protocol emulator and traffic generator (IxNetwork/IxLoad).
 
 ## Physical Topology
 
