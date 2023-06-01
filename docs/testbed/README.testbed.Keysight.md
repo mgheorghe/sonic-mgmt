@@ -18,7 +18,7 @@ Based on test need there may be multiple topologies possible as shown below :
 ![](img/multiple-ixnetwork.PNG)
 
 - SONiC-DASH Topology
-![](img/sonic-dash-topology.png)
+![](img/sonic-dash-topology.svg)
 
 ## Topology Description
 
@@ -98,21 +98,21 @@ Note : The folders within /opt/container/one/ should to be created with read and
 
 ## Deploy IxLoad API Server
 ### Download IxLoad API Server vm image
-1. Download IxLoad KVM (VM deployment) from [ here ](https://downloads.ixiacom.com/support/downloads_and_updates/public/ixload/9.20/IxLoad_Web_9.20_KVM.sh)
+1. Download IxLoad KVM (VM deployment) from [ here ](https://downloads.ixiacom.com/support/downloads_and_updates/public/ixload/9.30/IxLoad_Web_9.30_KVM.sh)
 
-2. Copy IxLoad_Web_9.20_KVM.sh to /vms/ on your testbed server.
+2. Copy IxLoad_Web_9.30_KVM.sh to /vms/ on your testbed server.
 
 
 3. Decompress the file (it may take a few minutes):
 ```
 cd /vms
-./IxLoad_Web_9.20_KVM.sh -z -e Y
+./IxLoad_Web_9.30_KVM.sh -z -e Y
 ```
 
 ### Run IxLoad API Server 
 
 1. Load the image to kvm:
 ```
-virt-install --name IxLoad-920 --memory 16000 --vcpus 8 --disk /vms/9.20.0.279_ixload/IxLoad_Web_9.20_KVM.qcow2,bus=sata --import --os-variant ubuntu20.04 --network bridge=br1,model=virtio
+virt-install --name IxLoad-930 --memory 16000 --vcpus 8 --disk /vms/9.30.0.331_ixload/IxLoad_Web_9.30_KVM.qcow2,bus=sata --import --os-variant ubuntu20.04 --network bridge=br1,model=virtio
 ```
-2. Set the VM to autostart : `virsh autostart IxLoad-920`
+2. Set the VM to autostart : `virsh autostart IxLoad-930`
