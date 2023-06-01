@@ -4,21 +4,16 @@ This module tests extended ARP features including gratuitous ARP and proxy ARP
 import logging
 import ptf.testutils as testutils
 import pytest
-import ptf.mask as mask
-import ptf.packet as packet
 
-from scapy.all import Ether, IPv6, ICMPv6ND_NS, ICMPv6ND_NA, \
-                      ICMPv6NDOptSrcLLAddr, in6_getnsmac, \
-                      in6_getnsma, inet_pton, inet_ntop, socket
-from tests.arp.arp_utils import clear_dut_arp_cache, increment_ipv6_addr, increment_ipv4_addr
+from tests.arp.arp_utils import clear_dut_arp_cache, increment_ipv4_addr
 from tests.common.helpers.assertions import pytest_assert, pytest_require
-from tests.common.fixtures.ptfhost_utils import change_mac_addresses
 
 pytestmark = [
     pytest.mark.topology('t0', 'dualtor')
 ]
 
 logger = logging.getLogger(__name__)
+
 
 def test_arp_garp_enabled(rand_selected_dut, garp_enabled, ip_and_intf_info, intfs_for_test, config_facts, ptfadapter):
     """
@@ -35,26 +30,27 @@ def test_arp_garp_enabled(rand_selected_dut, garp_enabled, ip_and_intf_info, int
     _, _, intf1_index, _, = intfs_for_test
 
     pkt = testutils.simple_arp_packet(pktlen=60,
-                                eth_dst='ff:ff:ff:ff:ff:ff',
-                                eth_src=arp_src_mac,
-                                vlan_pcp=0,
-                                arp_op=2,
-                                ip_snd=arp_request_ip,
-                                ip_tgt=arp_request_ip,
-                                hw_snd=arp_src_mac,
-                                hw_tgt='ff:ff:ff:ff:ff:ff'
-                            )
+                                      eth_dst='ff:ff:ff:ff:ff:ff',
+                                      eth_src=arp_src_mac,
+                                      vlan_pcp=0,
+                                      arp_op=2,
+                                      ip_snd=arp_request_ip,
+                                      ip_tgt=arp_request_ip,
+                                      hw_snd=arp_src_mac,
+                                      hw_tgt='ff:ff:ff:ff:ff:ff'
+                                      )
 
     clear_dut_arp_cache(duthost)
 
     logger.info("Sending GARP for target {} from PTF interface {}".format(arp_request_ip, intf1_index))
     testutils.send_packet(ptfadapter, intf1_index, pkt)
 
-    vlan_intfs = config_facts['VLAN_INTERFACE'].keys()
+    vlan_intfs = list(config_facts['VLAN_INTERFACE'].keys())
 
     switch_arptable = duthost.switch_arptable()['ansible_facts']
     pytest_assert(switch_arptable['arptable']['v4'][arp_request_ip]['macaddress'].lower() == arp_src_mac.lower())
     pytest_assert(switch_arptable['arptable']['v4'][arp_request_ip]['interface'] in vlan_intfs)
+
 
 def test_proxy_arp(proxy_arp_enabled, ip_and_intf_info, ptfadapter, packets_for_test):
     """
@@ -64,7 +60,7 @@ def test_proxy_arp(proxy_arp_enabled, ip_and_intf_info, ptfadapter, packets_for_
     """
     pytest_require(proxy_arp_enabled, 'Proxy ARP not enabled for all VLANs')
 
-    ptf_intf_ipv4_addr, _, ptf_intf_ipv6_addr, _, ptf_intf_index  = ip_and_intf_info
+    ptf_intf_ipv4_addr, _, ptf_intf_ipv6_addr, _, ptf_intf_index = ip_and_intf_info
 
     ip_version, outgoing_packet, expected_packet = packets_for_test
 
