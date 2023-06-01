@@ -32,6 +32,7 @@ The IxNetwork API Server docker is installed in the Testbed server along with so
 ### Network connections
 - IxNetwork API server is connected to IxNetwork via the management port.
 - IxNetwork test ports are directly connected to single or multiple DUTs.
+- for DASH testbed CloudStorm and Novus ports are connected into a UHD100T32 and that is connected to the smartswitch.
 
 ## Deploy IxNetwork API Server
 
