@@ -42,8 +42,6 @@ all:
             server_1:
               ansible_host: 10.254.0.1
               ansible_hostv6: 2001:db7:1::1/64
-            server_keysight:
-              ansible_host: 10.36.78.1    # UPDATE: IP of the sonic-mgmt host / PTF server
         pdu:
           hosts:
             pdu-1:
@@ -69,7 +67,8 @@ all:
         ptf_vms5-1:
           ansible_host: 10.255.0.183
         ptf_keysight-ss01:
-          ansible_host: 10.36.78.200    # UPDATE: IP of PTF Docker container on server_keysight
+          ansible_host: 127.0.0.1
+          ansible_port: 2222
 
 sonic_sn2700_40:
   vars:
@@ -318,3 +317,12 @@ sonic_keysight_dpu:
   hosts:
     SONIC01DPU:
       ansible_host: 169.254.200.1    # DPU 0 midplane IP
+
+# server_keysight must be a group (not a host) — the framework calls
+# im.groups.get("server_keysight") to discover the test-server host.
+server_keysight:
+  hosts:
+    sonic-mgmt-keysight:
+      ansible_host: 10.36.79.161
+      ansible_user: dash
+      ansible_ssh_pass: "dash"
