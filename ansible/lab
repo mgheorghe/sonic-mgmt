@@ -16,6 +16,8 @@ all:
             sonic_msft_sup:
             sonic_msft_lc_100G:
             sonic_cisco_vs:
+            sonic_keysight_smartswitch:
+            sonic_keysight_dpu:
         fanout:
           hosts:
             str-7260-10:
@@ -40,6 +42,8 @@ all:
             server_1:
               ansible_host: 10.254.0.1
               ansible_hostv6: 2001:db7:1::1/64
+            server_keysight:
+              ansible_host: 10.36.78.1    # UPDATE: IP of the sonic-mgmt host / PTF server
         pdu:
           hosts:
             pdu-1:
@@ -64,6 +68,8 @@ all:
           ansible_host: 10.255.0.180
         ptf_vms5-1:
           ansible_host: 10.255.0.183
+        ptf_keysight-ss01:
+          ansible_host: 10.36.78.200    # UPDATE: IP of PTF Docker container on server_keysight
 
 sonic_sn2700_40:
   vars:
@@ -284,3 +290,31 @@ sonic_cisco_vs:
       ansible_user: admin
       ansible_ssh_user: admin
       ansible_altpassword: admin
+
+# ─── Keysight SmartSwitch lab ────────────────────────────────────────────────
+
+sonic_keysight_smartswitch:
+  vars:
+    # UPDATE hwsku to match the actual platform (e.g. Mellanox-SN4280-O28,
+    # Cisco-8102-28FH-DPU-O, etc.)
+    hwsku: Mellanox-SN4280-O28
+    iface_speed: 400000
+    ansible_ssh_user: admin
+    ansible_ssh_pass: password
+    ansible_altpassword: YourPaSsWoRd
+  hosts:
+    keysight-ss01:
+      ansible_host: 10.36.78.150
+
+# DPU hosts are SONiC instances accessed via the midplane network.
+# The last octet of the midplane IP determines dpu_index: 169.254.200.N → dpu(N-1)
+# NAT port-forwarding must be enabled on the NPU before tests run:
+#   sudo sonic-dpu-mgmt-traffic.sh inbound -e --dpus all --ports 5021,5022,5023,5024
+sonic_keysight_dpu:
+  vars:
+    ansible_ssh_user: admin
+    ansible_ssh_pass: password
+    ansible_altpassword: YourPaSsWoRd
+  hosts:
+    SONIC01DPU:
+      ansible_host: 169.254.200.1    # DPU 0 midplane IP

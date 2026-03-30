@@ -1,0 +1,20 @@
+[
+    {"DASH_VNET_TABLE:vnet-2055": {"vni": 2055, "guid": "26aedea9-8b0c-e285-b815-3c555a0e3ac0"}, "OP": "SET"},
+    {
+        "DASH_ENI_TABLE:eni-1055": {
+            "eni_id": "eni-1055",
+            "mac_address": "00:1A:CA:28:00:01",
+            "underlay_ip": "221.1.0.55",
+            "admin_state": "enabled",
+            "vnet": "vnet-2055",
+            "pl_underlay_sip": "221.0.0.1",
+            "pl_sip_encoding": "::1f04:64:ff71:0:0/::ffff:ffff:ffff:0:0",
+            "trusted_vnis_list": [{"value": 1000}]
+        },
+        "OP": "SET"
+    },
+    {"DASH_ROUTE_GROUP_TABLE:route-group-1055": {"guid": "6a6f7ff8-3a67-a23b-4cd9-0b3aea2f3362", "version": "1"}, "OP": "SET"},
+    {"DASH_ROUTE_TABLE:route-group-1055:14.192.0.0/10": {"routing_type": "vnet", "vnet": "vnet-2055"}, "OP": "SET"},
+    {"DASH_ROUTE_TABLE:route-group-1055:14.193.0.1/32": {"routing_type": "vnet", "vnet": "vnet-2055"}, "OP": "SET"},
+    {"DASH_ROUTE_RULE_TABLE:eni-1055:100:221.2.0.55/32": {"action_type": "decap", "priority": 0}, "OP": "SET"}
+]

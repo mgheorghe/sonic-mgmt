@@ -1,0 +1,20 @@
+[
+    {"DASH_VNET_TABLE:vnet-2040": {"vni": 2040, "guid": "c4fe1718-31ca-fccf-dde8-425f119c5f11"}, "OP": "SET"},
+    {
+        "DASH_ENI_TABLE:eni-1040": {
+            "eni_id": "eni-1040",
+            "mac_address": "00:1A:C8:C0:00:01",
+            "underlay_ip": "221.1.0.40",
+            "admin_state": "enabled",
+            "vnet": "vnet-2040",
+            "pl_underlay_sip": "221.0.0.1",
+            "pl_sip_encoding": "::1004:64:ff71:0:0/::ffff:ffff:ffff:0:0",
+            "trusted_vnis_list": [{"value": 1000}]
+        },
+        "OP": "SET"
+    },
+    {"DASH_ROUTE_GROUP_TABLE:route-group-1040": {"guid": "3e1b1e14-cc7a-df1a-8019-7686a30e6618", "version": "1"}, "OP": "SET"},
+    {"DASH_ROUTE_TABLE:route-group-1040:11.0.0.0/10": {"routing_type": "vnet", "vnet": "vnet-2040"}, "OP": "SET"},
+    {"DASH_ROUTE_TABLE:route-group-1040:11.1.0.1/32": {"routing_type": "vnet", "vnet": "vnet-2040"}, "OP": "SET"},
+    {"DASH_ROUTE_RULE_TABLE:eni-1040:100:221.2.0.40/32": {"action_type": "decap", "priority": 0}, "OP": "SET"}
+]
