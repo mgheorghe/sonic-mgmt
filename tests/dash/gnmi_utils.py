@@ -276,7 +276,7 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += '--xpath ' + xpath
     cmd += ' '
     cmd += '--value ' + xvalue
-    logger.info(f"PTF GNMI command: {cmd}")
+    logger.debug(f"PTF GNMI command: {cmd}")
     output = ptfhost.shell(cmd, module_ignore_errors=True)
     error = "GRPC error\n"
     if error in output['stdout']:
@@ -349,9 +349,9 @@ def apply_messages(
 
         if set_db:
             if proto_utils.ENABLE_PROTO:
-                path = f"/DPU_APPL_DB/dpu{dpu_index}/{gnmi_key}:$/root/{filename}"
+                path = f"/DPU_APPL_DB/dpu{dpu_index}/{gnmi_key}:$/root/{filename}"  # noqa: E231
             else:
-                path = f"/DPU_APPL_DB/dpu{dpu_index}/{gnmi_key}:@/root/{filename}"
+                path = f"/DPU_APPL_DB/dpu{dpu_index}/{gnmi_key}:@/root/{filename}"  # noqa: E231
             with open(env.work_dir + filename, "wb") as file:
                 file.write(message.SerializeToString())
             update_list.append(path)
@@ -429,7 +429,7 @@ def apply_gnmi_file(localhost, duthost, ptfhost, dest_path=None, config_json=Non
 
 
 def write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, max_updates_in_single_cmd):
-    localhost.shell(f'tar -zcvf /tmp/updates.tar.gz -C {env.work_dir} .')
+    localhost.shell(f'tar -czf /tmp/updates.tar.gz -C {env.work_dir} .')
     ptfhost.copy(src='/tmp/updates.tar.gz', dest='~')
     ptfhost.shell('tar -xf updates.tar.gz')
 
