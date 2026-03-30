@@ -159,7 +159,7 @@ def get_enum_type_from_str(enum_type_str, enum_name_str):
 
 def routing_type_from_json(json_obj):
     pb = RouteType()
-    route_type_items = json_obj['items']
+    route_type_items = json_obj['items'] if isinstance(json_obj, dict) else json_obj
     for item in route_type_items:
         pbi = RouteTypeItem()
         pbi.action_name = item["action_name"]

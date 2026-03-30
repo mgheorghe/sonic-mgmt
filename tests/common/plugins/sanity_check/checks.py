@@ -288,7 +288,7 @@ def check_bgp(duthosts, tbinfo):
 
         # If the topology doesn't have any VMs, it is not using BGP feature at all, hence skip checking
         # the BGP status here.
-        if len(tbinfo['topo']['properties']['topology']['VMs']) == 0:
+        if len(tbinfo['topo']['properties']['topology'].get('VMs', {})) == 0:
             logger.info("No VMs in topology, skip checking bgp status on host %s ..." % dut.hostname)
             results[dut.hostname] = check_result
             return

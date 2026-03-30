@@ -1138,6 +1138,10 @@ def fanouthosts(enhance_inventory, ansible_adhoc, tbinfo, conn_graph_facts, cred
         logging.info("Nut topology has no fanout")
         return fanout_hosts
 
+    if tbinfo['topo']['name'].startswith('smartswitch'):
+        logging.info("SmartSwitch topology has no fanout")
+        return fanout_hosts
+
     # Process Ethernet connections
 
     dev_conn = conn_graph_facts.get('device_conn', {})
@@ -1209,7 +1213,7 @@ def fanouthosts(enhance_inventory, ansible_adhoc, tbinfo, conn_graph_facts, cred
 
             logging.debug(
                 f"Added serial port mapping: {dut_name} Console{host_port} -> "
-                f"{fanout_host}:{fanout_port} (baud={link_info.get('baud_rate', '9600')})"
+                f"{fanout_host}:{fanout_port} (baud={link_info.get('baud_rate', '9600')})"  # noqa: E231
             )
 
     logging.info(f"fanouthosts fixture initialized with {len(fanout_hosts)} fanout devices")
@@ -3631,7 +3635,7 @@ def build_gnmi_stubs(request):
             text=True,
             check=False  # Do not raise an exception automatically on non-zero exit
         )
-        logger.info(f"Output of {script_path}:\n{result.stdout}")
+        logger.info(f"Output of {script_path}:\n{result.stdout}")  # noqa: E231
 
         if result.returncode != 0:
             logger.error(f"{script_path} failed with exit code {result.returncode}")

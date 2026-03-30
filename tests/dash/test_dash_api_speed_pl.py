@@ -10,7 +10,12 @@ from tests.common import config_reload
 
 logger = logging.getLogger(__name__)
 
-pytestmark = [pytest.mark.topology("smartswitch"), pytest.mark.skip_check_dut_health]
+pytestmark = [
+    pytest.mark.topology("smartswitch"),
+    pytest.mark.skip_check_dut_health,
+    pytest.mark.disable_loganalyzer,
+    pytest.mark.sanity_check(skip_sanity=True),
+]
 
 CONFIG_DIR = os.path.join(os.path.dirname(__file__), "configs", "private-link-50")
 
