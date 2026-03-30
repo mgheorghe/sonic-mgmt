@@ -11,7 +11,7 @@
 
 topology:
   DPUs:
-    SONIC01DPU:
+    keysight-ss01-dpu0:
       vlans:
         - 0
         - 1
@@ -25,7 +25,7 @@ configuration_properties:
     nhipv6: FC00::1
 
 configuration:
-  SONIC01DPU:
+  keysight-ss01-dpu0:
     properties:
       - common
     bgp:

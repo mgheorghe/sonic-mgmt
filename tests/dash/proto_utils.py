@@ -75,7 +75,9 @@ def parse_guid(guid_str):
 
 
 def parse_value_or_range(orig):
-    if isinstance(orig, list):
+    if isinstance(orig, dict):
+        return orig
+    elif isinstance(orig, list):
         if len(orig) == 1:
             val = int(orig[0])
             return {"value": val}

@@ -279,6 +279,7 @@
   vm_base:
   dut:
     - keysight-ss01
+    - keysight-ss01-dpu0
   inv_name: lab
   auto_recover: 'False'
   comment: Keysight SmartSwitch 10.36.78.150 - DPU0 speed test

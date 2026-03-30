@@ -67,8 +67,10 @@ all:
         ptf_vms5-1:
           ansible_host: 10.255.0.183
         ptf_keysight-ss01:
-          ansible_host: 127.0.0.1
+          ansible_host: 172.17.0.1
           ansible_port: 2222
+          ansible_ssh_private_key_file: ~/.ssh/id_ed25519
+          ansible_ssh_pass:
 
 sonic_sn2700_40:
   vars:
@@ -315,8 +317,9 @@ sonic_keysight_dpu:
     ansible_ssh_pass: password
     ansible_altpassword: YourPaSsWoRd
   hosts:
-    SONIC01DPU:
-      ansible_host: 169.254.200.1    # DPU 0 midplane IP
+    keysight-ss01-dpu0:
+      ansible_host: 10.36.78.150    # NPU IP — DPU reached via NAT port-forward
+      ansible_ssh_port: 5021        # NPU NAT-forwards :5021 → DPU0 :22
 
 # server_keysight must be a group (not a host) — the framework calls
 # im.groups.get("server_keysight") to discover the test-server host.
