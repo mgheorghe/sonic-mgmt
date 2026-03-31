@@ -416,19 +416,52 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     total_elapsed = time.time() - total_start
 
     # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
-    logger.info("DPU: checking ENI count in COUNTERS_DB...")
-    eni_out = dpuhost.shell(
-        'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
-        module_ignore_errors=True,
-    )
-    eni_lines = [line.strip() for line in eni_out.get("stdout", "").splitlines() if line.strip()]
-    # HGETALL returns alternating field/value lines, so entry count = lines / 2
+    # Poll up to 5 minutes — DPU may need time to process 41k entries.
+    expected_enis = 64
+    eni_poll_timeout = 300
+    eni_poll_interval = 10
+    logger.info("DPU: waiting up to %ds for %d ENIs in COUNTERS_ENI_NAME_MAP...",
+                eni_poll_timeout, expected_enis)
+
+    eni_lines = []
+    deadline = time.time() + eni_poll_timeout
+    while time.time() < deadline:
+        eni_out = dpuhost.shell(
+            'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
+            module_ignore_errors=True,
+        )
+        eni_lines = [
+            line.strip()
+            for line in eni_out.get("stdout", "").splitlines()
+            if line.strip()
+        ]
+        eni_count = len(eni_lines) // 2
+        logger.info("DPU: ENIs found so far: %d / %d", eni_count, expected_enis)
+        if eni_count >= expected_enis:
+            break
+        time.sleep(eni_poll_interval)
+
     eni_count = len(eni_lines) // 2
-    logger.info("DPU: ENIs found in COUNTERS_ENI_NAME_MAP: %d", eni_count)
     for line in eni_lines:
         logger.info("  %s", line)
-    assert eni_count == 64, \
-        "Expected 64 ENIs in COUNTERS_ENI_NAME_MAP but found %d" % eni_count
+
+    # Diagnostics: check DPU_APPL_DB to distinguish push failure vs processing failure.
+    appl_eni_out = dpuhost.shell(
+        "sonic-db-cli DPU_APPL_DB KEYS 'DASH_ENI_TABLE:*' 2>/dev/null | wc -l",
+        module_ignore_errors=True,
+    )
+    logger.info("DPU: DASH_ENI_TABLE entries in DPU_APPL_DB: %s",
+                appl_eni_out.get("stdout", "").strip())
+    appl_vnet_out = dpuhost.shell(
+        "sonic-db-cli DPU_APPL_DB KEYS 'DASH_VNET_MAPPING_TABLE:*' 2>/dev/null | wc -l",
+        module_ignore_errors=True,
+    )
+    logger.info("DPU: DASH_VNET_MAPPING_TABLE entries in DPU_APPL_DB: %s",
+                appl_vnet_out.get("stdout", "").strip())
+
+    assert eni_count == expected_enis, \
+        "Expected %d ENIs in COUNTERS_ENI_NAME_MAP but found %d after %ds" % (
+            expected_enis, eni_count, eni_poll_timeout)
 
     mem_after = {
         "NPU": _collect_memory(duthost),
