@@ -277,19 +277,42 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += ' '
     cmd += '--value ' + xvalue
     logger.debug(f"PTF GNMI command: {cmd}")
-    output = ptfhost.shell(cmd, module_ignore_errors=True)
-    rc = output.get("rc", -1)
-    stdout = output.get("stdout", "")
-    stderr = output.get("stderr", "").strip()
-    if rc != 0:
-        logger.warning("gnmi_set rc=%d stderr=%s stdout=%s", rc, stderr[:300], stdout[:300])
-    elif stderr:
-        logger.warning("gnmi_set stderr: %s", stderr[:300])
-    error = "GRPC error\n"
-    if error in stdout:
-        result = stdout.split(error, 1)
-        raise Exception("GRPC error:" + result[1])
-    return
+    _SSL_ERRORS = ("Corruption detected", "SSLV3_ALERT_BAD_CERTIFICATE", "BAD_CERTIFICATE")
+    for attempt in range(3):
+        output = ptfhost.shell(cmd, module_ignore_errors=True)
+        rc = output.get("rc", -1)
+        stdout = output.get("stdout", "")
+        stderr = output.get("stderr", "").strip()
+        if rc != 0:
+            logger.warning("gnmi_set attempt %d rc=%d stderr=%s stdout=%s",
+                           attempt + 1, rc, stderr[:300], stdout[:300])
+        elif stderr:
+            logger.warning("gnmi_set attempt %d stderr: %s", attempt + 1, stderr[:300])
+
+        ssl_error = any(e in stderr for e in _SSL_ERRORS)
+        if ssl_error:
+            # Check if gnmi-native is still alive; if not, restart it and wait.
+            check = duthost.shell(
+                "docker exec gnmi supervisorctl status gnmi-native 2>/dev/null || true",
+                module_ignore_errors=True,
+            )
+            status = check.get("stdout", "")
+            if "RUNNING" not in status:
+                logger.warning("gnmi-native not RUNNING (%s), restarting gnmi container...", status.strip())
+                duthost.shell("docker restart gnmi", module_ignore_errors=True)
+                time.sleep(10)
+            else:
+                logger.warning("gnmi-native is RUNNING but SSL error occurred, waiting 5s before retry...")
+                time.sleep(5)
+            continue
+
+        error = "GRPC error\n"
+        if error in stdout:
+            result = stdout.split(error, 1)
+            raise Exception("GRPC error:" + result[1])
+        return  # success
+
+    raise Exception("gnmi_set failed after 3 attempts with SSL errors. Last stderr: %s" % stderr[:500])
 
 
 def gnmi_get(duthost, ptfhost, path_list):
