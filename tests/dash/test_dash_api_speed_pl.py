@@ -71,7 +71,49 @@ def _collect_memory(host):
     return result
 
 
-def _print_results(timings, prep_elapsed, gnmi_elapsed, total_elapsed, mem_before, mem_after):
+def _collect_redis_memory(dpuhost):
+    """
+    Return a dict with Redis memory info from DPU_APPL_DB:
+      '_used_memory_human' — overall used memory (human string)
+      '_used_memory'       — overall used memory (bytes, int)
+      per VNET_MAPPING key (2 samples) — per-key MEMORY USAGE in bytes
+    """
+    result = {}
+
+    info_out = dpuhost.shell("sonic-db-cli DPU_APPL_DB INFO MEMORY",
+                             module_ignore_errors=True)
+    for line in info_out.get("stdout", "").splitlines():
+        line = line.strip()
+        if line.startswith("used_memory:"):
+            try:
+                result["_used_memory"] = int(line.split(":")[1])
+            except ValueError:
+                pass
+        elif line.startswith("used_memory_human:"):
+            result["_used_memory_human"] = line.split(":", 1)[1].strip()
+
+    keys_out = dpuhost.shell(
+        "sonic-db-cli DPU_APPL_DB KEYS 'DASH_VNET_MAPPING_TABLE:*' 2>/dev/null | head -2",
+        module_ignore_errors=True,
+    )
+    for key in keys_out.get("stdout", "").splitlines():
+        key = key.strip()
+        if not key:
+            continue
+        usage_out = dpuhost.shell(
+            f"sonic-db-cli DPU_APPL_DB MEMORY USAGE '{key}'",
+            module_ignore_errors=True,
+        )
+        try:
+            result[key] = int(usage_out.get("stdout", "0").strip())
+        except ValueError:
+            result[key] = 0
+
+    return result
+
+
+def _print_results(timings, prep_elapsed, gnmi_elapsed, total_elapsed,
+                   mem_before, mem_after, redis_before, redis_after):
     sep = "=" * 72
     logger.info(sep)
     logger.info("  DASH API LOAD SPEED TEST — RESULTS")
@@ -130,6 +172,33 @@ def _print_results(timings, prep_elapsed, gnmi_elapsed, total_elapsed, mem_befor
             sys_a - sys_b,
         )
 
+    # Redis (DPU_APPL_DB) memory
+    logger.info("\n  DPU Redis memory — DPU_APPL_DB (bytes):")
+    logger.info("  %-52s  %10s  %10s  %10s", "Key", "Before", "After", "Delta")
+    logger.info("  " + "-" * 86)
+
+    redis_b_total = redis_before.get("_used_memory", 0)
+    redis_a_total = redis_after.get("_used_memory", 0)
+    logger.info(
+        "  %-52s  %10d  %10d  %+10d",
+        "used_memory (total)",
+        redis_b_total,
+        redis_a_total,
+        redis_a_total - redis_b_total,
+    )
+    logger.info(
+        "  %-52s  %10s  %10s",
+        "used_memory_human",
+        redis_before.get("_used_memory_human", "n/a"),
+        redis_after.get("_used_memory_human", "n/a"),
+    )
+
+    sample_keys = sorted(k for k in set(redis_before) | set(redis_after) if not k.startswith("_"))
+    for key in sample_keys:
+        b = redis_before.get(key, 0)
+        a = redis_after.get(key, 0)
+        logger.info("  %-52s  %10d  %10d  %+10d", key, b, a, a - b)
+
     logger.info(sep)
 
 
@@ -166,18 +235,49 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     # ── Pre-flight: DPU network setup ────────────────────────────────────────
     dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
 
-    # Configure Loopback0 IP on DPU (needed for dataplane routing).
-    logger.info("DPU: adding Loopback0 IP 221.0.0.%d/32", dpuhost.dpu_index + 1)
-    dpuhost.shell("sudo config interface ip add Loopback0 221.0.0.%d/32" % (dpuhost.dpu_index + 1),
-                  module_ignore_errors=True)
+    # Add Loopback0 IP on DPU and verify it was applied.
+    loopback_ip = "221.0.0.%d/32" % (dpuhost.dpu_index + 1)
+    logger.info("DPU: adding Loopback0 IP %s", loopback_ip)
+    dpuhost.shell("sudo config interface ip add Loopback0 %s" % loopback_ip)
+    iface_out = dpuhost.shell("show ip interfaces")
+    assert "221.0.0.%d" % (dpuhost.dpu_index + 1) in iface_out.get("stdout", ""), \
+        "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback_ip
 
-    # Remove DPU midplane default route so the dataplane default route takes effect.
-    logger.info("DPU: removing midplane default route via 169.254.200.254")
-    dpuhost.shell("sudo ip route del 0.0.0.0/0 via 169.254.200.254",
-                  module_ignore_errors=True)
+    # Remove ALL default routes via the midplane gateway (static + DHCP-installed).
+    # Loop until none remain — DHCP may have installed multiple entries.
+    logger.info("DPU: removing all default routes via 169.254.200.254")
+    for _ in range(10):
+        routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
+        midplane_defaults = [
+            route for route in routes_out.get("stdout", "").splitlines()
+            if "169.254.200.254" in route
+        ]
+        if not midplane_defaults:
+            break
+        dpuhost.shell("sudo ip route del default via 169.254.200.254",
+                      module_ignore_errors=True)
+    routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
+    remaining = [
+        route for route in routes_out.get("stdout", "").splitlines()
+        if "169.254.200.254" in route
+    ]
+    assert not remaining, \
+        "Midplane default route(s) still present after removal: %s" % remaining
 
-    # Add static ARP entries on NPU for dataplane next-hops.
-    logger.info("NPU: adding static ARP entries for dataplane next-hops")
+    # Verify a dataplane default route is now active.
+    dataplane_defaults = [
+        route for route in routes_out.get("stdout", "").splitlines()
+        if route.startswith("default") and "169.254.200.254" not in route
+    ]
+    assert dataplane_defaults, \
+        "No dataplane default route found after removing midplane routes. 'ip route show default': %s" \
+        % routes_out.get("stdout", "")
+    logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
+
+    # Add permanent static neighbor (ARP) entries on NPU for dataplane next-hops.
+    # Use 'ip neigh replace ... nud permanent' so entries are not subject to ARP resolution.
+    # The outgoing interface is resolved dynamically via 'ip route get'.
+    logger.info("NPU: adding permanent static ARP entries for dataplane next-hops")
     _NPU_STATIC_ARP = [
         ("220.0.1.2", "80:09:02:02:00:01"),
         ("220.0.2.2", "80:09:02:02:00:02"),
@@ -185,8 +285,34 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
         ("220.0.4.2", "80:09:02:02:00:04"),
     ]
     for ip, mac in _NPU_STATIC_ARP:
-        duthost.shell(f"arp -s {ip} {mac}", module_ignore_errors=True)
-        logger.info("  NPU: arp -s %s %s", ip, mac)
+        # Find the egress interface for this IP.
+        route_out = duthost.shell(f"ip route get {ip}", module_ignore_errors=True)
+        dev = None
+        for token in route_out.get("stdout", "").split():
+            if token == "dev":
+                idx = route_out.get("stdout", "").split().index("dev")
+                dev = route_out.get("stdout", "").split()[idx + 1]
+                break
+        assert dev, f"Could not determine egress interface for {ip} on NPU"
+
+        for attempt in range(3):
+            duthost.shell(
+                f"sudo ip neigh replace {ip} lladdr {mac} dev {dev} nud permanent",
+                module_ignore_errors=True,
+            )
+            verify = duthost.shell(f"ip neigh show {ip}", module_ignore_errors=True)
+            if "PERMANENT" in verify.get("stdout", "").upper():
+                logger.info("  NPU: permanent ARP %s lladdr %s dev %s (attempt %d)",
+                            ip, mac, dev, attempt + 1)
+                break
+        else:
+            raise AssertionError(
+                f"Failed to add permanent ARP entry for {ip} after 3 attempts. "
+                f"'ip neigh show {ip}': {verify.get('stdout', '')}"
+            )
+
+    # Dataplane IP: 10.0.0.(56 + dpu_index*2 + 1), e.g. dpu0 → 10.0.0.57
+    dpu_dataplane_ip = "10.0.0.%d" % (57 + dpuhost.dpu_index * 2)
 
     # Populate NPU ARP table for the DPU midplane IP.
     logger.info("NPU: pinging DPU midplane IP %s to populate ARP", dpu_midplane_ip)
@@ -196,6 +322,12 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     arp_out = duthost.shell(f"ip n show {dpu_midplane_ip}", module_ignore_errors=True)
     logger.info("NPU ARP entry for %s: %s", dpu_midplane_ip,
                 arp_out.get("stdout", "").strip() or "(none)")
+
+    # Ping DPU dataplane IP from NPU to verify dataplane reachability.
+    logger.info("NPU: pinging DPU dataplane IP %s", dpu_dataplane_ip)
+    ping_out = duthost.shell(f"ping -c 5 -W 2 {dpu_dataplane_ip}", module_ignore_errors=True)
+    for line in ping_out.get("stdout", "").splitlines():
+        logger.info("  %s", line)
 
     # Diagnostic: routing and interfaces on both NPU and DPU.
     logger.info("NPU: show ip route")
@@ -222,6 +354,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
         "NPU": _collect_memory(duthost),
         "DPU": _collect_memory(dpuhost),
     }
+    redis_before = _collect_redis_memory(dpuhost)
 
     # One shared environment / work directory for all proto files.
     env = GNMIEnvironment(duthost)
@@ -282,9 +415,26 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
 
     total_elapsed = time.time() - total_start
 
+    # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
+    logger.info("DPU: checking ENI count in COUNTERS_DB...")
+    eni_out = dpuhost.shell(
+        'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
+        module_ignore_errors=True,
+    )
+    eni_lines = [line.strip() for line in eni_out.get("stdout", "").splitlines() if line.strip()]
+    # HGETALL returns alternating field/value lines, so entry count = lines / 2
+    eni_count = len(eni_lines) // 2
+    logger.info("DPU: ENIs found in COUNTERS_ENI_NAME_MAP: %d", eni_count)
+    for line in eni_lines:
+        logger.info("  %s", line)
+    assert eni_count == 64, \
+        "Expected 64 ENIs in COUNTERS_ENI_NAME_MAP but found %d" % eni_count
+
     mem_after = {
         "NPU": _collect_memory(duthost),
         "DPU": _collect_memory(dpuhost),
     }
+    redis_after = _collect_redis_memory(dpuhost)
 
-    _print_results(timings, prep_elapsed, gnmi_elapsed, total_elapsed, mem_before, mem_after)
+    _print_results(timings, prep_elapsed, gnmi_elapsed, total_elapsed,
+                   mem_before, mem_after, redis_before, redis_after)
