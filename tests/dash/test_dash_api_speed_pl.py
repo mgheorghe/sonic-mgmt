@@ -415,6 +415,14 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
 
     total_elapsed = time.time() - total_start
 
+    # Dump last 50 lines of NPU gnmi container log to help diagnose push failures.
+    gnmi_log = duthost.shell(
+        "docker logs --tail 50 gnmi 2>&1 || docker logs --tail 50 telemetry 2>&1",
+        module_ignore_errors=True,
+    )
+    for line in gnmi_log.get("stdout", "").splitlines():
+        logger.info("  NPU gnmi log: %s", line)
+
     # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
     # Poll up to 5 minutes — DPU may need time to process 41k entries.
     expected_enis = 64

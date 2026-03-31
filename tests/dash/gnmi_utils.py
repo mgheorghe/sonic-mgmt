@@ -278,9 +278,16 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += '--value ' + xvalue
     logger.debug(f"PTF GNMI command: {cmd}")
     output = ptfhost.shell(cmd, module_ignore_errors=True)
+    rc = output.get("rc", -1)
+    stdout = output.get("stdout", "")
+    stderr = output.get("stderr", "").strip()
+    if rc != 0:
+        logger.warning("gnmi_set rc=%d stderr=%s stdout=%s", rc, stderr[:300], stdout[:300])
+    elif stderr:
+        logger.warning("gnmi_set stderr: %s", stderr[:300])
     error = "GRPC error\n"
-    if error in output['stdout']:
-        result = output['stdout'].split(error, 1)
+    if error in stdout:
+        result = stdout.split(error, 1)
         raise Exception("GRPC error:" + result[1])
     return
 
@@ -447,8 +454,10 @@ def write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list,
             gnmi_set(duthost, ptfhost, delete_list, [], [])
     if update_list:
         update_list_group = _devide_list(update_list)
-        for update_list in update_list_group:
-            gnmi_set(duthost, ptfhost, [], update_list, [])
+        for i, update_batch in enumerate(update_list_group):
+            logger.info("gnmi_set batch %d/%d (%d entries)...",
+                        i + 1, len(update_list_group), len(update_batch))
+            gnmi_set(duthost, ptfhost, [], update_batch, [])
 
     localhost.shell('rm -f /tmp/updates.tar.gz')
     ptfhost.shell('rm -f updates.tar.gz')
