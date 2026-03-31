@@ -8,7 +8,7 @@ import time
 import pytest
 
 import proto_utils
-from gnmi_utils import GNMIEnvironment, generate_gnmi_cert, apply_gnmi_cert, recover_gnmi_cert, write_gnmi_files
+from gnmi_utils import GNMIEnvironment, write_gnmi_files
 
 logger = logging.getLogger(__name__)
 
@@ -408,13 +408,6 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
                 len(update_list), len(delete_list), prep_elapsed)
 
     # ── Phase 2: single tar + SCP + gnmi_set ──────────────────────────────────
-    # Regenerate and apply fresh TLS certs so the gnmi server and PTF client
-    # are always in sync (avoids SSL errors from stale certs after restarts).
-    logger.info("Regenerating gNMI TLS certs...")
-    generate_gnmi_cert(localhost, duthost)
-    apply_gnmi_cert(duthost, ptfhost)
-    recover_gnmi_cert(localhost, duthost, skip_cert_cleanup=True)
-
     logger.info("Starting gNMI push (single tar+scp+set)...")
     t_gnmi = time.time()
     write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, batch_size)
