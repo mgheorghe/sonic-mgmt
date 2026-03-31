@@ -408,6 +408,21 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
                 len(update_list), len(delete_list), prep_elapsed)
 
     # ── Phase 2: single tar + SCP + gnmi_set ──────────────────────────────────
+    # Sync gnmi certs: copy CA + client certs from NPU gnmi container to PTF
+    # so they always match, regardless of what happened in previous test runs.
+    _gnmi_cert_path = "/etc/sonic/telemetry/"
+    logger.info("Syncing gNMI certs from NPU to PTF...")
+    for cert_file in ("gnmiCA.pem", "gnmiclient.crt", "gnmiclient.key"):
+        fetch = duthost.shell(
+            f"docker exec gnmi cat {_gnmi_cert_path}{cert_file} 2>/dev/null || "
+            f"cat {_gnmi_cert_path}{cert_file} 2>/dev/null",
+            module_ignore_errors=True,
+        )
+        content = fetch.get("stdout", "")
+        assert content, f"Could not read {cert_file} from NPU"
+        ptfhost.copy(content=content, dest=f"/root/{cert_file}")
+    logger.info("gNMI certs synced to PTF")
+
     logger.info("Starting gNMI push (single tar+scp+set)...")
     t_gnmi = time.time()
     write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, batch_size)
