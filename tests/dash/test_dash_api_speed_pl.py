@@ -418,8 +418,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
     # Poll up to 5 minutes — DPU may need time to process 41k entries.
     expected_enis = 64
-    eni_poll_timeout = 300
-    eni_poll_interval = 10
+    eni_poll_timeout = 30
+    eni_poll_interval = 2
     logger.info("DPU: waiting up to %ds for %d ENIs in COUNTERS_ENI_NAME_MAP...",
                 eni_poll_timeout, expected_enis)
 
