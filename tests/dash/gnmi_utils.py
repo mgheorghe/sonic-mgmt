@@ -285,9 +285,13 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += '--xpath ' + xpath
     cmd += ' '
     cmd += '--value ' + xvalue
-    logger.warning("gnmi_set use_tls=%s cmd=%s", env.use_tls, cmd)
+    # Run via bash login shell so /root/.bashrc and /root/.bash_profile are sourced.
+    # Ansible does NOT run a login shell, so any env vars set in .bashrc (e.g. no_proxy,
+    # gRPC settings) are absent — causing gRPC "Socket closed" vs working in manual SSH.
+    login_cmd = "bash -l -c '" + cmd.replace("'", "'\"'\"'") + "'"
+    logger.warning("gnmi_set use_tls=%s cmd=%s", env.use_tls, login_cmd)
     for _attempt in range(3):
-        output = ptfhost.shell(cmd, module_ignore_errors=True)
+        output = ptfhost.shell(login_cmd, module_ignore_errors=True)
         rc = output.get("rc", -1)
         stdout = output.get("stdout", "")
         stderr = output.get("stderr", "").strip()

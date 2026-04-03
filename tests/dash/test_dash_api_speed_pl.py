@@ -7,7 +7,6 @@ import time
 
 import pytest
 
-import proto_utils
 from gnmi_utils import GNMIEnvironment, write_gnmi_files
 
 logger = logging.getLogger(__name__)
@@ -119,7 +118,7 @@ def _print_results(timings, prep_elapsed, gnmi_elapsed, total_elapsed,
     logger.info("  DASH API LOAD SPEED TEST — RESULTS")
     logger.info(sep)
 
-    logger.info("\n  Per-file proto serialization times:")
+    logger.info("\n  Per-file gNMI push times:")
     logger.info("  %-44s  %8s", "File", "Time (s)")
     logger.info("  " + "-" * 56)
     for filename, elapsed in timings.items():
@@ -401,12 +400,11 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
                         continue
                     update_cnt += 1
                     proto_filename = "update%u" % update_cnt
-                    message = proto_utils.parse_dash_proto(k, v)
-                    with open(env.work_dir + proto_filename, "wb") as pf:
-                        pf.write(message.SerializeToString())
+                    with open(env.work_dir + proto_filename, "w") as pf:
+                        pf.write(json.dumps(v))
                     keys = k.split(":", 1)
                     gnmi_key = keys[0] + "[key=" + keys[1] + "]"
-                    path = "/DPU_APPL_DB/dpu%d/%s:$/root/%s" % (  # noqa: E228
+                    path = "/DPU_APPL_DB/dpu%d/%s:@/root/%s" % (  # noqa: E228
                         dpuhost.dpu_index, gnmi_key, proto_filename,
                     )
                     update_list.append(path)
