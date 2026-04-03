@@ -214,17 +214,19 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
     """
     dpuhost = dpuhosts[dpu_index]
 
-    # ── Pre-flight: verify DPU midplane reachability ──────────────────────────
-    midplane_out = duthost.show_and_parse("show chassis module midplane-status")
+    # ── Pre-flight: verify DPU is reachable via midplane IP ──────────────────
+    # 'show chassis module midplane-status' can report False after a previous run
+    # removed the midplane default route, even though the DPU is physically alive.
+    # Use a direct ping to the midplane IP as the authoritative liveness check.
     dpu_name = f"DPU{dpuhost.dpu_index}"
-    dpu_row = next((r for r in midplane_out if r.get("name", "").strip().upper() == dpu_name), None)
-    assert dpu_row is not None, (
-        f"{dpu_name} missing from 'show chassis module midplane-status' output"
+    dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
+    logger.info("Pre-flight: pinging %s midplane IP %s ...", dpu_name, dpu_midplane_ip)
+    ping_out = duthost.shell(f"ping -c 3 -W 2 {dpu_midplane_ip}", module_ignore_errors=True)
+    assert ping_out.get("rc", 1) == 0, (
+        f"{dpu_name} is unreachable at midplane IP {dpu_midplane_ip}. "
+        "DPU is not up — aborting test."
     )
-    reachability = dpu_row.get("reachability", "").strip()
-    assert reachability.lower() == "true", \
-        f"{dpu_name} midplane is not reachable (Reachability={reachability}). DPU is not up — aborting test."
-    logger.info("%s midplane reachability: %s", dpu_name, reachability)
+    logger.info("%s is reachable at %s", dpu_name, dpu_midplane_ip)
 
     config_dir = os.path.join(CONFIG_DIR, f"dpu{dpuhost.dpu_index}")
 
