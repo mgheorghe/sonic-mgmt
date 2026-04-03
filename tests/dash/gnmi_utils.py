@@ -285,11 +285,16 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += '--xpath ' + xpath
     cmd += ' '
     cmd += '--value ' + xvalue
-    logger.debug(f"PTF GNMI command: {cmd}")
-    output = ptfhost.shell(cmd, module_ignore_errors=True)
-    rc = output.get("rc", -1)
-    stdout = output.get("stdout", "")
-    stderr = output.get("stderr", "").strip()
+    logger.warning("gnmi_set use_tls=%s cmd=%s", env.use_tls, cmd)
+    for _attempt in range(3):
+        output = ptfhost.shell(cmd, module_ignore_errors=True)
+        rc = output.get("rc", -1)
+        stdout = output.get("stdout", "")
+        stderr = output.get("stderr", "").strip()
+        if rc == 0 or "Socket closed" not in stdout:
+            break
+        logger.warning("gnmi_set attempt %d/3 Socket closed, retrying in 2s...", _attempt + 1)
+        time.sleep(2)
     if rc != 0:
         logger.warning("gnmi_set rc=%d stderr=%s stdout=%s", rc, stderr[:500], stdout[:2000])
     elif stderr:
