@@ -401,15 +401,25 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
     total_elapsed = time.time() - total_start
 
     # ── Check DPU is still up after the push ──────────────────────────────────
-    logger.info("Verifying %s midplane reachability after push...", dpu_name)
+    # Midplane reachability (169.254.200.x) is expected to be False after we
+    # removed the midplane default route, so it is not a reliable crash indicator.
+    # Instead, ping the dataplane IP — if that also fails the DPU is truly down.
     midplane_out = duthost.show_and_parse("show chassis module midplane-status")
     dpu_row = next((r for r in midplane_out if r.get("name", "").strip().upper() == dpu_name), None)
-    reachability = dpu_row.get("reachability", "").strip() if dpu_row else "unknown"
-    assert reachability.lower() == "true", (
-        f"{dpu_name} midplane went down during push (Reachability={reachability}). "
-        "DPU crashed — check DPU logs."
+    midplane_reachability = dpu_row.get("reachability", "").strip() if dpu_row else "unknown"
+    logger.info("%s midplane reachability after push: %s (expected False — midplane route removed)",
+                dpu_name, midplane_reachability)
+
+    logger.info("Verifying %s is alive via dataplane ping to %s ...", dpu_name, dpu_dataplane_ip)
+    ping_out = duthost.shell(f"ping -c 3 -W 2 {dpu_dataplane_ip}", module_ignore_errors=True)
+    ping_ok = ping_out.get("rc", 1) == 0
+    for line in ping_out.get("stdout", "").splitlines():
+        logger.info("  %s", line)
+    assert ping_ok, (
+        f"{dpu_name} is unreachable via dataplane IP {dpu_dataplane_ip} after push. "
+        "DPU may have crashed — check DPU logs."
     )
-    logger.info("%s midplane reachability after push: %s", dpu_name, reachability)
+    logger.info("%s dataplane reachability after push: OK", dpu_name)
 
     # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
     logger.info("DPU: checking ENI count in COUNTERS_DB...")
