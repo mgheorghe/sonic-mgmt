@@ -7,6 +7,7 @@ import time
 
 import pytest
 
+import proto_utils
 from gnmi_utils import GNMIEnvironment, write_gnmi_files
 
 logger = logging.getLogger(__name__)
@@ -118,7 +119,7 @@ def _print_results(timings, prep_elapsed, gnmi_elapsed, total_elapsed,
     logger.info("  DASH API LOAD SPEED TEST — RESULTS")
     logger.info(sep)
 
-    logger.info("\n  Per-file gNMI push times:")
+    logger.info("\n  Per-file proto serialization times:")
     logger.info("  %-44s  %8s", "File", "Time (s)")
     logger.info("  " + "-" * 56)
     for filename, elapsed in timings.items():
@@ -205,10 +206,29 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     """
     Measure the time to load private-link-50 DASH configs onto a DPU via gNMI.
 
-    Each JSON config file is serialized and pushed independently through the full
-    gNMI CLI flow (serialize → tar → SCP → gnmi_set → cleanup), one file at a time.
+    Phase 1 (per-file): Read each JSON file locally and serialize all entries to
+    protobuf files in a single shared work directory — no SSH calls.
+
+    Phase 2 (once): tar + SCP to PTF + gnmi_set all updates in one shot.
+
+    This eliminates N×(tar+SCP+extract+gnmi_set+cleanup) and replaces it with
+    a single pass, reducing SSH overhead from O(N) to O(1).
     """
+    batch_size = 1024
     dpuhost = dpuhosts[dpu_index]
+
+    # ── Pre-flight: verify DPU midplane reachability ──────────────────────────
+    midplane_out = duthost.show_and_parse("show chassis module midplane-status")
+    dpu_name = f"DPU{dpuhost.dpu_index}"
+    dpu_row = next((r for r in midplane_out if r.get("name", "").strip().upper() == dpu_name), None)
+    assert dpu_row is not None, (
+        f"{dpu_name} missing from 'show chassis module midplane-status' output"
+    )
+    reachability = dpu_row.get("reachability", "").strip()
+    assert reachability.lower() == "true", \
+        f"{dpu_name} midplane is not reachable (Reachability={reachability}). DPU is not up — aborting test."
+    logger.info("%s midplane reachability: %s", dpu_name, reachability)
+
     config_dir = os.path.join(CONFIG_DIR, f"dpu{dpuhost.dpu_index}")
 
     assert os.path.isdir(config_dir), \
@@ -221,8 +241,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     )
     assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
     logger.info(
-        "Found %d config files to load for dpu%d (one-at-a-time mode)",
-        len(files), dpuhost.dpu_index,
+        "Found %d config files to load for dpu%d (batch_size=%d)",
+        len(files), dpuhost.dpu_index, batch_size,
     )
 
     # ── Pre-flight: DPU network setup ────────────────────────────────────────
@@ -353,45 +373,19 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     env = GNMIEnvironment(duthost)
     os.makedirs(env.work_dir, exist_ok=True)
 
+    delete_list = []
+    update_list = []
+    update_cnt = 0
     timings = {}
     total_start = time.time()
-    gnmi_elapsed = 0.0
-    update_cnt = 0
 
-    # Sync gNMI certs from NPU to PTF only when the server uses TLS.
-    # When the server runs with --noTLS, no certs are needed on the PTF.
-    if env.use_tls:
-        _gnmi_cert_path = "/etc/sonic/telemetry/"
-        _cert_map = {
-            "gnmiCA.pem": env.gnmi_ca_cert,
-            "gnmiserver.crt": env.gnmi_client_cert,
-            "gnmiserver.key": env.gnmi_client_key,
-        }
-        logger.info("Syncing gNMI certs from NPU to PTF...")
-        for src_name, dest_name in _cert_map.items():
-            fetch = duthost.shell(
-                f"docker exec {env.gnmi_container} cat {_gnmi_cert_path}{src_name} 2>/dev/null || "
-                f"cat {_gnmi_cert_path}{src_name} 2>/dev/null",
-                module_ignore_errors=True,
-            )
-            content = fetch.get("stdout", "")
-            assert content, f"Could not read {src_name} from NPU at {_gnmi_cert_path}"
-            ptfhost.copy(content=content, dest=f"/root/{dest_name}")
-            logger.info("  copied NPU:%s → PTF:/root/%s", src_name, dest_name)
-        logger.info("gNMI certs synced to PTF")
-    else:
-        logger.info("gNMI server running --noTLS, skipping cert sync")
-
-    # Push each config file individually through the full gNMI CLI flow.
+    # ── Phase 1: serialize all files locally, no SSH ──────────────────────────
     for filename in files:
         local_path = os.path.join(config_dir, filename)
         t_start = time.time()
 
         with open(local_path) as f:
             operations = json.load(f)
-
-        delete_list = []
-        update_list = []
 
         for operation in operations:
             if operation["OP"] == "SET":
@@ -400,11 +394,12 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
                         continue
                     update_cnt += 1
                     proto_filename = "update%u" % update_cnt
-                    with open(env.work_dir + proto_filename, "w") as pf:
-                        pf.write(json.dumps(v))
+                    message = proto_utils.parse_dash_proto(k, v)
+                    with open(env.work_dir + proto_filename, "wb") as pf:
+                        pf.write(message.SerializeToString())
                     keys = k.split(":", 1)
                     gnmi_key = keys[0] + "[key=" + keys[1] + "]"
-                    path = "/DPU_APPL_DB/dpu%d/%s:@/root/%s" % (  # noqa: E228
+                    path = "/DPU_APPL_DB/dpu%d/%s:$/root/%s" % (  # noqa: E228
                         dpuhost.dpu_index, gnmi_key, proto_filename,
                     )
                     update_list.append(path)
@@ -417,72 +412,36 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
                     path = "/DPU_APPL_DB/dpu%d/%s" % (dpuhost.dpu_index, gnmi_key)  # noqa: E228
                     delete_list.append(path)
 
-        t_gnmi_file = time.time()
-        write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, len(update_list) or 1)
-        gnmi_elapsed += time.time() - t_gnmi_file
-
         elapsed = time.time() - t_start
         timings[filename] = elapsed
-        logger.info("  pushed %-40s  %.2fs  (%d updates)", filename, elapsed, len(update_list))
+        logger.info("  prepared %-40s  %.2fs  (%d updates so far)", filename, elapsed, update_cnt)
 
-    prep_elapsed = 0.0
+    prep_elapsed = time.time() - total_start
+    logger.info("Serialization done: %d updates, %d deletes in %.2fs",
+                len(update_list), len(delete_list), prep_elapsed)
+
+    # ── Phase 2: single tar + SCP + gnmi_set ──────────────────────────────────
+    logger.info("Starting gNMI push (single tar+scp+set)...")
+    t_gnmi = time.time()
+    write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, batch_size)
+    gnmi_elapsed = time.time() - t_gnmi
+
     total_elapsed = time.time() - total_start
 
-    # Dump last 50 lines of NPU gnmi container log to help diagnose push failures.
-    gnmi_log = duthost.shell(
-        "docker logs --tail 50 gnmi 2>&1 || docker logs --tail 50 telemetry 2>&1",
+    # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
+    logger.info("DPU: checking ENI count in COUNTERS_DB...")
+    eni_out = dpuhost.shell(
+        'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
         module_ignore_errors=True,
     )
-    for line in gnmi_log.get("stdout", "").splitlines():
-        logger.info("  NPU gnmi log: %s", line)
-
-    # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
-    # Poll up to 5 minutes — DPU may need time to process 41k entries.
-    expected_enis = 64
-    eni_poll_timeout = 30
-    eni_poll_interval = 2
-    logger.info("DPU: waiting up to %ds for %d ENIs in COUNTERS_ENI_NAME_MAP...",
-                eni_poll_timeout, expected_enis)
-
-    eni_lines = []
-    deadline = time.time() + eni_poll_timeout
-    while time.time() < deadline:
-        eni_out = dpuhost.shell(
-            'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
-            module_ignore_errors=True,
-        )
-        eni_lines = [
-            line.strip()
-            for line in eni_out.get("stdout", "").splitlines()
-            if line.strip()
-        ]
-        eni_count = len(eni_lines) // 2
-        logger.info("DPU: ENIs found so far: %d / %d", eni_count, expected_enis)
-        if eni_count >= expected_enis:
-            break
-        time.sleep(eni_poll_interval)
-
+    eni_lines = [line.strip() for line in eni_out.get("stdout", "").splitlines() if line.strip()]
+    # HGETALL returns alternating field/value lines, so entry count = lines / 2
     eni_count = len(eni_lines) // 2
+    logger.info("DPU: ENIs found in COUNTERS_ENI_NAME_MAP: %d", eni_count)
     for line in eni_lines:
         logger.info("  %s", line)
-
-    # Diagnostics: check DPU_APPL_DB to distinguish push failure vs processing failure.
-    appl_eni_out = dpuhost.shell(
-        "sonic-db-cli DPU_APPL_DB KEYS 'DASH_ENI_TABLE:*' 2>/dev/null | wc -l",
-        module_ignore_errors=True,
-    )
-    logger.info("DPU: DASH_ENI_TABLE entries in DPU_APPL_DB: %s",
-                appl_eni_out.get("stdout", "").strip())
-    appl_vnet_out = dpuhost.shell(
-        "sonic-db-cli DPU_APPL_DB KEYS 'DASH_VNET_MAPPING_TABLE:*' 2>/dev/null | wc -l",
-        module_ignore_errors=True,
-    )
-    logger.info("DPU: DASH_VNET_MAPPING_TABLE entries in DPU_APPL_DB: %s",
-                appl_vnet_out.get("stdout", "").strip())
-
-    assert eni_count == expected_enis, \
-        "Expected %d ENIs in COUNTERS_ENI_NAME_MAP but found %d after %ds" % (
-            expected_enis, eni_count, eni_poll_timeout)
+    assert eni_count == 64, \
+        "Expected 64 ENIs in COUNTERS_ENI_NAME_MAP but found %d" % eni_count
 
     mem_after = {
         "NPU": _collect_memory(duthost),

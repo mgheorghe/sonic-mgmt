@@ -33,11 +33,6 @@ class GNMIEnvironment(object):
                 self.gnmi_container = "gnmi"
                 self.gnmi_program = "gnmi-native"
                 self.gnmi_port = 50052
-                proc = duthost.shell(
-                    "docker exec gnmi ps aux | grep telemetry | grep -v grep",
-                    module_ignore_errors=True,
-                ).get("stdout", "")
-                self.use_tls = "--noTLS" not in proc
                 return
             else:
                 pytest.fail("GNMI is not running")
@@ -49,7 +44,6 @@ class GNMIEnvironment(object):
                 self.gnmi_container = "telemetry"
                 self.gnmi_program = "telemetry"
                 self.gnmi_port = 50051
-                self.use_tls = True
                 return
             else:
                 pytest.fail("Telemetry is not running")
@@ -248,12 +242,9 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += '--timeout 30 '
     cmd += '-t %s -p %u ' % (ip, port)
     cmd += '-xo sonic-db '
-    if env.use_tls:
-        cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
-        cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
-        cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
-    else:
-        cmd += '--notls '
+    cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
+    cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
+    cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
     if len(update_list) > 0:
         cmd += '-m set-update '
     elif len(delete_list) > 0:
@@ -285,30 +276,12 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += '--xpath ' + xpath
     cmd += ' '
     cmd += '--value ' + xvalue
-    # Run via bash login shell so /root/.bashrc and /root/.bash_profile are sourced.
-    # Ansible does NOT run a login shell, so any env vars set in .bashrc (e.g. no_proxy,
-    # gRPC settings) are absent — causing gRPC "Socket closed" vs working in manual SSH.
-    login_cmd = "bash -l -c '" + cmd.replace("'", "'\"'\"'") + "'"
-    logger.warning("gnmi_set use_tls=%s cmd=%s", env.use_tls, login_cmd)
-    for _attempt in range(3):
-        output = ptfhost.shell(login_cmd, module_ignore_errors=True)
-        rc = output.get("rc", -1)
-        stdout = output.get("stdout", "")
-        stderr = output.get("stderr", "").strip()
-        if rc == 0 or "Socket closed" not in stdout:
-            break
-        logger.warning("gnmi_set attempt %d/3 Socket closed, retrying in 2s...", _attempt + 1)
-        time.sleep(2)
-    if rc != 0:
-        logger.warning("gnmi_set rc=%d stderr=%s stdout=%s", rc, stderr[:500], stdout[:2000])
-    elif stderr:
-        logger.warning("gnmi_set stderr: %s", stderr[:500])
+    logger.debug(f"PTF GNMI command: {cmd}")
+    output = ptfhost.shell(cmd, module_ignore_errors=True)
     error = "GRPC error\n"
-    if error in stdout:
-        result = stdout.split(error, 1)
+    if error in output['stdout']:
+        result = output['stdout'].split(error, 1)
         raise Exception("GRPC error:" + result[1])
-    if rc != 0:
-        raise Exception("gnmi_set failed rc=%d stderr=%s stdout=%s" % (rc, stderr[:500], stdout[:2000]))
     return
 
 
@@ -331,12 +304,9 @@ def gnmi_get(duthost, ptfhost, path_list):
     cmd += '--timeout 30 '
     cmd += '-t %s -p %u ' % (ip, port)
     cmd += '-xo sonic-db '
-    if env.use_tls:
-        cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
-        cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
-        cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
-    else:
-        cmd += '--notls '
+    cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
+    cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
+    cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
     cmd += '--encoding 4 '
     cmd += '-m get '
     cmd += '--xpath '
@@ -477,13 +447,10 @@ def write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list,
             gnmi_set(duthost, ptfhost, delete_list, [], [])
     if update_list:
         update_list_group = _devide_list(update_list)
-        for i, update_batch in enumerate(update_list_group):
-            logger.info("gnmi_set batch %d/%d (%d entries)...",
-                        i + 1, len(update_list_group), len(update_batch))
-            gnmi_set(duthost, ptfhost, [], update_batch, [])
-            time.sleep(1)
+        for update_list in update_list_group:
+            gnmi_set(duthost, ptfhost, [], update_list, [])
 
     localhost.shell('rm -f /tmp/updates.tar.gz')
     ptfhost.shell('rm -f updates.tar.gz')
-    localhost.shell(f'find {env.work_dir} -name "update*" -delete')
-    ptfhost.shell('find /root -maxdepth 1 -name "update*" -delete')
+    localhost.shell(f'rm -f {env.work_dir}update*')
+    ptfhost.shell('rm -f update*')
