@@ -33,6 +33,11 @@ class GNMIEnvironment(object):
                 self.gnmi_container = "gnmi"
                 self.gnmi_program = "gnmi-native"
                 self.gnmi_port = 50052
+                proc = duthost.shell(
+                    "docker exec gnmi ps aux | grep telemetry | grep -v grep",
+                    module_ignore_errors=True,
+                ).get("stdout", "")
+                self.use_tls = "--noTLS" not in proc
                 return
             else:
                 pytest.fail("GNMI is not running")
@@ -44,6 +49,7 @@ class GNMIEnvironment(object):
                 self.gnmi_container = "telemetry"
                 self.gnmi_program = "telemetry"
                 self.gnmi_port = 50051
+                self.use_tls = True
                 return
             else:
                 pytest.fail("Telemetry is not running")
@@ -242,9 +248,12 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     cmd += '--timeout 30 '
     cmd += '-t %s -p %u ' % (ip, port)
     cmd += '-xo sonic-db '
-    cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
-    cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
-    cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
+    if env.use_tls:
+        cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
+        cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
+        cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
+    else:
+        cmd += '--notls '
     if len(update_list) > 0:
         cmd += '-m set-update '
     elif len(delete_list) > 0:
@@ -282,15 +291,15 @@ def gnmi_set(duthost, ptfhost, delete_list, update_list, replace_list):
     stdout = output.get("stdout", "")
     stderr = output.get("stderr", "").strip()
     if rc != 0:
-        logger.warning("gnmi_set rc=%d stderr=%s stdout=%s", rc, stderr[:300], stdout[:300])
+        logger.warning("gnmi_set rc=%d stderr=%s stdout=%s", rc, stderr[:500], stdout[:2000])
     elif stderr:
-        logger.warning("gnmi_set stderr: %s", stderr[:300])
+        logger.warning("gnmi_set stderr: %s", stderr[:500])
     error = "GRPC error\n"
     if error in stdout:
         result = stdout.split(error, 1)
         raise Exception("GRPC error:" + result[1])
     if rc != 0:
-        raise Exception("gnmi_set failed rc=%d stderr=%s" % (rc, stderr[:500]))
+        raise Exception("gnmi_set failed rc=%d stderr=%s stdout=%s" % (rc, stderr[:500], stdout[:2000]))
     return
 
 
@@ -313,9 +322,12 @@ def gnmi_get(duthost, ptfhost, path_list):
     cmd += '--timeout 30 '
     cmd += '-t %s -p %u ' % (ip, port)
     cmd += '-xo sonic-db '
-    cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
-    cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
-    cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
+    if env.use_tls:
+        cmd += '-rcert /root/%s ' % (env.gnmi_ca_cert)
+        cmd += '-pkey /root/%s ' % (env.gnmi_client_key)
+        cmd += '-cchain /root/%s ' % (env.gnmi_client_cert)
+    else:
+        cmd += '--notls '
     cmd += '--encoding 4 '
     cmd += '-m get '
     cmd += '--xpath '

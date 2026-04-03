@@ -206,15 +206,9 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     """
     Measure the time to load private-link-50 DASH configs onto a DPU via gNMI.
 
-    Phase 1 (per-file): Read each JSON file locally and serialize all entries to
-    protobuf files in a single shared work directory — no SSH calls.
-
-    Phase 2 (once): tar + SCP to PTF + gnmi_set all updates in one shot.
-
-    This eliminates N×(tar+SCP+extract+gnmi_set+cleanup) and replaces it with
-    a single pass, reducing SSH overhead from O(N) to O(1).
+    Each JSON config file is serialized and pushed independently through the full
+    gNMI CLI flow (serialize → tar → SCP → gnmi_set → cleanup), one file at a time.
     """
-    batch_size = 1024
     dpuhost = dpuhosts[dpu_index]
     config_dir = os.path.join(CONFIG_DIR, f"dpu{dpuhost.dpu_index}")
 
@@ -228,8 +222,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     )
     assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
     logger.info(
-        "Found %d config files to load for dpu%d (batch_size=%d)",
-        len(files), dpuhost.dpu_index, batch_size,
+        "Found %d config files to load for dpu%d (one-at-a-time mode)",
+        len(files), dpuhost.dpu_index,
     )
 
     # ── Pre-flight: DPU network setup ────────────────────────────────────────
@@ -360,19 +354,45 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
     env = GNMIEnvironment(duthost)
     os.makedirs(env.work_dir, exist_ok=True)
 
-    delete_list = []
-    update_list = []
-    update_cnt = 0
     timings = {}
     total_start = time.time()
+    gnmi_elapsed = 0.0
+    update_cnt = 0
 
-    # ── Phase 1: serialize all files locally, no SSH ──────────────────────────
+    # Sync gNMI certs from NPU to PTF only when the server uses TLS.
+    # When the server runs with --noTLS, no certs are needed on the PTF.
+    if env.use_tls:
+        _gnmi_cert_path = "/etc/sonic/telemetry/"
+        _cert_map = {
+            "gnmiCA.pem": env.gnmi_ca_cert,
+            "gnmiserver.crt": env.gnmi_client_cert,
+            "gnmiserver.key": env.gnmi_client_key,
+        }
+        logger.info("Syncing gNMI certs from NPU to PTF...")
+        for src_name, dest_name in _cert_map.items():
+            fetch = duthost.shell(
+                f"docker exec {env.gnmi_container} cat {_gnmi_cert_path}{src_name} 2>/dev/null || "
+                f"cat {_gnmi_cert_path}{src_name} 2>/dev/null",
+                module_ignore_errors=True,
+            )
+            content = fetch.get("stdout", "")
+            assert content, f"Could not read {src_name} from NPU at {_gnmi_cert_path}"
+            ptfhost.copy(content=content, dest=f"/root/{dest_name}")
+            logger.info("  copied NPU:%s → PTF:/root/%s", src_name, dest_name)
+        logger.info("gNMI certs synced to PTF")
+    else:
+        logger.info("gNMI server running --noTLS, skipping cert sync")
+
+    # Push each config file individually through the full gNMI CLI flow.
     for filename in files:
         local_path = os.path.join(config_dir, filename)
         t_start = time.time()
 
         with open(local_path) as f:
             operations = json.load(f)
+
+        delete_list = []
+        update_list = []
 
         for operation in operations:
             if operation["OP"] == "SET":
@@ -399,35 +419,15 @@ def test_dash_api_load_speed_pl(localhost, duthost, ptfhost, dpuhosts, dpu_index
                     path = "/DPU_APPL_DB/dpu%d/%s" % (dpuhost.dpu_index, gnmi_key)  # noqa: E228
                     delete_list.append(path)
 
+        t_gnmi_file = time.time()
+        write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, len(update_list) or 1)
+        gnmi_elapsed += time.time() - t_gnmi_file
+
         elapsed = time.time() - t_start
         timings[filename] = elapsed
-        logger.info("  prepared %-40s  %.2fs  (%d updates so far)", filename, elapsed, update_cnt)
+        logger.info("  pushed %-40s  %.2fs  (%d updates)", filename, elapsed, len(update_list))
 
-    prep_elapsed = time.time() - total_start
-    logger.info("Serialization done: %d updates, %d deletes in %.2fs",
-                len(update_list), len(delete_list), prep_elapsed)
-
-    # ── Phase 2: single tar + SCP + gnmi_set ──────────────────────────────────
-    # Sync gnmi certs: copy CA + client certs from NPU gnmi container to PTF
-    # so they always match, regardless of what happened in previous test runs.
-    _gnmi_cert_path = "/etc/sonic/telemetry/"
-    logger.info("Syncing gNMI certs from NPU to PTF...")
-    for cert_file in ("gnmiCA.pem", "gnmiclient.crt", "gnmiclient.key"):
-        fetch = duthost.shell(
-            f"docker exec gnmi cat {_gnmi_cert_path}{cert_file} 2>/dev/null || "
-            f"cat {_gnmi_cert_path}{cert_file} 2>/dev/null",
-            module_ignore_errors=True,
-        )
-        content = fetch.get("stdout", "")
-        assert content, f"Could not read {cert_file} from NPU"
-        ptfhost.copy(content=content, dest=f"/root/{cert_file}")
-    logger.info("gNMI certs synced to PTF")
-
-    logger.info("Starting gNMI push (single tar+scp+set)...")
-    t_gnmi = time.time()
-    write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, batch_size)
-    gnmi_elapsed = time.time() - t_gnmi
-
+    prep_elapsed = 0.0
     total_elapsed = time.time() - total_start
 
     # Dump last 50 lines of NPU gnmi container log to help diagnose push failures.
