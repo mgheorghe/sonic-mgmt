@@ -214,19 +214,21 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
     """
     dpuhost = dpuhosts[dpu_index]
 
-    # ── Pre-flight: verify DPU is reachable via midplane IP ──────────────────
-    # 'show chassis module midplane-status' can report False after a previous run
-    # removed the midplane default route, even though the DPU is physically alive.
-    # Use a direct ping to the midplane IP as the authoritative liveness check.
+    # ── Pre-flight: verify DPU is alive via SSH port check ───────────────────
+    # ping and 'show chassis module midplane-status' are both unreliable after
+    # a previous run removed the midplane default route. Check TCP port 22
+    # instead — if SSH is listening the DPU is up.
     dpu_name = f"DPU{dpuhost.dpu_index}"
     dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
-    logger.info("Pre-flight: pinging %s midplane IP %s ...", dpu_name, dpu_midplane_ip)
-    ping_out = duthost.shell(f"ping -c 3 -W 2 {dpu_midplane_ip}", module_ignore_errors=True)
-    assert ping_out.get("rc", 1) == 0, (
-        f"{dpu_name} is unreachable at midplane IP {dpu_midplane_ip}. "
+    logger.info("Pre-flight: checking SSH port on %s (%s) ...", dpu_name, dpu_midplane_ip)
+    ssh_check = duthost.shell(
+        f"nc -zw 5 {dpu_midplane_ip} 22", module_ignore_errors=True
+    )
+    assert ssh_check.get("rc", 1) == 0, (
+        f"{dpu_name} SSH port 22 is not reachable at {dpu_midplane_ip}. "
         "DPU is not up — aborting test."
     )
-    logger.info("%s is reachable at %s", dpu_name, dpu_midplane_ip)
+    logger.info("%s is up — SSH port 22 reachable at %s", dpu_name, dpu_midplane_ip)
 
     config_dir = os.path.join(CONFIG_DIR, f"dpu{dpuhost.dpu_index}")
 
