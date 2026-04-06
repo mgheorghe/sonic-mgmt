@@ -247,9 +247,16 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
         dpuhost.dpu_index, len(files),
     )
 
-    # ── Pre-flight: DPU network setup ────────────────────────────────────────
     dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
+    dpu_dataplane_ip = "10.0.0.%d" % (57 + dpuhost.dpu_index * 2)
 
+    mem_before = {
+        "NPU": _collect_memory(duthost),
+        "DPU": _collect_memory(dpuhost),
+    }
+    redis_before = _collect_redis_memory(dpuhost)
+
+    # ── DPU network setup ─────────────────────────────────────────────────────
     # Add Loopback0 IP on DPU and verify it was applied.
     loopback_ip = "221.0.0.%d/32" % (dpuhost.dpu_index + 1)
     logger.info("DPU: adding Loopback0 IP %s", loopback_ip)
@@ -257,35 +264,6 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
     iface_out = dpuhost.shell("show ip interfaces")
     assert "221.0.0.%d" % (dpuhost.dpu_index + 1) in iface_out.get("stdout", ""), \
         "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback_ip
-
-    # Remove ALL default routes via the midplane gateway (static + DHCP-installed).
-    logger.info("DPU: removing all default routes via 169.254.200.254")
-    for _ in range(10):
-        routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
-        midplane_defaults = [
-            route for route in routes_out.get("stdout", "").splitlines()
-            if "169.254.200.254" in route
-        ]
-        if not midplane_defaults:
-            break
-        dpuhost.shell("sudo ip route del default via 169.254.200.254",
-                      module_ignore_errors=True)
-    routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
-    remaining = [
-        route for route in routes_out.get("stdout", "").splitlines()
-        if "169.254.200.254" in route
-    ]
-    assert not remaining, \
-        "Midplane default route(s) still present after removal: %s" % remaining
-
-    dataplane_defaults = [
-        route for route in routes_out.get("stdout", "").splitlines()
-        if route.startswith("default") and "169.254.200.254" not in route
-    ]
-    assert dataplane_defaults, \
-        "No dataplane default route found after removing midplane routes. " \
-        "'ip route show default': %s" % routes_out.get("stdout", "")
-    logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
 
     # Add permanent static neighbor (ARP) entries on NPU for dataplane next-hops.
     logger.info("NPU: adding permanent static ARP entries for dataplane next-hops")
@@ -321,19 +299,12 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
                 f"'ip neigh show {ip}': {verify.get('stdout', '')}"
             )
 
-    dpu_dataplane_ip = "10.0.0.%d" % (57 + dpuhost.dpu_index * 2)
-
     logger.info("NPU: pinging DPU midplane IP %s to populate ARP", dpu_midplane_ip)
     duthost.shell(f"ping -c 3 -W 2 {dpu_midplane_ip}", module_ignore_errors=True)
 
     arp_out = duthost.shell(f"ip n show {dpu_midplane_ip}", module_ignore_errors=True)
     logger.info("NPU ARP entry for %s: %s", dpu_midplane_ip,
                 arp_out.get("stdout", "").strip() or "(none)")
-
-    logger.info("NPU: pinging DPU dataplane IP %s", dpu_dataplane_ip)
-    ping_out = duthost.shell(f"ping -c 5 -W 2 {dpu_dataplane_ip}", module_ignore_errors=True)
-    for line in ping_out.get("stdout", "").splitlines():
-        logger.info("  %s", line)
 
     logger.info("NPU: show ip route")
     npu_route = duthost.shell("show ip route", module_ignore_errors=True)
@@ -355,11 +326,40 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
     for line in dpu_ifaces.get("stdout", "").splitlines():
         logger.info("  DPU iface: %s", line)
 
-    mem_before = {
-        "NPU": _collect_memory(duthost),
-        "DPU": _collect_memory(dpuhost),
-    }
-    redis_before = _collect_redis_memory(dpuhost)
+    # Remove ALL default routes via the midplane gateway — last step before push.
+    # Done last so SSH/ping to the midplane IP still works during all setup above.
+    logger.info("DPU: removing all default routes via 169.254.200.254")
+    for _ in range(10):
+        routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
+        midplane_defaults = [
+            route for route in routes_out.get("stdout", "").splitlines()
+            if "169.254.200.254" in route
+        ]
+        if not midplane_defaults:
+            break
+        dpuhost.shell("sudo ip route del default via 169.254.200.254",
+                      module_ignore_errors=True)
+    routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
+    remaining = [
+        route for route in routes_out.get("stdout", "").splitlines()
+        if "169.254.200.254" in route
+    ]
+    assert not remaining, \
+        "Midplane default route(s) still present after removal: %s" % remaining
+
+    dataplane_defaults = [
+        route for route in routes_out.get("stdout", "").splitlines()
+        if route.startswith("default") and "169.254.200.254" not in route
+    ]
+    assert dataplane_defaults, \
+        "No dataplane default route found after removing midplane routes. " \
+        "'ip route show default': %s" % routes_out.get("stdout", "")
+    logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
+
+    logger.info("NPU: pinging DPU dataplane IP %s", dpu_dataplane_ip)
+    ping_out = duthost.shell(f"ping -c 5 -W 2 {dpu_dataplane_ip}", module_ignore_errors=True)
+    for line in ping_out.get("stdout", "").splitlines():
+        logger.info("  %s", line)
 
     # ── Prepare stage directory on NPU ────────────────────────────────────────
     duthost.shell(f"mkdir -p {_NPU_STAGE_DIR}", module_ignore_errors=True)
