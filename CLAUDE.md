@@ -166,16 +166,42 @@ This test measures the time to push private-link-50 DASH configs onto a DPU via 
 4. *(earlier)* gNMI cert sync: before pushing, CA + client certs are copied from the NPU gnmi container to PTF so they always match.
 5. *(earlier)* DPU network setup: adds Loopback0 IP, removes midplane default routes, adds permanent static ARP entries on NPU for dataplane next-hops.
 
-**Run command (from test server):**
+**Run command (from inside sonic-mgmt container on SMD):**
 ```bash
-cd /home/dash/sonic-mgmt/sonic-mgmt/tests && ./run_tests.sh \
-  -n keysight-ss01 \
-  -d keysight-ss01 \
-  -f ../ansible/testbed.yaml \
-  -i ../ansible/lab \
-  -c dash/test_dash_api_speed_pl.py \
-  -e "--dpu_index=0"
+cd /home/dash/sonic-mgmt/sonic-mgmt/tests && \
+  ANSIBLE_LIBRARY=/home/dash/sonic-mgmt/sonic-mgmt/ansible/library \
+  ANSIBLE_MODULE_UTILS=/home/dash/sonic-mgmt/sonic-mgmt/ansible/module_utils \
+  pytest dash/test_dash_api_speed_pl.py \
+    --testbed=keysight-ss01 \
+    --testbed_file=../ansible/testbed.yaml \
+    --inventory=../ansible/lab \
+    --host-pattern=keysight-ss01 \
+    --dpu_index=0 \
+    --dpu-pattern=keysight-ss01-dpu0 \
+    --cache-clear -v
 ```
+
+**Infrastructure:**
+- **NPU:** `keysight-ss01` — 10.36.78.150
+- **DPU0 midplane:** 169.254.200.1 — only reachable from the NPU, not from SMD
+- **PTF container:** `ptf_keysight-ss01` — runs on SMD server (NOT on NPU)
+- **PTF image:** `sonicdev-microsoft.azurecr.io:443/docker-ptf:latest`
+- **SMD test server:** 10.36.79.161 (user: dash)
+- **Ansible vault password:** `password123`
+
+**After-reboot checklist:**
+1. `docker start sonic-mgmt` — start the sonic-mgmt container on SMD
+2. `docker ps | grep ptf` — check PTF container; if missing, recreate:
+   ```bash
+   docker run -d --name ptf_keysight-ss01 --privileged \
+     sonicdev-microsoft.azurecr.io:443/docker-ptf:latest
+   ```
+3. SSH to NPU and `ping -c 2 169.254.200.1` — verify DPU0 is alive (ping FROM NPU)
+4. Run the test
+
+> **Note:** `testbed-cli.sh add-topo` does NOT work for this testbed — the `lab` inventory
+> is missing `servers`/`vm_host` group entries for `sonic-mgmt-keysight`, so all Ansible
+> plays are skipped. Recreate the PTF container with `docker run` directly (step 2 above).
 
 **Open question being investigated:** Does the one-at-a-time gNMI push method correctly get ENI config onto the DPU?
 

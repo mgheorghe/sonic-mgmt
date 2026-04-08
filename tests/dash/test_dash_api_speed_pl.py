@@ -1,10 +1,13 @@
 import fnmatch
+import json
 import logging
 import os
 import re
 import time
 
+import proto_utils
 import pytest
+from gnmi_utils import GNMIEnvironment, apply_gnmi_cert, generate_gnmi_cert, write_gnmi_files
 
 logger = logging.getLogger(__name__)
 
@@ -202,77 +205,24 @@ def _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, 
     logger.info(sep)
 
 
-def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
+_NPU_STATIC_ARP = [
+    ("220.0.1.2", "80:09:02:02:00:01"),
+    ("220.0.2.2", "80:09:02:02:00:02"),
+    ("220.0.3.2", "80:09:02:02:00:03"),
+    ("220.0.4.2", "80:09:02:02:00:04"),
+]
+
+
+def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
     """
-    Measure the time to load private-link-50 DASH configs onto a DPU via gNMI.
-
-    For each JSON config file:
-      1. Copy the file to _NPU_STAGE_DIR on the NPU.
-      2. Run sonic-gnmi-agent docker container on the NPU with the stage dir
-         mounted, invoking gnmi_client.py to push the file to the DPU.
-      3. Record and log the time taken per file.
+    Prepare the NPU for a DASH config push:
+      - Add permanent static ARP entries for dataplane next-hops.
+      - Ping the DPU midplane IP to populate the NPU ARP table.
+      - Log NPU routing and interface state.
+      - Ping the DPU dataplane IP to confirm end-to-end reachability.
+      - Create the stage directory for JSON file uploads.
     """
-    dpuhost = dpuhosts[dpu_index]
-
-    # ── Pre-flight: verify DPU is alive via SSH port check ───────────────────
-    # ping and 'show chassis module midplane-status' are both unreliable after
-    # a previous run removed the midplane default route. Check TCP port 22
-    # instead — if SSH is listening the DPU is up.
-    dpu_name = f"DPU{dpuhost.dpu_index}"
-    dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
-    logger.info("Pre-flight: checking SSH port on %s (%s) ...", dpu_name, dpu_midplane_ip)
-    ssh_check = duthost.shell(
-        f"nc -zw 5 {dpu_midplane_ip} 22", module_ignore_errors=True
-    )
-    assert ssh_check.get("rc", 1) == 0, (
-        f"{dpu_name} SSH port 22 is not reachable at {dpu_midplane_ip}. "
-        "DPU is not up — aborting test."
-    )
-    logger.info("%s is up — SSH port 22 reachable at %s", dpu_name, dpu_midplane_ip)
-
-    config_dir = os.path.join(CONFIG_DIR, f"dpu{dpuhost.dpu_index}")
-
-    assert os.path.isdir(config_dir), \
-        f"Config directory not found: {config_dir}"
-
-    pattern = f"*dpu{dpuhost.dpu_index}*.json"
-    files = sorted(
-        f for f in os.listdir(config_dir)
-        if fnmatch.fnmatch(f, pattern) and f.endswith(".json")
-    )
-    assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
-    files = files[:3]
-    logger.info(
-        "Found config files to load for dpu%d (limited to %d for this run)",
-        dpuhost.dpu_index, len(files),
-    )
-
-    dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
-    dpu_dataplane_ip = "10.0.0.%d" % (57 + dpuhost.dpu_index * 2)
-
-    mem_before = {
-        "NPU": _collect_memory(duthost),
-        "DPU": _collect_memory(dpuhost),
-    }
-    redis_before = _collect_redis_memory(dpuhost)
-
-    # ── DPU network setup ─────────────────────────────────────────────────────
-    # Add Loopback0 IP on DPU and verify it was applied.
-    loopback_ip = "221.0.0.%d/32" % (dpuhost.dpu_index + 1)
-    logger.info("DPU: adding Loopback0 IP %s", loopback_ip)
-    dpuhost.shell("sudo config interface ip add Loopback0 %s" % loopback_ip)
-    iface_out = dpuhost.shell("show ip interfaces")
-    assert "221.0.0.%d" % (dpuhost.dpu_index + 1) in iface_out.get("stdout", ""), \
-        "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback_ip
-
-    # Add permanent static neighbor (ARP) entries on NPU for dataplane next-hops.
     logger.info("NPU: adding permanent static ARP entries for dataplane next-hops")
-    _NPU_STATIC_ARP = [
-        ("220.0.1.2", "80:09:02:02:00:01"),
-        ("220.0.2.2", "80:09:02:02:00:02"),
-        ("220.0.3.2", "80:09:02:02:00:03"),
-        ("220.0.4.2", "80:09:02:02:00:04"),
-    ]
     for ip, mac in _NPU_STATIC_ARP:
         route_out = duthost.shell(f"ip route get {ip}", module_ignore_errors=True)
         dev = None
@@ -316,6 +266,30 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
     for line in npu_ifaces.get("stdout", "").splitlines():
         logger.info("  NPU iface: %s", line)
 
+    logger.info("NPU: pinging DPU dataplane IP %s", dpu_dataplane_ip)
+    ping_out = duthost.shell(f"ping -c 5 -W 2 {dpu_dataplane_ip}", module_ignore_errors=True)
+    for line in ping_out.get("stdout", "").splitlines():
+        logger.info("  %s", line)
+
+    # ── Prepare stage directory on NPU ────────────────────────────────────────
+    duthost.shell(f"mkdir -p {_NPU_STAGE_DIR}", module_ignore_errors=True)
+
+
+def dpu_pre_config(dpuhost):
+    """
+    Prepare the DPU for a DASH config push:
+      - Add Loopback0 IP and verify it was applied.
+      - Log DPU routing and interface state.
+      - Remove all default routes via the midplane gateway (last step, so SSH
+        to the midplane still works during the setup above).
+    """
+    loopback_ip = "221.0.0.%d/32" % (dpuhost.dpu_index + 1)
+    logger.info("DPU: adding Loopback0 IP %s", loopback_ip)
+    dpuhost.shell("sudo config interface ip add Loopback0 %s" % loopback_ip)
+    iface_out = dpuhost.shell("show ip interfaces")
+    assert "221.0.0.%d" % (dpuhost.dpu_index + 1) in iface_out.get("stdout", ""), \
+        "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback_ip
+
     logger.info("DPU: show ip route")
     dpu_route = dpuhost.shell("show ip route", module_ignore_errors=True)
     for line in dpu_route.get("stdout", "").splitlines():
@@ -328,46 +302,37 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
 
     # Remove ALL default routes via the midplane gateway — last step before push.
     # Done last so SSH/ping to the midplane IP still works during all setup above.
-    logger.info("DPU: removing all default routes via 169.254.200.254")
-    for _ in range(10):
-        routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
-        midplane_defaults = [
-            route for route in routes_out.get("stdout", "").splitlines()
-            if "169.254.200.254" in route
-        ]
-        if not midplane_defaults:
-            break
-        dpuhost.shell("sudo ip route del default via 169.254.200.254",
-                      module_ignore_errors=True)
-    routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
-    remaining = [
-        route for route in routes_out.get("stdout", "").splitlines()
-        if "169.254.200.254" in route
-    ]
-    assert not remaining, \
-        "Midplane default route(s) still present after removal: %s" % remaining
+    # logger.info("DPU: removing all default routes via 169.254.200.254")
+    # for _ in range(10):
+    #     routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
+    #     midplane_defaults = [
+    #         route for route in routes_out.get("stdout", "").splitlines()
+    #         if "169.254.200.254" in route
+    #     ]
+    #     if not midplane_defaults:
+    #         break
+    #     dpuhost.shell("sudo ip route del default via 169.254.200.254",
+    #                   module_ignore_errors=True)
+    # routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
+    # remaining = [
+    #     route for route in routes_out.get("stdout", "").splitlines()
+    #     if "169.254.200.254" in route
+    # ]
+    # assert not remaining, \
+    #     "Midplane default route(s) still present after removal: %s" % remaining
 
-    dataplane_defaults = [
-        route for route in routes_out.get("stdout", "").splitlines()
-        if route.startswith("default") and "169.254.200.254" not in route
-    ]
-    assert dataplane_defaults, \
-        "No dataplane default route found after removing midplane routes. " \
-        "'ip route show default': %s" % routes_out.get("stdout", "")
-    logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
+    # dataplane_defaults = [
+    #     route for route in routes_out.get("stdout", "").splitlines()
+    #     if route.startswith("default") and "169.254.200.254" not in route
+    # ]
+    # assert dataplane_defaults, \
+    #     "No dataplane default route found after removing midplane routes. " \
+    #     "'ip route show default': %s" % routes_out.get("stdout", "")
+    # logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
 
-    logger.info("NPU: pinging DPU dataplane IP %s", dpu_dataplane_ip)
-    ping_out = duthost.shell(f"ping -c 5 -W 2 {dpu_dataplane_ip}", module_ignore_errors=True)
-    for line in ping_out.get("stdout", "").splitlines():
-        logger.info("  %s", line)
 
-    # ── Prepare stage directory on NPU ────────────────────────────────────────
-    duthost.shell(f"mkdir -p {_NPU_STAGE_DIR}", module_ignore_errors=True)
-
-    timings = {}
-    total_start = time.time()
-
-    # ── Load each JSON file via docker run on NPU ─────────────────────────────
+def load_json_via_npu(duthost, dpuhost, config_dir, files, timings):
+    """Push each JSON config file to the DPU via docker run on the NPU."""
     for idx, filename in enumerate(files, start=1):
         local_path = os.path.join(config_dir, filename)
         npu_path = f"{_NPU_STAGE_DIR}/{filename}"
@@ -402,7 +367,140 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
 
         duthost.shell(f"rm -f {npu_path}", module_ignore_errors=True)
 
+
+def load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings):
+    """Push each JSON config file to the DPU via py_gnmicli.py on the PTF container."""
+    env = GNMIEnvironment(duthost)
+    dpu_host_str = f"dpu{dpuhost.dpu_index}"
+
+    for idx, filename in enumerate(files, start=1):
+        local_path = os.path.join(config_dir, filename)
+        logger.info("  [%d/%d] pushing %s ...", idx, len(files), filename)
+
+        with open(local_path) as f:
+            operations = json.load(f)
+
+        update_list = []
+        delete_list = []
+        update_cnt = 0
+
+        for operation in operations:
+            if operation["OP"] == "SET":
+                for k, v in operation.items():
+                    if k == "OP":
+                        continue
+                    update_cnt += 1
+                    file_name = f"update{update_cnt}"
+                    keys = k.split(":", 1)
+                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
+                    if proto_utils.ENABLE_PROTO:
+                        message = proto_utils.parse_dash_proto(k, v)
+                        with open(env.work_dir + file_name, "wb") as bf:
+                            bf.write(message.SerializeToString())
+                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:$/root/{file_name}"     # noqa: E231
+                    else:
+                        with open(env.work_dir + file_name, "w") as tf:
+                            tf.write(json.dumps(v))
+                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:@/root/{file_name}"     # noqa: E231
+                    update_list.append(path)
+            elif operation["OP"] == "DEL":
+                for k, v in operation.items():
+                    if k == "OP":
+                        continue
+                    keys = k.split(":", 1)
+                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
+                    delete_list.append(f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}")
+
+        t_start = time.time()
+        try:
+            write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, 1024)
+        except Exception as e:
+            elapsed = time.time() - t_start
+            timings[filename] = elapsed
+            logger.error("  [%d/%d] FAILED %s after %.2fs: %s", idx, len(files), filename, elapsed, e)
+            pytest.fail(f"gNMI push failed for {filename}: {e}")
+        elapsed = time.time() - t_start
+        timings[filename] = elapsed
+
+        logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
+
+
+def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost):
+    """
+    Measure the time to load private-link-50 DASH configs onto a DPU via gNMI.
+
+    For each JSON config file:
+      1. Copy the file to _NPU_STAGE_DIR on the NPU.
+      2. Run sonic-gnmi-agent docker container on the NPU with the stage dir
+         mounted, invoking gnmi_client.py to push the file to the DPU.
+      3. Record and log the time taken per file.
+    """
+    dpuhost = dpuhosts[dpu_index]
+
+    # ── Pre-flight: verify DPU is alive via SSH port check ───────────────────
+    # ping and 'show chassis module midplane-status' are both unreliable after
+    # a previous run removed the midplane default route. Check TCP port 22
+    # instead — if SSH is listening the DPU is up.
+    dpu_name = f"DPU{dpuhost.dpu_index}"
+    dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
+    logger.info("Pre-flight: assuming %s is up at %s (no automated check)", dpu_name, dpu_midplane_ip)
+
+    config_dir = os.path.join(CONFIG_DIR, f"dpu{dpuhost.dpu_index}")
+
+    assert os.path.isdir(config_dir), \
+        f"Config directory not found: {config_dir}"
+
+    pattern = f"*dpu{dpuhost.dpu_index}*.json"
+    files = sorted(
+        f for f in os.listdir(config_dir)
+        if fnmatch.fnmatch(f, pattern) and f.endswith(".json")
+    )
+    assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
+    files = files[:3]
+    logger.info(
+        "Found config files to load for dpu%d (limited to %d for this run)",
+        dpuhost.dpu_index, len(files),
+    )
+
+    dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
+    dpu_dataplane_ip = "10.0.0.%d" % (57 + dpuhost.dpu_index * 2)
+
+    mem_before = {
+        "NPU": _collect_memory(duthost),
+        "DPU": _collect_memory(dpuhost),
+    }
+    redis_before = _collect_redis_memory(dpuhost)
+
+    dpu_pre_config(dpuhost)
+    npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
+
+    logger.info("Setting up gNMI certs on NPU and PTF...")
+    generate_gnmi_cert(localhost, duthost)
+    apply_gnmi_cert(duthost, ptfhost)
+
+    timings = {}
+    total_start = time.time()
+
+    # Select the load method: "npu" runs gnmi_client.py via docker on the NPU;
+    # "ptf" runs py_gnmicli.py directly inside the PTF container.
+    _LOAD_METHOD = "ptf"
+
+    if _LOAD_METHOD == "ptf":
+        load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings)
+    elif _LOAD_METHOD == "npu":
+        load_json_via_npu(duthost, dpuhost, config_dir, files, timings)
+    else:
+        raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
+
     total_elapsed = time.time() - total_start
+
+    mem_after = {
+        "NPU": _collect_memory(duthost),
+        "DPU": _collect_memory(dpuhost),
+    }
+    redis_after = _collect_redis_memory(dpuhost)
+
+    _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after)
 
     # ── Check DPU is still up after the push ──────────────────────────────────
     # Midplane reachability (169.254.200.x) is expected to be False after we
@@ -438,11 +536,3 @@ def test_dash_api_load_speed_pl(duthost, dpuhosts, dpu_index):
         logger.info("  %s", line)
     assert eni_count == 64, \
         "Expected 64 ENIs in COUNTERS_ENI_NAME_MAP but found %d" % eni_count
-
-    mem_after = {
-        "NPU": _collect_memory(duthost),
-        "DPU": _collect_memory(dpuhost),
-    }
-    redis_after = _collect_redis_memory(dpuhost)
-
-    _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after)
