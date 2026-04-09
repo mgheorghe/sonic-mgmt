@@ -425,6 +425,110 @@ def load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, t
         logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
 
 
+def load_json_via_cli(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings):
+    """Push each JSON config file to the DPU via py_gnmicli.py CLI on the PTF container.
+
+    Equivalent to load_json_via_ptf but directly constructs and runs the
+    py_gnmicli.py command without going through write_gnmi_files/gnmi_set helpers.
+    """
+    env = GNMIEnvironment(duthost)
+    dpu_host_str = f"dpu{dpuhost.dpu_index}"
+    ip = duthost.mgmt_ip
+    port = env.gnmi_port
+
+    localhost.shell(f"mkdir -p {env.work_dir}", module_ignore_errors=True)
+
+    base_cmd = (
+        f'/root/env-python3/bin/python /root/gnxi/gnmi_cli_py/py_gnmicli.py '
+        f'--timeout 30 '
+        f'-t {ip} -p {port} '
+        f'-xo sonic-db '
+        f'-rcert /root/{env.gnmi_ca_cert} '
+        f'-pkey /root/{env.gnmi_client_key} '
+        f'-cchain /root/{env.gnmi_client_cert} '
+    )
+
+    for idx, filename in enumerate(files, start=1):
+        local_path = os.path.join(config_dir, filename)
+        logger.info("  [%d/%d] pushing %s ...", idx, len(files), filename)
+
+        with open(local_path) as f:
+            operations = json.load(f)
+
+        update_list = []
+        delete_list = []
+        update_cnt = 0
+
+        for operation in operations:
+            if operation["OP"] == "SET":
+                for k, v in operation.items():
+                    if k == "OP":
+                        continue
+                    update_cnt += 1
+                    file_name = f"update{update_cnt}"
+                    keys = k.split(":", 1)
+                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
+                    if proto_utils.ENABLE_PROTO:
+                        message = proto_utils.parse_dash_proto(k, v)
+                        with open(env.work_dir + file_name, "wb") as bf:
+                            bf.write(message.SerializeToString())
+                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:$/root/{file_name}"     # noqa: E231
+                    else:
+                        with open(env.work_dir + file_name, "w") as tf:
+                            tf.write(json.dumps(v))
+                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:@/root/{file_name}"     # noqa: E231
+                    update_list.append(path)
+            elif operation["OP"] == "DEL":
+                for k, v in operation.items():
+                    if k == "OP":
+                        continue
+                    keys = k.split(":", 1)
+                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
+                    delete_list.append(f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}")
+
+        localhost.shell(f'tar -czf /tmp/updates.tar.gz -C {env.work_dir} .')
+        ptfhost.copy(src='/tmp/updates.tar.gz', dest='~')
+        ptfhost.shell('tar -xf updates.tar.gz')
+
+        t_start = time.time()
+        try:
+            if delete_list:
+                xpath = ' '.join(p.replace('sonic-db:', '') for p in delete_list)
+                xvalue = ' '.join('""' for _ in delete_list)
+                cmd = base_cmd + f'-m set-delete --xpath {xpath} --value {xvalue}'
+                output = ptfhost.shell(cmd, module_ignore_errors=True)
+                if "GRPC error\n" in output['stdout']:
+                    raise Exception("GRPC error: " + output['stdout'].split("GRPC error\n", 1)[1])
+
+            if update_list:
+                xpath = ''
+                xvalue = ''
+                for update in update_list:
+                    update = update.replace('sonic-db:', '')
+                    result = update.rsplit(':', 1)
+                    xpath += ' ' + result[0]
+                    xvalue += ' ' + result[1]
+                cmd = base_cmd + f'-m set-update --xpath {xpath} --value {xvalue}'
+                output = ptfhost.shell(cmd, module_ignore_errors=True)
+                if "GRPC error\n" in output['stdout']:
+                    raise Exception("GRPC error: " + output['stdout'].split("GRPC error\n", 1)[1])
+
+        except Exception as e:
+            elapsed = time.time() - t_start
+            timings[filename] = elapsed
+            logger.error("  [%d/%d] FAILED %s after %.2fs: %s", idx, len(files), filename, elapsed, e)
+            pytest.fail(f"gNMI CLI push failed for {filename}: {e}")
+
+        elapsed = time.time() - t_start
+        timings[filename] = elapsed
+        logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
+
+        localhost.shell('rm -f /tmp/updates.tar.gz')
+        ptfhost.shell('rm -f updates.tar.gz')
+        localhost.shell(f'find {env.work_dir} -name "update*" -delete')
+        ptfhost.shell('find . -maxdepth 1 -name "update*" -delete')
+
+
 def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost):
     """
     Measure the time to load private-link-50 DASH configs onto a DPU via gNMI.
@@ -456,10 +560,9 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         if fnmatch.fnmatch(f, pattern) and f.endswith(".json")
     )
     assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
-    files = files[:3]
     logger.info(
-        "Found config files to load for dpu%d (limited to %d for this run)",
-        dpuhost.dpu_index, len(files),
+        "Found %d config files to load for dpu%d",
+        len(files), dpuhost.dpu_index,
     )
 
     dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
@@ -481,14 +584,18 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     timings = {}
     total_start = time.time()
 
-    # Select the load method: "npu" runs gnmi_client.py via docker on the NPU;
-    # "ptf" runs py_gnmicli.py directly inside the PTF container.
-    _LOAD_METHOD = "ptf"
+    # Select the load method:
+    #   "npu" — gnmi_client.py via docker on the NPU
+    #   "ptf" — py_gnmicli.py via write_gnmi_files/gnmi_set helpers on PTF
+    #   "cli" — py_gnmicli.py invoked directly on PTF (same tool as "ptf", no helpers)
+    _LOAD_METHOD = "cli"
 
     if _LOAD_METHOD == "ptf":
         load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings)
     elif _LOAD_METHOD == "npu":
         load_json_via_npu(duthost, dpuhost, config_dir, files, timings)
+    elif _LOAD_METHOD == "cli":
+        load_json_via_cli(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings)
     else:
         raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
 
@@ -524,15 +631,28 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     logger.info("%s dataplane reachability after push: OK", dpu_name)
 
     # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
-    logger.info("DPU: checking ENI count in COUNTERS_DB...")
-    eni_out = dpuhost.shell(
-        'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
-        module_ignore_errors=True,
-    )
-    eni_lines = [line.strip() for line in eni_out.get("stdout", "").splitlines() if line.strip()]
-    eni_count = len(eni_lines) // 2
-    logger.info("DPU: ENIs found in COUNTERS_ENI_NAME_MAP: %d", eni_count)
-    for line in eni_lines:
-        logger.info("  %s", line)
-    assert eni_count == 64, \
-        "Expected 64 ENIs in COUNTERS_ENI_NAME_MAP but found %d" % eni_count
+    # ENIs take time to propagate from APPL_DB through the DPU pipeline into
+    # COUNTERS_ENI_NAME_MAP. Poll with a generous timeout.
+    _ENI_EXPECTED = 64
+    _ENI_POLL_INTERVAL = 10   # seconds between polls
+    _ENI_TIMEOUT = 300        # 5 minutes total
+    logger.info("DPU: waiting for %d ENIs in COUNTERS_ENI_NAME_MAP (timeout %ds)...",
+                _ENI_EXPECTED, _ENI_TIMEOUT)
+    deadline = time.time() + _ENI_TIMEOUT
+    eni_count = 0
+    while time.time() < deadline:
+        eni_out = dpuhost.shell(
+            'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
+            module_ignore_errors=True,
+        )
+        eni_stdout = eni_out.get("stdout", "")
+        eni_lines = [line.strip() for line in eni_stdout.splitlines() if line.strip()]
+        eni_count = len(eni_lines) // 2
+        logger.info("DPU: ENIs found: %d / %d", eni_count, _ENI_EXPECTED)
+        logger.info("DPU: COUNTERS_ENI_NAME_MAP raw output:\n%s", eni_stdout or "(empty)")
+        if eni_count >= _ENI_EXPECTED:
+            break
+        time.sleep(_ENI_POLL_INTERVAL)
+    assert eni_count == _ENI_EXPECTED, \
+        "Expected %d ENIs in COUNTERS_ENI_NAME_MAP but found %d after %ds" % (
+            _ENI_EXPECTED, eni_count, _ENI_TIMEOUT)
