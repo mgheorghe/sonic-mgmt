@@ -541,24 +541,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     logger.info("config_dir (container): %s", config_dir)
     logger.info("config_dir (host):      %s", host_config_dir)
 
-    # Extract and patch go_gnmi_utils.py to disable per-operation logging.
-    # The unpatched version logs "Updating ..." for every single gNMI SET
-    # operation, which kills performance on large configs (640+ ops/file).
-    patched_gnmi_utils = os.path.join(os.path.dirname(config_dir), ".go_gnmi_utils_patched.py")
-    if not os.path.exists(patched_gnmi_utils):
-        # Extract from image via a throwaway container
-        localhost.shell(
-            f"docker create --name _gnmi_extract {_GNMI_AGENT_IMAGE} true"
-            f" && docker cp _gnmi_extract:{_GO_GNMI_UTILS_CTR} {patched_gnmi_utils}"  # noqa: E231
-            f" && docker rm _gnmi_extract",
-        )
-        # Comment out the logger.info line that prints per-operation updates
-        localhost.shell(
-            f"sed -i 's/^\\(\\s*logger\\.info.*Updating\\)/# \\1/' {patched_gnmi_utils}"
-        )
-        logger.info("Patched go_gnmi_utils.py (disabled per-op logging): %s", patched_gnmi_utils)
-    host_patched_gnmi_utils = _container_path_to_host(patched_gnmi_utils)
-
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell(
         "sonic-db-cli DPU_APPL_DB DBSIZE",
@@ -579,11 +561,10 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         logger.info("  [%d/%d] pushing %s (%d ops: %s) ...",
                     idx, len(files), filename, op_count, table_summary)
 
-        # Ephemeral docker run — mount config_dir as /dpu and patched go_gnmi_utils.py.
+        # Ephemeral docker run — mount config_dir as /dpu.
         cmd = (
             f"docker run --rm --network host"
             f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
-            f" --mount src={host_patched_gnmi_utils},target={_GO_GNMI_UTILS_CTR},type=bind,readonly"  # noqa: E231
             f" {_GNMI_AGENT_IMAGE}"
             f" -c 'gnmi_client.py --batch_val 500 -i {dpu_index}"
             f" -n 8 -t {ip}:{port} update -f /dpu/{filename}'"  # noqa: E231
