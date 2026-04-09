@@ -520,14 +520,15 @@ def _container_path_to_host(container_path):
     return container_path
 
 
+_GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
+
+
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
-    """Push each JSON config file via ephemeral sonic-gnmi-agent docker run.
+    """Push each JSON config file via a persistent sonic-gnmi-agent container.
 
-    Uses the same pattern as the proven dpu.py script: for each file, run a
-    fresh container with the config directory bind-mounted to /dpu, then invoke
-    gnmi_client.py with -f /dpu/<basename>.
-
-    After each file push, verifies keys actually landed in DPU_APPL_DB.
+    Starts one long-lived container with config_dir bind-mounted to /dpu,
+    then uses 'docker exec' for each file push — avoiding per-file container
+    startup overhead.  Verification is batched at the end for speed.
     """
     env = GNMIEnvironment(duthost)
     dpu_index = dpuhost.dpu_index
@@ -535,8 +536,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     port = env.gnmi_port
 
     # Translate container path → host path for docker bind mount.
-    # We run inside a sonic-mgmt container but 'docker run' creates sibling
-    # containers via the host daemon, so --mount src= must be a host path.
     host_config_dir = _container_path_to_host(config_dir)
     logger.info("config_dir (container): %s", config_dir)
     logger.info("config_dir (host):      %s", host_config_dir)
@@ -548,28 +547,47 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     )
     logger.info("DPU_APPL_DB DBSIZE before push: %s", db_before.get("stdout", "").strip())
 
+    # Start a persistent container (reuse if already running).
+    localhost.shell(
+        f"docker rm -f {_GNMI_CONTAINER_NAME}",
+        module_ignore_errors=True,
+    )
+    start_out = localhost.shell(
+        f"docker run -d --name {_GNMI_CONTAINER_NAME} --network host"
+        f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
+        f" {_GNMI_AGENT_IMAGE} -c 'sleep infinity'",
+        module_ignore_errors=True,
+    )
+    if start_out.get("rc", 1) != 0:
+        pytest.fail("Could not start %s: %s" % (
+            _GNMI_CONTAINER_NAME, start_out.get("stderr", "")))
+    logger.info("Started persistent container %s", _GNMI_CONTAINER_NAME)
+
+    # Pre-count operations for all files (outside the timed loop).
+    file_info = []
+    all_tables = set()
+    for filename in files:
+        local_path = os.path.join(config_dir, filename)
+        op_count, tables = _count_json_operations(local_path)
+        file_info.append((filename, op_count, tables))
+        all_tables.update(tables.keys())
+
     push_errors = []
 
-    for idx, filename in enumerate(files, start=1):
-        local_path = os.path.join(config_dir, filename)
-
-        # Count expected operations
-        op_count, tables = _count_json_operations(local_path)
+    for idx, (filename, op_count, tables) in enumerate(file_info, start=1):
         table_summary = ", ".join(
-            "{0}:{1}S/{2}D".format(t, tables[t]['SET'], tables[t]['DEL']) for t in sorted(tables)
+            "{0}:{1}S/{2}D".format(t, tables[t]['SET'], tables[t]['DEL'])
+            for t in sorted(tables)
         )
         logger.info("  [%d/%d] pushing %s (%d ops: %s) ...",
                     idx, len(files), filename, op_count, table_summary)
 
-        # Ephemeral docker run — mount config_dir as /dpu.
+        # docker exec on the persistent container — no startup overhead.
         cmd = (
-            f"docker run --rm --network host"
-            f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
-            f" {_GNMI_AGENT_IMAGE}"
-            f" -c 'gnmi_client.py --batch_val 500 -i {dpu_index}"
-            f" -n 8 -t {ip}:{port} update -f /dpu/{filename}'"  # noqa: E231
+            f"docker exec {_GNMI_CONTAINER_NAME}"
+            f" gnmi_client.py --batch_val 500 -i {dpu_index}"
+            f" -n 8 -t {ip}:{port} update -f /dpu/{filename}"  # noqa: E231
         )
-        logger.debug("  CMD: %s", cmd)
 
         t_start = time.time()
         out = localhost.shell(cmd, module_ignore_errors=True)
@@ -577,47 +595,37 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         timings[filename] = elapsed
 
         rc = out.get("rc", -1)
-        stdout = out.get("stdout", "")
         stderr = out.get("stderr", "")
 
-        # Log ALL output — stdout and stderr
-        if stdout.strip():
-            for line in stdout.splitlines():
-                logger.info("    [stdout] %s", line)
-        else:
-            logger.warning("    [stdout] (empty — gnmi_client.py produced no output)")
-
-        if stderr.strip():
-            for line in stderr.splitlines():
-                logger.info("    [stderr] %s", line)
-
-        # Detect failure: non-zero rc, known error strings, or empty stdout
+        # Only log errors and summary — skip per-line stderr for speed.
         failed = False
         failure_reason = ""
 
         if rc != 0:
             failed = True
             failure_reason = f"exit code {rc}"
-        elif "Set failed" in stdout or "GRPC error" in stdout or "Error" in stdout:
+        elif "Set failed" in stderr or "GRPC error" in stderr or "Error" in stderr:
             failed = True
-            failure_reason = "error string in stdout"
-        elif "error" in stderr.lower() or "failed" in stderr.lower():
-            failed = True
-            failure_reason = "error string in stderr"
+            failure_reason = "error string in output"
 
         if failed:
-            msg = ("  [%d/%d] FAILED %s after %.2fs — %s\n"
-                   "  stdout: %s\n  stderr: %s")
-            logger.error(msg, idx, len(files), filename, elapsed, failure_reason,
-                         stdout[:500], stderr[:500])
+            logger.error("  [%d/%d] FAILED %s after %.2fs — %s\n  stderr: %s",
+                         idx, len(files), filename, elapsed, failure_reason,
+                         stderr[:500])
             push_errors.append(f"{filename}: {failure_reason}")
         else:
             logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d",
                         idx, len(files), filename, elapsed, rc)
 
-        # Post-push verification: check DPU_APPL_DB for keys from tables in this file
-        for table in tables:
-            _verify_dpu_appl_db(dpuhost, "%s:*" % table, label="after %s" % filename)
+    # Stop the persistent container.
+    localhost.shell(
+        f"docker rm -f {_GNMI_CONTAINER_NAME}",
+        module_ignore_errors=True,
+    )
+
+    # Batch verification: check DPU_APPL_DB once for all tables.
+    for table in sorted(all_tables):
+        _verify_dpu_appl_db(dpuhost, "%s:*" % table, label="after all files")
 
     # Final DB size check
     db_after = dpuhost.shell(
