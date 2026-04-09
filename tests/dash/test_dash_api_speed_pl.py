@@ -28,10 +28,6 @@ _GNMI_AGENT_IMAGE = "sonic-gnmi-agent:2026march13"
 _GO_GNMI_UTILS_NPU = "/root/pl_1/go_gnmi_utils.py"
 _GO_GNMI_UTILS_CTR = "/usr/lib/python3/dist-packages/gnmi_agent/go_gnmi_utils.py"
 
-# sonic-gnmi-agent container run locally (on the sonic-mgmt / SMD machine)
-_LOCAL_GNMI_AGENT_CONTAINER = "sonic-gnmi-agent-local"
-_LOCAL_GNMI_AGENT_WORK_DIR = "/tmp/gnmi_agent_work"
-
 
 def _parse_mem_str(mem_str):
     """Parse a docker memory string like '512MiB', '1.5GiB', '256kB' into MiB."""
@@ -462,11 +458,11 @@ def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
 
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
-    """Push each JSON config file via sonic-gnmi-agent container running locally on the sonic-mgmt machine.
+    """Push each JSON config file via ephemeral sonic-gnmi-agent docker run.
 
-    The container must be present as image sonic-gnmi-agent:2026march13 on the local Docker host.
-    It is started automatically (once) with the work directory bind-mounted, then gnmi_client.py
-    is invoked via 'docker exec' for each file, connecting to the NPU gNMI server directly.
+    Uses the same pattern as the proven dpu.py script: for each file, run a
+    fresh container with the config directory bind-mounted to /dpu, then invoke
+    gnmi_client.py with -f /dpu/<basename>.
 
     After each file push, verifies keys actually landed in DPU_APPL_DB.
     """
@@ -474,55 +470,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     dpu_index = dpuhost.dpu_index
     ip = duthost.mgmt_ip
     port = env.gnmi_port
-    work_dir = _LOCAL_GNMI_AGENT_WORK_DIR
-
-    localhost.shell(f"mkdir -p {work_dir}", module_ignore_errors=True)
-
-    # Start the container if not already running.
-    check = localhost.shell(
-        f"docker inspect --format='{{{{.State.Running}}}}' {_LOCAL_GNMI_AGENT_CONTAINER} 2>/dev/null || echo false",
-        module_ignore_errors=True,
-    )
-    if "true" not in check.get("stdout", "").lower():
-        localhost.shell(f"docker rm -f {_LOCAL_GNMI_AGENT_CONTAINER}", module_ignore_errors=True)
-        start_out = localhost.shell(
-            f"docker run -d --name {_LOCAL_GNMI_AGENT_CONTAINER} --network host"
-            f" -v {work_dir}:{work_dir}"  # noqa: E231
-            f" {_GNMI_AGENT_IMAGE} -c 'sleep infinity'",
-            module_ignore_errors=True,
-        )
-        if start_out.get("rc", 1) != 0:
-            logger.error("Failed to start %s: %s", _LOCAL_GNMI_AGENT_CONTAINER,
-                         start_out.get("stderr", ""))
-            pytest.fail(f"Could not start {_LOCAL_GNMI_AGENT_CONTAINER}: "
-                        f"{start_out.get('stderr', '')}")
-        logger.info("Started %s container (id: %s)",
-                    _LOCAL_GNMI_AGENT_CONTAINER,
-                    start_out.get("stdout", "").strip()[:12])
-
-    # Verify container is responsive
-    ping_out = localhost.shell(
-        f"docker exec {_LOCAL_GNMI_AGENT_CONTAINER} echo ok",
-        module_ignore_errors=True,
-    )
-    if "ok" not in ping_out.get("stdout", ""):
-        logs_out = localhost.shell(
-            f"docker logs {_LOCAL_GNMI_AGENT_CONTAINER} 2>&1 | tail -30",
-            module_ignore_errors=True,
-        )
-        logger.error("Container logs:\n%s", logs_out.get("stdout", "(empty)"))
-        pytest.fail("%s container is not responsive: stdout=%s, stderr=%s" % (
-            _LOCAL_GNMI_AGENT_CONTAINER,
-            ping_out.get('stdout', ''), ping_out.get('stderr', '')))
-
-    # Check that gnmi_client.py exists in the container
-    which_out = localhost.shell(
-        f"docker exec {_LOCAL_GNMI_AGENT_CONTAINER} which gnmi_client.py",
-        module_ignore_errors=True,
-    )
-    logger.info("gnmi_client.py location: %s", which_out.get("stdout", "").strip() or "(not found)")
-    if which_out.get("rc", 1) != 0:
-        pytest.fail("gnmi_client.py missing from %s" % _LOCAL_GNMI_AGENT_CONTAINER)
 
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell(
@@ -535,7 +482,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
 
     for idx, filename in enumerate(files, start=1):
         local_path = os.path.join(config_dir, filename)
-        container_path = f"{work_dir}/{filename}"
 
         # Count expected operations
         op_count, tables = _count_json_operations(local_path)
@@ -545,12 +491,14 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         logger.info("  [%d/%d] pushing %s (%d ops: %s) ...",
                     idx, len(files), filename, op_count, table_summary)
 
-        localhost.shell(f"cp {local_path} {work_dir}/{filename}")
-
+        # Ephemeral docker run — mount config_dir as /dpu, pass -f /dpu/<basename>
+        # Matches the working pattern from dpu.py exactly.
         cmd = (
-            f"docker exec {_LOCAL_GNMI_AGENT_CONTAINER}"
-            f" gnmi_client.py --batch_val 500 -i {dpu_index}"
-            f" -n 8 -t {ip}:{port} update -f {container_path}"  # noqa: E231
+            f"docker run --rm --network host"
+            f" --mount src={config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
+            f" {_GNMI_AGENT_IMAGE}"
+            f" -c 'gnmi_client.py --batch_val 500 -i {dpu_index}"
+            f" -n 8 -t {ip}:{port} update -f /dpu/{filename}'"  # noqa: E231
         )
         logger.debug("  CMD: %s", cmd)
 
@@ -601,8 +549,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         # Post-push verification: check DPU_APPL_DB for keys from tables in this file
         for table in tables:
             _verify_dpu_appl_db(dpuhost, "%s:*" % table, label="after %s" % filename)
-
-        localhost.shell(f"rm -f {work_dir}/{filename}", module_ignore_errors=True)
 
     # Final DB size check
     db_after = dpuhost.shell(
