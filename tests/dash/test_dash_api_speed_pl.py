@@ -429,12 +429,46 @@ def load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, t
         logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
 
 
+def _count_json_operations(filepath):
+    """Count SET/DEL operations and distinct table types in a config JSON file."""
+    with open(filepath) as f:
+        operations = json.load(f)
+    tables = {}
+    for op in operations:
+        op_type = op.get("OP", "?")
+        for k in op:
+            if k == "OP":
+                continue
+            table = k.split(":")[0]
+            tables.setdefault(table, {"SET": 0, "DEL": 0})
+            tables[table][op_type] = tables[table].get(op_type, 0) + 1
+    return len(operations), tables
+
+
+def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
+    """Query DPU_APPL_DB for keys matching table_pattern and return count + sample keys."""
+    out = dpuhost.shell(
+        f"sonic-db-cli DPU_APPL_DB KEYS '{table_pattern}' 2>/dev/null",
+        module_ignore_errors=True,
+    )
+    keys = [k.strip() for k in out.get("stdout", "").splitlines() if k.strip()]
+    if label:
+        logger.info("  DPU_APPL_DB %s: %d keys matching '%s'", label, len(keys), table_pattern)
+        for k in keys[:5]:
+            logger.info("    sample: %s", k)
+        if len(keys) > 5:
+            logger.info("    ... and %d more", len(keys) - 5)
+    return keys
+
+
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     """Push each JSON config file via sonic-gnmi-agent container running locally on the sonic-mgmt machine.
 
     The container must be present as image sonic-gnmi-agent:2026march13 on the local Docker host.
     It is started automatically (once) with the work directory bind-mounted, then gnmi_client.py
     is invoked via 'docker exec' for each file, connecting to the NPU gNMI server directly.
+
+    After each file push, verifies keys actually landed in DPU_APPL_DB.
     """
     env = GNMIEnvironment(duthost)
     dpu_index = dpuhost.dpu_index
@@ -451,17 +485,60 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     )
     if "true" not in check.get("stdout", "").lower():
         localhost.shell(f"docker rm -f {_LOCAL_GNMI_AGENT_CONTAINER}", module_ignore_errors=True)
-        localhost.shell(
+        start_out = localhost.shell(
             f"docker run -d --name {_LOCAL_GNMI_AGENT_CONTAINER} --network host"
             f" -v {work_dir}:{work_dir}"  # noqa: E231
             f" {_GNMI_AGENT_IMAGE} sleep infinity",
+            module_ignore_errors=True,
         )
-        logger.info("Started %s container", _LOCAL_GNMI_AGENT_CONTAINER)
+        if start_out.get("rc", 1) != 0:
+            logger.error("Failed to start %s: %s", _LOCAL_GNMI_AGENT_CONTAINER,
+                         start_out.get("stderr", ""))
+            pytest.fail(f"Could not start {_LOCAL_GNMI_AGENT_CONTAINER}: "
+                        f"{start_out.get('stderr', '')}")
+        logger.info("Started %s container (id: %s)",
+                    _LOCAL_GNMI_AGENT_CONTAINER,
+                    start_out.get("stdout", "").strip()[:12])
+
+    # Verify container is responsive
+    ping_out = localhost.shell(
+        f"docker exec {_LOCAL_GNMI_AGENT_CONTAINER} echo ok",
+        module_ignore_errors=True,
+    )
+    if "ok" not in ping_out.get("stdout", ""):
+        pytest.fail("%s container is not responsive: stdout=%s, stderr=%s" % (
+            _LOCAL_GNMI_AGENT_CONTAINER,
+            ping_out.get('stdout', ''), ping_out.get('stderr', '')))
+
+    # Check that gnmi_client.py exists in the container
+    which_out = localhost.shell(
+        f"docker exec {_LOCAL_GNMI_AGENT_CONTAINER} which gnmi_client.py",
+        module_ignore_errors=True,
+    )
+    logger.info("gnmi_client.py location: %s", which_out.get("stdout", "").strip() or "(not found)")
+    if which_out.get("rc", 1) != 0:
+        pytest.fail("gnmi_client.py missing from %s" % _LOCAL_GNMI_AGENT_CONTAINER)
+
+    # Snapshot DPU_APPL_DB key count before pushing
+    db_before = dpuhost.shell(
+        "sonic-db-cli DPU_APPL_DB DBSIZE",
+        module_ignore_errors=True,
+    )
+    logger.info("DPU_APPL_DB DBSIZE before push: %s", db_before.get("stdout", "").strip())
+
+    push_errors = []
 
     for idx, filename in enumerate(files, start=1):
         local_path = os.path.join(config_dir, filename)
         container_path = f"{work_dir}/{filename}"
-        logger.info("  [%d/%d] pushing %s ...", idx, len(files), filename)
+
+        # Count expected operations
+        op_count, tables = _count_json_operations(local_path)
+        table_summary = ", ".join(
+            "{0}:{1}S/{2}D".format(t, tables[t]['SET'], tables[t]['DEL']) for t in sorted(tables)
+        )
+        logger.info("  [%d/%d] pushing %s (%d ops: %s) ...",
+                    idx, len(files), filename, op_count, table_summary)
 
         localhost.shell(f"cp {local_path} {work_dir}/{filename}")
 
@@ -470,24 +547,70 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
             f" gnmi_client.py --batch_val 500 -i {dpu_index}"
             f" -n 8 -t {ip}:{port} update -f {container_path}"  # noqa: E231
         )
+        logger.debug("  CMD: %s", cmd)
 
         t_start = time.time()
         out = localhost.shell(cmd, module_ignore_errors=True)
         elapsed = time.time() - t_start
         timings[filename] = elapsed
 
+        rc = out.get("rc", -1)
         stdout = out.get("stdout", "")
-        for line in stdout.splitlines():
-            logger.info("    %s", line)
+        stderr = out.get("stderr", "")
 
-        if "Set failed" in stdout or out.get("rc", 0) != 0:
-            logger.error("  [%d/%d] FAILED %s after %.2fs", idx, len(files), filename, elapsed)
-            logger.error("  stderr: %s", out.get("stderr", ""))
-            pytest.fail(f"gnmi_client.py failed for {filename}: {stdout}")
+        # Log ALL output — stdout and stderr
+        if stdout.strip():
+            for line in stdout.splitlines():
+                logger.info("    [stdout] %s", line)
+        else:
+            logger.warning("    [stdout] (empty — gnmi_client.py produced no output)")
 
-        logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
+        if stderr.strip():
+            for line in stderr.splitlines():
+                logger.info("    [stderr] %s", line)
+
+        # Detect failure: non-zero rc, known error strings, or empty stdout
+        failed = False
+        failure_reason = ""
+
+        if rc != 0:
+            failed = True
+            failure_reason = f"exit code {rc}"
+        elif "Set failed" in stdout or "GRPC error" in stdout or "Error" in stdout:
+            failed = True
+            failure_reason = "error string in stdout"
+        elif "error" in stderr.lower() or "failed" in stderr.lower():
+            failed = True
+            failure_reason = "error string in stderr"
+
+        if failed:
+            msg = ("  [%d/%d] FAILED %s after %.2fs — %s\n"
+                   "  stdout: %s\n  stderr: %s")
+            logger.error(msg, idx, len(files), filename, elapsed, failure_reason,
+                         stdout[:500], stderr[:500])
+            push_errors.append(f"{filename}: {failure_reason}")
+        else:
+            logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d",
+                        idx, len(files), filename, elapsed, rc)
+
+        # Post-push verification: check DPU_APPL_DB for keys from tables in this file
+        for table in tables:
+            _verify_dpu_appl_db(dpuhost, "%s:*" % table, label="after %s" % filename)
 
         localhost.shell(f"rm -f {work_dir}/{filename}", module_ignore_errors=True)
+
+    # Final DB size check
+    db_after = dpuhost.shell(
+        "sonic-db-cli DPU_APPL_DB DBSIZE",
+        module_ignore_errors=True,
+    )
+    logger.info("DPU_APPL_DB DBSIZE after push: %s (was: %s)",
+                db_after.get("stdout", "").strip(),
+                db_before.get("stdout", "").strip())
+
+    if push_errors:
+        pytest.fail("gNMI push had %d error(s):\n%s" % (
+            len(push_errors), "\n".join("  - %s" % e for e in push_errors)))
 
 
 def load_json_via_cli(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings):
@@ -706,7 +829,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     # COUNTERS_ENI_NAME_MAP. Poll with a generous timeout.
     _ENI_EXPECTED = 64
     _ENI_POLL_INTERVAL = 10   # seconds between polls
-    _ENI_TIMEOUT = 300        # 5 minutes total
+    _ENI_TIMEOUT = 15        # 15 seconds total
     logger.info("DPU: waiting for %d ENIs in COUNTERS_ENI_NAME_MAP (timeout %ds)...",
                 _ENI_EXPECTED, _ENI_TIMEOUT)
     deadline = time.time() + _ENI_TIMEOUT
