@@ -487,6 +487,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         localhost.shell(f"docker rm -f {_LOCAL_GNMI_AGENT_CONTAINER}", module_ignore_errors=True)
         start_out = localhost.shell(
             f"docker run -d --name {_LOCAL_GNMI_AGENT_CONTAINER} --network host"
+            f" --entrypoint ''"
             f" -v {work_dir}:{work_dir}"  # noqa: E231
             f" {_GNMI_AGENT_IMAGE} sleep infinity",
             module_ignore_errors=True,
@@ -506,6 +507,11 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         module_ignore_errors=True,
     )
     if "ok" not in ping_out.get("stdout", ""):
+        logs_out = localhost.shell(
+            f"docker logs {_LOCAL_GNMI_AGENT_CONTAINER} 2>&1 | tail -30",
+            module_ignore_errors=True,
+        )
+        logger.error("Container logs:\n%s", logs_out.get("stdout", "(empty)"))
         pytest.fail("%s container is not responsive: stdout=%s, stderr=%s" % (
             _LOCAL_GNMI_AGENT_CONTAINER,
             ping_out.get('stdout', ''), ping_out.get('stderr', '')))
