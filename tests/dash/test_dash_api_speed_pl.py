@@ -457,29 +457,27 @@ def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
     return keys
 
 
-def _apply_gnmi_cert_server_only(duthost):
-    """Deploy generated certs to NPU and restart gNMI server (no PTF)."""
+def _fetch_gnmi_certs_from_npu(duthost, dest_dir):
+    """Copy the NPU's existing gNMI certs to a local directory.
+
+    The NPU's gNMI server already has certs it trusts.  Instead of generating
+    new certs (and needing to restart the server), copy the existing client
+    certs so the sonic-gnmi-agent container presents certs the server accepts.
+    """
     env = GNMIEnvironment(duthost)
-    duthost.copy(src=env.work_dir + env.gnmi_ca_cert, dest=env.gnmi_cert_path)
-    duthost.copy(src=env.work_dir + env.gnmi_server_cert, dest=env.gnmi_cert_path)
-    duthost.copy(src=env.work_dir + env.gnmi_server_key, dest=env.gnmi_cert_path)
-    port = env.gnmi_port
-    assert int(port) > 0, "Invalid GNMI port"
-    dut_command = "docker exec %s supervisorctl stop %s" % (env.gnmi_container, env.gnmi_program)
-    duthost.shell(dut_command)
-    dut_command = "docker exec %s pkill telemetry" % (env.gnmi_container)
-    duthost.shell(dut_command, module_ignore_errors=True)
-    dut_command = "docker exec %s bash -c " % env.gnmi_container
-    dut_command += "\"/usr/bin/nohup /usr/sbin/telemetry -logtostderr --port %s " % port
-    dut_command += "--server_crt %s%s " % (env.gnmi_cert_path, env.gnmi_server_cert)
-    dut_command += "--server_key %s%s " % (env.gnmi_cert_path, env.gnmi_server_key)
-    dut_command += "--ca_crt %s%s " % (env.gnmi_cert_path, env.gnmi_ca_cert)
-    if env.enable_zmq:
-        dut_command += " -zmq_address=tcp://127.0.0.1:8100 "
-    dut_command += "-gnmi_native_write=true -v=10 >/root/gnmi.log 2>&1 &\""
-    duthost.shell(dut_command)
-    logger.info("Waiting %ds for gNMI server restart...", env.gnmi_server_start_wait_time)
-    time.sleep(env.gnmi_server_start_wait_time)
+    cert_path = env.gnmi_cert_path  # /etc/sonic/telemetry/
+    container = env.gnmi_container  # "gnmi" or "telemetry"
+
+    # Copy certs out of the gnmi container on the NPU → /tmp on NPU → fetch
+    for cert_file in [env.gnmi_ca_cert, env.gnmi_client_cert, env.gnmi_client_key]:
+        # docker cp from container to NPU host
+        duthost.shell(
+            "docker cp %s:%s%s /tmp/%s" % (container, cert_path, cert_file, cert_file),
+            module_ignore_errors=True,
+        )
+        # fetch from NPU to localhost (sonic-mgmt container)
+        duthost.fetch(src="/tmp/%s" % cert_file, dest="%s/%s" % (dest_dir, cert_file), flat=True)
+        logger.info("  Fetched %s from NPU gnmi container", cert_file)
 
 
 def _container_path_to_host(container_path):
@@ -525,14 +523,11 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     logger.info("config_dir (container): %s", config_dir)
     logger.info("config_dir (host):      %s", host_config_dir)
 
-    # Stage client certs for mounting into the ephemeral container.
-    # generate_gnmi_cert() created them in env.work_dir (/tmp/<uuid>/) which
-    # is container-local and NOT visible to the host Docker daemon.  Copy
-    # them to a path under the shared repo volume so the host can see them.
+    # Fetch the NPU's existing gNMI client certs so the ephemeral container
+    # can present certs the server already trusts (no server restart needed).
     cert_stage_dir = os.path.join(os.path.dirname(config_dir), ".gnmi_certs")
     localhost.shell(f"mkdir -p {cert_stage_dir}", module_ignore_errors=True)
-    for cert_file in [env.gnmi_ca_cert, env.gnmi_client_cert, env.gnmi_client_key]:
-        localhost.shell(f"cp {env.work_dir}{cert_file} {cert_stage_dir}/")
+    _fetch_gnmi_certs_from_npu(duthost, cert_stage_dir)
     host_cert_dir = _container_path_to_host(cert_stage_dir)
     logger.info("cert_stage_dir (container): %s", cert_stage_dir)
     logger.info("cert_stage_dir (host):      %s", host_cert_dir)
@@ -790,17 +785,11 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     #   "gnmi" — gnmi_client.py via sonic-gnmi-agent container on the local (sonic-mgmt) machine
     _LOAD_METHOD = "gnmi"
 
-    # Cert setup is needed for PTF-based methods and for the "gnmi" method
-    # (which connects remotely to the NPU gNMI server and needs mTLS).
-    if _LOAD_METHOD in ("ptf", "cli", "gnmi"):
-        logger.info("Setting up gNMI certs on NPU...")
+    # Cert setup for PTF-based methods (generate + deploy fresh certs).
+    if _LOAD_METHOD in ("ptf", "cli"):
+        logger.info("Setting up gNMI certs on NPU and PTF...")
         generate_gnmi_cert(localhost, duthost)
-        if _LOAD_METHOD in ("ptf", "cli"):
-            apply_gnmi_cert(duthost, ptfhost)
-        else:
-            # "gnmi" method: apply server certs to NPU only (no PTF needed).
-            # Client certs are mounted into the ephemeral container.
-            _apply_gnmi_cert_server_only(duthost)
+        apply_gnmi_cert(duthost, ptfhost)
 
     timings = {}
     total_start = time.time()
