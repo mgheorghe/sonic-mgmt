@@ -160,11 +160,12 @@ This test measures the time to push private-link-50 DASH configs onto a DPU via 
 - ENI verification: poll `COUNTERS_DB HGETALL COUNTERS_ENI_NAME_MAP` on DPU until 64 ENIs appear.
 
 **Evolution of the test (most recent at top):**
-1. *(2026-04-02)* Reverted serialization optimizations. Now pushes **one config file at a time** through the full gNMI CLI flow (serialize → tar → SCP → gnmi_set → cleanup) to isolate whether ENI config reaches the DPU correctly.
-2. *(earlier)* Single-pass optimization: all files serialized first (Phase 1, no SSH), then one combined tar+SCP+gnmi_set (Phase 2). Goal was to reduce SSH overhead from O(N) to O(1).
-3. *(earlier)* Added 1-second sleep between gNMI batches in `write_gnmi_files` to reduce server overload.
-4. *(earlier)* gNMI cert sync: before pushing, CA + client certs are copied from the NPU gnmi container to PTF so they always match.
-5. *(earlier)* DPU network setup: adds Loopback0 IP, removes midplane default routes, adds permanent static ARP entries on NPU for dataplane next-hops.
+1. *(2026-04-09)* New `"gnmi"` load method: runs ephemeral `docker run --rm` of `sonic-gnmi-agent:2026march13` per file on the **sonic-mgmt machine** (not NPU), connecting to NPU gNMI server over the network. Includes `_container_path_to_host()` to translate Docker-in-Docker paths. Image entrypoint is a shell — commands must use `-c 'cmd'`.
+2. *(2026-04-02)* Reverted serialization optimizations. Now pushes **one config file at a time** through the full gNMI CLI flow (serialize → tar → SCP → gnmi_set → cleanup) to isolate whether ENI config reaches the DPU correctly.
+3. *(earlier)* Single-pass optimization: all files serialized first (Phase 1, no SSH), then one combined tar+SCP+gnmi_set (Phase 2). Goal was to reduce SSH overhead from O(N) to O(1).
+4. *(earlier)* Added 1-second sleep between gNMI batches in `write_gnmi_files` to reduce server overload.
+5. *(earlier)* gNMI cert sync: before pushing, CA + client certs are copied from the NPU gnmi container to PTF so they always match.
+6. *(earlier)* DPU network setup: adds Loopback0 IP, removes midplane default routes, adds permanent static ARP entries on NPU for dataplane next-hops.
 
 **Run command (from inside sonic-mgmt container on SMD):**
 ```bash
@@ -203,7 +204,13 @@ cd /home/dash/sonic-mgmt/sonic-mgmt/tests && \
 > is missing `servers`/`vm_host` group entries for `sonic-mgmt-keysight`, so all Ansible
 > plays are skipped. Recreate the PTF container with `docker run` directly (step 2 above).
 
-**Open question being investigated:** Does the one-at-a-time gNMI push method correctly get ENI config onto the DPU?
+**Current status (2026-04-09):** The `"gnmi"` method (ephemeral docker run from sonic-mgmt machine) is being tested. Container startup and path translation are working; awaiting confirmation that gNMI push actually delivers config to the DPU.
+
+**Key Docker-in-Docker details:**
+- sonic-mgmt container hostname = `sonic-mgmt`; used for `docker inspect` to get mount mappings
+- Host path `/home/dash/sonic-mgmt` → container path `/home/dash/sonic-mgmt/sonic-mgmt`
+- `_container_path_to_host()` in the test translates paths automatically
+- `sonic-gnmi-agent:2026march13` ENTRYPOINT is a shell — always pass `-c 'command'`
 
 ---
 
