@@ -28,6 +28,10 @@ _GNMI_AGENT_IMAGE = "sonic-gnmi-agent:2026march13"
 _GO_GNMI_UTILS_NPU = "/root/pl_1/go_gnmi_utils.py"
 _GO_GNMI_UTILS_CTR = "/usr/lib/python3/dist-packages/gnmi_agent/go_gnmi_utils.py"
 
+# sonic-gnmi-agent container run locally (on the sonic-mgmt / SMD machine)
+_LOCAL_GNMI_AGENT_CONTAINER = "sonic-gnmi-agent-local"
+_LOCAL_GNMI_AGENT_WORK_DIR = "/tmp/gnmi_agent_work"
+
 
 def _parse_mem_str(mem_str):
     """Parse a docker memory string like '512MiB', '1.5GiB', '256kB' into MiB."""
@@ -425,6 +429,67 @@ def load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, t
         logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
 
 
+def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
+    """Push each JSON config file via sonic-gnmi-agent container running locally on the sonic-mgmt machine.
+
+    The container must be present as image sonic-gnmi-agent:2026march13 on the local Docker host.
+    It is started automatically (once) with the work directory bind-mounted, then gnmi_client.py
+    is invoked via 'docker exec' for each file, connecting to the NPU gNMI server directly.
+    """
+    env = GNMIEnvironment(duthost)
+    dpu_index = dpuhost.dpu_index
+    ip = duthost.mgmt_ip
+    port = env.gnmi_port
+    work_dir = _LOCAL_GNMI_AGENT_WORK_DIR
+
+    localhost.shell(f"mkdir -p {work_dir}", module_ignore_errors=True)
+
+    # Start the container if not already running.
+    check = localhost.shell(
+        f"docker inspect --format='{{{{.State.Running}}}}' {_LOCAL_GNMI_AGENT_CONTAINER} 2>/dev/null || echo false",
+        module_ignore_errors=True,
+    )
+    if "true" not in check.get("stdout", "").lower():
+        localhost.shell(f"docker rm -f {_LOCAL_GNMI_AGENT_CONTAINER}", module_ignore_errors=True)
+        localhost.shell(
+            f"docker run -d --name {_LOCAL_GNMI_AGENT_CONTAINER} --network host"
+            f" -v {work_dir}:{work_dir}"  # noqa: E231
+            f" {_GNMI_AGENT_IMAGE} sleep infinity",
+        )
+        logger.info("Started %s container", _LOCAL_GNMI_AGENT_CONTAINER)
+
+    for idx, filename in enumerate(files, start=1):
+        local_path = os.path.join(config_dir, filename)
+        container_path = f"{work_dir}/{filename}"
+        logger.info("  [%d/%d] pushing %s ...", idx, len(files), filename)
+
+        localhost.shell(f"cp {local_path} {work_dir}/{filename}")
+
+        cmd = (
+            f"docker exec {_LOCAL_GNMI_AGENT_CONTAINER}"
+            f" gnmi_client.py --batch_val 500 -i {dpu_index}"
+            f" -n 8 -t {ip}:{port} update -f {container_path}"  # noqa: E231
+        )
+
+        t_start = time.time()
+        out = localhost.shell(cmd, module_ignore_errors=True)
+        elapsed = time.time() - t_start
+        timings[filename] = elapsed
+
+        stdout = out.get("stdout", "")
+        for line in stdout.splitlines():
+            logger.info("    %s", line)
+
+        if "Set failed" in stdout or out.get("rc", 0) != 0:
+            logger.error("  [%d/%d] FAILED %s after %.2fs", idx, len(files), filename, elapsed)
+            logger.error("  stderr: %s", out.get("stderr", ""))
+            pytest.fail(f"gnmi_client.py failed for {filename}: {stdout}")
+
+        logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
+
+        localhost.shell(f"rm -f {work_dir}/{filename}", module_ignore_errors=True)
+
+
 def load_json_via_cli(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings):
     """Push each JSON config file to the DPU via py_gnmicli.py CLI on the PTF container.
 
@@ -577,18 +642,22 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     dpu_pre_config(dpuhost)
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
 
-    logger.info("Setting up gNMI certs on NPU and PTF...")
-    generate_gnmi_cert(localhost, duthost)
-    apply_gnmi_cert(duthost, ptfhost)
+    # Select the load method:
+    #   "npu"  — gnmi_client.py via docker run on the NPU (connects to 127.0.0.1:50052)
+    #   "ptf"  — py_gnmicli.py via write_gnmi_files/gnmi_set helpers on PTF
+    #   "cli"  — py_gnmicli.py invoked directly on PTF (same tool as "ptf", no helpers)
+    #   "gnmi" — gnmi_client.py via sonic-gnmi-agent container on the local (sonic-mgmt) machine
+    _LOAD_METHOD = "gnmi"
+
+    # Cert setup is only needed for PTF-based methods.
+    # The "npu" and "gnmi" methods do not use the PTF gNMI client.
+    if _LOAD_METHOD in ("ptf", "cli"):
+        logger.info("Setting up gNMI certs on NPU and PTF...")
+        generate_gnmi_cert(localhost, duthost)
+        apply_gnmi_cert(duthost, ptfhost)
 
     timings = {}
     total_start = time.time()
-
-    # Select the load method:
-    #   "npu" — gnmi_client.py via docker on the NPU
-    #   "ptf" — py_gnmicli.py via write_gnmi_files/gnmi_set helpers on PTF
-    #   "cli" — py_gnmicli.py invoked directly on PTF (same tool as "ptf", no helpers)
-    _LOAD_METHOD = "cli"
 
     if _LOAD_METHOD == "ptf":
         load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings)
@@ -596,6 +665,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         load_json_via_npu(duthost, dpuhost, config_dir, files, timings)
     elif _LOAD_METHOD == "cli":
         load_json_via_cli(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings)
+    elif _LOAD_METHOD == "gnmi":
+        load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings)
     else:
         raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
 
