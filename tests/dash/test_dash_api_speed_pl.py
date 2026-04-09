@@ -467,18 +467,39 @@ def _container_path_to_host(localhost, container_path):
     Falls back to *container_path* unchanged if no mapping is found (e.g.
     running directly on the host without Docker).
     """
-    # Get our container ID from cgroup (works on cgroup v1 and v2).
-    cid_out = localhost.shell(
-        "cat /proc/self/cgroup 2>/dev/null | head -1 | sed 's|.*/||'",
-        module_ignore_errors=True,
-    )
-    cid = cid_out.get("stdout", "").strip()
-    if not cid or len(cid) < 12:
-        # Probably not inside a container — path is already a host path.
+    # Try multiple methods to identify our container, in order of reliability.
+    cid = None
+
+    # Method 1: use hostname (sonic-mgmt containers use their name as hostname)
+    hn_out = localhost.shell("hostname", module_ignore_errors=True)
+    hn = hn_out.get("stdout", "").strip()
+    if hn:
+        # Verify this hostname is actually a docker container name.
+        verify = localhost.shell(
+            "docker inspect %s --format='{{.Id}}' 2>/dev/null" % hn,
+            module_ignore_errors=True,
+        )
+        if verify.get("rc", 1) == 0 and verify.get("stdout", "").strip():
+            cid = hn
+            logger.debug("Detected container by hostname: %s", cid)
+
+    # Method 2: parse container ID from /proc/1/cpuset (cgroup v1)
+    if not cid:
+        cpuset_out = localhost.shell(
+            "cat /proc/1/cpuset 2>/dev/null | sed 's|.*/||'",
+            module_ignore_errors=True,
+        )
+        cpuset = cpuset_out.get("stdout", "").strip()
+        if cpuset and len(cpuset) >= 12 and cpuset != "/":
+            cid = cpuset[:12]
+            logger.debug("Detected container by cpuset: %s", cid)
+
+    if not cid:
+        logger.debug("Not running inside a container — no path translation")
         return container_path
 
     mounts_out = localhost.shell(
-        "docker inspect %s --format='{{json .Mounts}}' 2>/dev/null" % cid[:12],
+        "docker inspect %s --format='{{json .Mounts}}' 2>/dev/null" % cid,
         module_ignore_errors=True,
     )
     mounts_json = mounts_out.get("stdout", "").strip()
@@ -501,7 +522,10 @@ def _container_path_to_host(localhost, container_path):
             best_src = src
 
     if best_src is not None:
-        return best_src + container_path[len(best_dst):]
+        host_path = best_src + container_path[len(best_dst):]
+        logger.debug("Path translation: %s -> %s (mount %s -> %s)",
+                     container_path, host_path, best_src, best_dst)
+        return host_path
     return container_path
 
 
