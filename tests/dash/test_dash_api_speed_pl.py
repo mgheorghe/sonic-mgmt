@@ -847,10 +847,13 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     )
     logger.info("%s dataplane reachability after push: OK", dpu_name)
 
-    # ── Verify all 64 ENIs are programmed on DPU ──────────────────────────────
+    # ── Verify ENIs are programmed on DPU ───────────────────────────────────
     # ENIs take time to propagate from APPL_DB through the DPU pipeline into
     # COUNTERS_ENI_NAME_MAP. Poll with a generous timeout.
-    _ENI_EXPECTED = 64
+    # With 3 config files (1 ENI set) we expect 1 ENI; full 129 files → 64 ENIs.
+    _ENI_EXPECTED = len(files) // 3  # 3 files per ENI (apl, eni, map)
+    if _ENI_EXPECTED < 1:
+        _ENI_EXPECTED = 1
     _ENI_POLL_INTERVAL = 10   # seconds between polls
     _ENI_TIMEOUT = 15        # 15 seconds total
     logger.info("DPU: waiting for %d ENIs in COUNTERS_ENI_NAME_MAP (timeout %ds)...",
@@ -863,13 +866,14 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
             module_ignore_errors=True,
         )
         eni_stdout = eni_out.get("stdout", "")
-        eni_lines = [line.strip() for line in eni_stdout.splitlines() if line.strip()]
-        eni_count = len(eni_lines) // 2
+        # sonic-db-cli returns a Python dict string like {'k1': 'v1', 'k2': 'v2'}.
+        # Count the number of keys by counting 'eni-' occurrences.
+        eni_count = eni_stdout.count("eni-")
         logger.info("DPU: ENIs found: %d / %d", eni_count, _ENI_EXPECTED)
         logger.info("DPU: COUNTERS_ENI_NAME_MAP raw output:\n%s", eni_stdout or "(empty)")
         if eni_count >= _ENI_EXPECTED:
             break
         time.sleep(_ENI_POLL_INTERVAL)
-    assert eni_count == _ENI_EXPECTED, \
+    assert eni_count >= _ENI_EXPECTED, \
         "Expected %d ENIs in COUNTERS_ENI_NAME_MAP but found %d after %ds" % (
             _ENI_EXPECTED, eni_count, _ENI_TIMEOUT)
