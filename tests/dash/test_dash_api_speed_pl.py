@@ -457,27 +457,45 @@ def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
     return keys
 
 
-def _fetch_gnmi_certs_from_npu(duthost, dest_dir):
-    """Copy the NPU's existing gNMI certs to a local directory.
+def _fetch_gnmi_certs_from_npu(localhost, duthost, dest_dir):
+    """Fetch the NPU's CA cert/key and generate matching client certs locally.
 
-    The NPU's gNMI server already has certs it trusts.  Instead of generating
-    new certs (and needing to restart the server), copy the existing client
-    certs so the sonic-gnmi-agent container presents certs the server accepts.
+    The NPU's gNMI server trusts clients signed by its own CA.  Fetch the CA
+    cert + key, then generate a fresh client cert/key signed by that CA.
+    No server restart needed.
     """
     env = GNMIEnvironment(duthost)
     cert_path = env.gnmi_cert_path  # /etc/sonic/telemetry/
     container = env.gnmi_container  # "gnmi" or "telemetry"
 
-    # Copy certs out of the gnmi container on the NPU → /tmp on NPU → fetch
-    for cert_file in [env.gnmi_ca_cert, env.gnmi_client_cert, env.gnmi_client_key]:
-        # docker cp from container to NPU host
+    # Fetch CA cert and CA key from the gnmi container on the NPU
+    for cert_file in [env.gnmi_ca_cert, env.gnmi_ca_key]:
         duthost.shell(
             "docker cp %s:%s%s /tmp/%s" % (container, cert_path, cert_file, cert_file),
-            module_ignore_errors=True,
         )
-        # fetch from NPU to localhost (sonic-mgmt container)
         duthost.fetch(src="/tmp/%s" % cert_file, dest="%s/%s" % (dest_dir, cert_file), flat=True)
         logger.info("  Fetched %s from NPU gnmi container", cert_file)
+
+    # Generate client cert + key signed by the NPU's CA
+    ca_pem = os.path.join(dest_dir, env.gnmi_ca_cert)
+    ca_key = os.path.join(dest_dir, env.gnmi_ca_key)
+    client_key = os.path.join(dest_dir, env.gnmi_client_key)
+    client_csr = os.path.join(dest_dir, "gnmiclient.csr")
+    client_crt = os.path.join(dest_dir, env.gnmi_client_cert)
+
+    localhost.shell(
+        "openssl genrsa -out %s 2048" % client_key
+    )
+    localhost.shell(
+        "openssl req -new -key %s -subj '/CN=test.client.gnmi.sonic' -out %s"
+        % (client_key, client_csr)
+    )
+    localhost.shell(
+        "openssl x509 -req -in %s -CA %s -CAkey %s -CAcreateserial"
+        " -out %s -days 825 -sha256"
+        % (client_csr, ca_pem, ca_key, client_crt)
+    )
+    logger.info("  Generated client cert %s signed by NPU CA", env.gnmi_client_cert)
 
 
 def _container_path_to_host(container_path):
@@ -527,7 +545,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     # can present certs the server already trusts (no server restart needed).
     cert_stage_dir = os.path.join(os.path.dirname(config_dir), ".gnmi_certs")
     localhost.shell(f"mkdir -p {cert_stage_dir}", module_ignore_errors=True)
-    _fetch_gnmi_certs_from_npu(duthost, cert_stage_dir)
+    _fetch_gnmi_certs_from_npu(localhost, duthost, cert_stage_dir)
     host_cert_dir = _container_path_to_host(cert_stage_dir)
     logger.info("cert_stage_dir (container): %s", cert_stage_dir)
     logger.info("cert_stage_dir (host):      %s", host_cert_dir)
