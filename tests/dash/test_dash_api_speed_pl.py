@@ -457,6 +457,54 @@ def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
     return keys
 
 
+def _container_path_to_host(localhost, container_path):
+    """Translate a path inside this (sonic-mgmt) container to the host path.
+
+    When running Docker-in-Docker via a shared socket, 'docker run --mount'
+    needs host-side paths.  Inspect our own container's mounts and find the
+    mapping that covers *container_path*, then rewrite accordingly.
+
+    Falls back to *container_path* unchanged if no mapping is found (e.g.
+    running directly on the host without Docker).
+    """
+    # Get our container ID from cgroup (works on cgroup v1 and v2).
+    cid_out = localhost.shell(
+        "cat /proc/self/cgroup 2>/dev/null | head -1 | sed 's|.*/||'",
+        module_ignore_errors=True,
+    )
+    cid = cid_out.get("stdout", "").strip()
+    if not cid or len(cid) < 12:
+        # Probably not inside a container — path is already a host path.
+        return container_path
+
+    mounts_out = localhost.shell(
+        "docker inspect %s --format='{{json .Mounts}}' 2>/dev/null" % cid[:12],
+        module_ignore_errors=True,
+    )
+    mounts_json = mounts_out.get("stdout", "").strip()
+    if not mounts_json:
+        return container_path
+
+    try:
+        mounts = json.loads(mounts_json)
+    except (json.JSONDecodeError, TypeError):
+        return container_path
+
+    # Find the longest matching Destination prefix.
+    best_src = None
+    best_dst = ""
+    for m in mounts:
+        dst = m.get("Destination", "")
+        src = m.get("Source", "")
+        if container_path.startswith(dst) and len(dst) > len(best_dst):
+            best_dst = dst
+            best_src = src
+
+    if best_src is not None:
+        return best_src + container_path[len(best_dst):]
+    return container_path
+
+
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     """Push each JSON config file via ephemeral sonic-gnmi-agent docker run.
 
@@ -470,6 +518,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     dpu_index = dpuhost.dpu_index
     ip = duthost.mgmt_ip
     port = env.gnmi_port
+
+    # Translate container path → host path for docker bind mount.
+    # We run inside a sonic-mgmt container but 'docker run' creates sibling
+    # containers via the host daemon, so --mount src= must be a host path.
+    host_config_dir = _container_path_to_host(localhost, config_dir)
+    logger.info("config_dir (container): %s", config_dir)
+    logger.info("config_dir (host):      %s", host_config_dir)
 
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell(
@@ -495,7 +550,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         # Matches the working pattern from dpu.py exactly.
         cmd = (
             f"docker run --rm --network host"
-            f" --mount src={config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
+            f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
             f" {_GNMI_AGENT_IMAGE}"
             f" -c 'gnmi_client.py --batch_val 500 -i {dpu_index}"
             f" -n 8 -t {ip}:{port} update -f /dpu/{filename}'"  # noqa: E231
