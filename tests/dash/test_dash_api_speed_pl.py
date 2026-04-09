@@ -487,9 +487,8 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         localhost.shell(f"docker rm -f {_LOCAL_GNMI_AGENT_CONTAINER}", module_ignore_errors=True)
         start_out = localhost.shell(
             f"docker run -d --name {_LOCAL_GNMI_AGENT_CONTAINER} --network host"
-            f" --entrypoint ''"
             f" -v {work_dir}:{work_dir}"  # noqa: E231
-            f" {_GNMI_AGENT_IMAGE} sleep infinity",
+            f" {_GNMI_AGENT_IMAGE} -c 'sleep infinity'",
             module_ignore_errors=True,
         )
         if start_out.get("rc", 1) != 0:
