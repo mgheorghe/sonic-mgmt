@@ -457,75 +457,25 @@ def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
     return keys
 
 
-def _container_path_to_host(localhost, container_path):
+def _container_path_to_host(container_path):
     """Translate a path inside this (sonic-mgmt) container to the host path.
 
-    When running Docker-in-Docker via a shared socket, 'docker run --mount'
-    needs host-side paths.  Inspect our own container's mounts and find the
-    mapping that covers *container_path*, then rewrite accordingly.
+    The sonic-mgmt container is typically started with:
+        docker run -v /home/dash/sonic-mgmt:/home/dash/sonic-mgmt/sonic-mgmt ...
+    so a container path like /home/dash/sonic-mgmt/sonic-mgmt/tests/...
+    maps to host path        /home/dash/sonic-mgmt/tests/...
 
-    Falls back to *container_path* unchanged if no mapping is found (e.g.
-    running directly on the host without Docker).
+    Detect and collapse any repeated adjacent directory component
+    (e.g. .../sonic-mgmt/sonic-mgmt/... → .../sonic-mgmt/...).
+    Falls back to the original path if no repeated component is found.
     """
-    # Try multiple methods to identify our container, in order of reliability.
-    cid = None
-
-    # Method 1: use hostname (sonic-mgmt containers use their name as hostname)
-    hn_out = localhost.shell("hostname", module_ignore_errors=True)
-    hn = hn_out.get("stdout", "").strip()
-    if hn:
-        # Verify this hostname is actually a docker container name.
-        verify = localhost.shell(
-            "docker inspect %s --format='{{.Id}}' 2>/dev/null" % hn,
-            module_ignore_errors=True,
-        )
-        if verify.get("rc", 1) == 0 and verify.get("stdout", "").strip():
-            cid = hn
-            logger.debug("Detected container by hostname: %s", cid)
-
-    # Method 2: parse container ID from /proc/1/cpuset (cgroup v1)
-    if not cid:
-        cpuset_out = localhost.shell(
-            "cat /proc/1/cpuset 2>/dev/null | sed 's|.*/||'",
-            module_ignore_errors=True,
-        )
-        cpuset = cpuset_out.get("stdout", "").strip()
-        if cpuset and len(cpuset) >= 12 and cpuset != "/":
-            cid = cpuset[:12]
-            logger.debug("Detected container by cpuset: %s", cid)
-
-    if not cid:
-        logger.debug("Not running inside a container — no path translation")
-        return container_path
-
-    mounts_out = localhost.shell(
-        "docker inspect %s --format='{{json .Mounts}}' 2>/dev/null" % cid,
-        module_ignore_errors=True,
-    )
-    mounts_json = mounts_out.get("stdout", "").strip()
-    if not mounts_json:
-        return container_path
-
-    try:
-        mounts = json.loads(mounts_json)
-    except (json.JSONDecodeError, TypeError):
-        return container_path
-
-    # Find the longest matching Destination prefix.
-    best_src = None
-    best_dst = ""
-    for m in mounts:
-        dst = m.get("Destination", "")
-        src = m.get("Source", "")
-        if container_path.startswith(dst) and len(dst) > len(best_dst):
-            best_dst = dst
-            best_src = src
-
-    if best_src is not None:
-        host_path = best_src + container_path[len(best_dst):]
-        logger.debug("Path translation: %s -> %s (mount %s -> %s)",
-                     container_path, host_path, best_src, best_dst)
-        return host_path
+    parts = container_path.split("/")
+    for i in range(1, len(parts) - 1):
+        if parts[i] and parts[i] == parts[i + 1]:
+            candidate = "/".join(parts[:i] + parts[i + 1:])
+            logger.info("Path translation: %s -> %s (collapsed '%s')",
+                        container_path, candidate, parts[i])
+            return candidate
     return container_path
 
 
@@ -546,7 +496,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     # Translate container path → host path for docker bind mount.
     # We run inside a sonic-mgmt container but 'docker run' creates sibling
     # containers via the host daemon, so --mount src= must be a host path.
-    host_config_dir = _container_path_to_host(localhost, config_dir)
+    host_config_dir = _container_path_to_host(config_dir)
     logger.info("config_dir (container): %s", config_dir)
     logger.info("config_dir (host):      %s", host_config_dir)
 
