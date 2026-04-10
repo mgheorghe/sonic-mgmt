@@ -237,12 +237,16 @@ def gnmi_get(env, path_list):
 
 def _send_batch(env, batch_num, delete_list, update_list, replace_list, batch_work_dir):
     """Send one batch via gnmi_set and clean up its temp dir. Runs in background thread."""
-    logging.info("TIMING: batch %d — sending gnmi_set with %d del, %d upd, %d rep",
-                 batch_num, len(delete_list), len(update_list), len(replace_list))
-    gnmi_set(env, delete_list, update_list, replace_list, skip_cleanup=True)
-    t0 = time.time()
-    shutil.rmtree(batch_work_dir, ignore_errors=True)
-    _record("proto_cleanup", time.time() - t0)
+    try:
+        logging.info("TIMING: batch %d — sending gnmi_set with %d del, %d upd, %d rep",
+                     batch_num, len(delete_list), len(update_list), len(replace_list))
+        gnmi_set(env, delete_list, update_list, replace_list, skip_cleanup=True)
+        t0 = time.time()
+        shutil.rmtree(batch_work_dir, ignore_errors=True)
+        _record("proto_cleanup", time.time() - t0)
+    except Exception:
+        logging.exception("TIMING: batch %d — _send_batch failed", batch_num)
+        raise
 
 
 def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
