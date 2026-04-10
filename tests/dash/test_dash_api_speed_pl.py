@@ -599,6 +599,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
     )
     start_out = localhost.shell(
         f"docker run -d --name {_GNMI_CONTAINER_NAME} --network host"
+        f" --shm-size=256m"
         f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
         f" {_GNMI_AGENT_IMAGE} -c 'sleep infinity'",
         module_ignore_errors=True,
