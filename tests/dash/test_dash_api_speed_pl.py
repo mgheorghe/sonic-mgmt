@@ -538,7 +538,10 @@ def _merge_config_files(config_dir, files, chunk_size=16):
     and merged_files is the new file list.  The caller must delete merged_dir
     when done.
     """
-    merged_dir = tempfile.mkdtemp(prefix="dash_merged_")
+    # Create merged dir inside config_dir so it shares the same bind-mount
+    # visible to Docker on the host (tempfile.mkdtemp uses /tmp which is
+    # only inside the sonic-mgmt container and not visible to the host).
+    merged_dir = tempfile.mkdtemp(prefix="dash_merged_", dir=config_dir)
     sorted_files = sorted(files)
 
     merged_files = []
