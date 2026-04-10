@@ -286,8 +286,10 @@ def dpu_pre_config(dpuhost):
         to the midplane still works during the setup above).
     """
     loopback_ip = "221.0.0.%d/32" % (dpuhost.dpu_index + 1)
+    logger.info("DPU: creating Loopback0 interface (if not present)")
+    dpuhost.shell("sudo config loopback add Loopback0", module_ignore_errors=True)
     logger.info("DPU: adding Loopback0 IP %s", loopback_ip)
-    dpuhost.shell("sudo config interface ip add Loopback0 %s" % loopback_ip)
+    dpuhost.shell("sudo config interface ip add Loopback0 %s" % loopback_ip, module_ignore_errors=True)
     iface_out = dpuhost.shell("show ip interfaces")
     assert "221.0.0.%d" % (dpuhost.dpu_index + 1) in iface_out.get("stdout", ""), \
         "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback_ip
