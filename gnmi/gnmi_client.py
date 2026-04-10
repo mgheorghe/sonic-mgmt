@@ -124,6 +124,17 @@ def exec_action(args):
         reverse = True
     else:
         template_args['op'] = "GET"
+    # Skip Jinja2 rendering for plain .json files — apply directly.
+    if args.filename.endswith(".json"):
+        t0 = _time.time()
+        apply_gnmi_file(env, args.filename, args.batch_val, args.sleep_secs)
+        apply_elapsed = _time.time() - t0
+        logging.info("TIMING: apply_gnmi_file took %.3f s total (no render — plain .json)",
+                     apply_elapsed)
+        logging.info("TIMING: exec_action total = %.3f s (render=0.000 + apply=%.3f)",
+                     apply_elapsed, apply_elapsed)
+        return
+
     try:
         out_file = tempfile.NamedTemporaryFile("w", delete=False)
 
