@@ -3,6 +3,7 @@ import logging
 import proto_utils
 import time
 import subprocess
+import shutil
 import os
 
 
@@ -37,7 +38,7 @@ def _log_timing_summary():
 class GNMIEnvironment:
     gnmi_ip = "127.0.0.1"
     gnmi_port = 8080
-    work_dir = "/"
+    work_dir = "/dev/shm/gnmi_work/"
     username = "admin"
     password = "password"
     dpu_index = 0
@@ -60,14 +61,19 @@ def exec_cmd(cmd):
     return result
 
 
-def cleanup_proto_files(cmd_list):
+def cleanup_proto_files(cmd_list, work_dir=None):
     if not cmd_list:
         return
-    for cmd in cmd_list:
-        del_file = cmd.split("$")[-1]
-        if del_file != '':
-            logging.debug("Deleting file:" + del_file)
-            os.unlink(del_file)
+    if work_dir:
+        # Bulk wipe: one rmtree + mkdir beats 10K individual unlinks on tmpfs
+        shutil.rmtree(work_dir, ignore_errors=True)
+        os.makedirs(work_dir, exist_ok=True)
+    else:
+        for cmd in cmd_list:
+            del_file = cmd.split("$")[-1]
+            if del_file != '':
+                logging.debug("Deleting file:" + del_file)
+                os.unlink(del_file)
 
 
 # Max command length (bytes) before we split into sub-calls.
@@ -167,7 +173,7 @@ def gnmi_set(env, delete_list, update_list, replace_list):
 
     # Cleanup the proto files created for update and replace
     t0 = time.time()
-    cleanup_proto_files(update_list)
+    cleanup_proto_files(update_list, work_dir=env.work_dir)
     cleanup_proto_files(replace_list)
     _record("proto_cleanup", time.time() - t0)
 
@@ -343,6 +349,8 @@ def apply_gnmi_file(env, dest_path, batch_val=10, sleep_secs=0):
     _phase_totals.clear()
 
     t_file_start = time.time()
+
+    os.makedirs(env.work_dir, exist_ok=True)
 
     t0 = time.time()
     with open(dest_path, 'r') as file:
