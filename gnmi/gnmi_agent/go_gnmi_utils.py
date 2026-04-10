@@ -71,10 +71,14 @@ def cleanup_proto_files(cmd_list, work_dir=None):
         os.makedirs(work_dir, exist_ok=True)
     else:
         for cmd in cmd_list:
-            del_file = cmd.split("$")[-1]
-            if del_file != '':
-                logging.debug("Deleting file:" + del_file)
-                os.unlink(del_file)
+            # Handle both proto ($) and JSON (@) file references
+            for sep in ("$", "@"):
+                if sep in cmd:
+                    del_file = cmd.split(sep)[-1]
+                    if del_file:
+                        logging.debug("Deleting file:" + del_file)
+                        os.unlink(del_file)
+                    break
 
 
 # Max command length (bytes) before we split into sub-calls.

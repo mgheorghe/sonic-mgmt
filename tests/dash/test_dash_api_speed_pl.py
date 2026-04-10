@@ -676,7 +676,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         # docker exec on the persistent container — no startup overhead.
         cmd = (
             f"docker exec {_GNMI_CONTAINER_NAME}"
-            f" gnmi_client.py --batch_val 10000 -i {dpu_index}"
+            f" gnmi_client.py --batch_val 10000 --no-proto -i {dpu_index}"
             f" -n 8 -t {ip}:{port} update -f /dpu/{filename}"  # noqa: E231
         )
 

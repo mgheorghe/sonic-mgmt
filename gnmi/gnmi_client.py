@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 from gnmi_agent.go_gnmi_utils import apply_gnmi_file, gnmi_get, gnmi_set, GNMIEnvironment
+from gnmi_agent import proto_utils
 import argparse
 from jinja2 import Environment, FileSystemLoader
 import tempfile
@@ -54,6 +55,8 @@ def parse_args():
     parser.add_argument('-s', "--sleep_secs", type=int, default=0, required=False,
                         help="Delay before each batch operation in seconds")
     parser.add_argument('-b', "--batch_val", type=int, default=10, required=False, help="Batch operation size")
+    parser.add_argument('--no-proto', action='store_true', default=False,
+                        help='Use JSON encoding instead of protobuf (skip proto serialization)')
     parser.add_argument('-u', '--username', type=str, default="admin", help='GNMI server user name')
     parser.add_argument('-p', '--password', type=str, default="password", help='GNMI server password')
 
@@ -87,6 +90,9 @@ def parse_args():
 
 def exec_action(args):
     import time as _time
+    if args.no_proto:
+        proto_utils.ENABLE_PROTO = False
+
     env = GNMIEnvironment()
     env.username = args.username
     env.password = args.password
