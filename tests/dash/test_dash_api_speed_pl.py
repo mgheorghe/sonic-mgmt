@@ -3,6 +3,8 @@ import json
 import logging
 import os
 import re
+import shutil
+import tempfile
 import time
 
 import proto_utils
@@ -18,14 +20,14 @@ pytestmark = [
     pytest.mark.sanity_check(skip_sanity=True),
 ]
 
-CONFIG_DIR = os.path.join(os.path.dirname(__file__), "configs", "private-link-50")
+CONFIG_DIR = os.path.join(os.path.dirname(__file__), "configs", "pl_100")
 
 # Path on NPU where JSON files are staged for the docker mount
 _NPU_STAGE_DIR = "/tmp/dash_load"
 
 # gnmi-agent container image and fixed paths expected on the NPU
 _GNMI_AGENT_IMAGE = "sonic-gnmi-agent:2026march13"
-_GO_GNMI_UTILS_NPU = "/root/pl_1/go_gnmi_utils.py"
+_GO_GNMI_UTILS_NPU = "/root/pl_100/go_gnmi_utils.py"
 _GO_GNMI_UTILS_CTR = "/usr/lib/python3/dist-packages/gnmi_agent/go_gnmi_utils.py"
 
 
@@ -345,7 +347,7 @@ def load_json_via_npu(duthost, dpuhost, config_dir, files, timings):
             f" --mount src={_NPU_STAGE_DIR},target=/dpu,type=bind,readonly"  # noqa: E231
             f" --mount src={_GO_GNMI_UTILS_NPU},target={_GO_GNMI_UTILS_CTR},type=bind,readonly"  # noqa: E231
             f" -t {_GNMI_AGENT_IMAGE}"
-            f" -c 'gnmi_client.py --batch_val 500 -i {dpuhost.dpu_index}"
+            f" -c 'gnmi_client.py --batch_val 10000 -i {dpuhost.dpu_index}"
             f" -n 8 -t 127.0.0.1:50052 update -f /dpu/{filename}'"  # noqa: E231
         )
 
@@ -521,6 +523,44 @@ def _container_path_to_host(container_path):
 
 
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
+
+
+def _merge_config_files(config_dir, files, chunk_size=16):
+    """Merge config JSON files into fewer, larger files to reduce per-file overhead.
+
+    Files are sorted by name, then grouped into chunks of ``chunk_size``.
+    Each chunk's JSON operations are concatenated (preserving order) into a
+    single merged file.
+
+    Returns (merged_dir, merged_files) where merged_dir is a temp directory
+    and merged_files is the new file list.  The caller must delete merged_dir
+    when done.
+    """
+    merged_dir = tempfile.mkdtemp(prefix="dash_merged_")
+    sorted_files = sorted(files)
+
+    merged_files = []
+    for chunk_idx in range(0, len(sorted_files), chunk_size):
+        chunk = sorted_files[chunk_idx:chunk_idx + chunk_size]
+        merged_ops = []
+        for f in chunk:
+            with open(os.path.join(config_dir, f)) as fh:
+                merged_ops.extend(json.load(fh))
+
+        merged_name = "merged_%03d.json" % (chunk_idx // chunk_size)
+        with open(os.path.join(merged_dir, merged_name), "w") as fh:
+            json.dump(merged_ops, fh)
+
+        logger.info(
+            "  Merged %d files (%d ops) -> %s  [%s .. %s]",
+            len(chunk), len(merged_ops), merged_name, chunk[0], chunk[-1],
+        )
+        merged_files.append(merged_name)
+
+    logger.info("Merge complete: %d original files -> %d merged files",
+                len(files), len(merged_files))
+
+    return merged_dir, merged_files
 
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
@@ -799,6 +839,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     #   "cli"  — py_gnmicli.py invoked directly on PTF (same tool as "ptf", no helpers)
     #   "gnmi" — gnmi_client.py via sonic-gnmi-agent container on the local (sonic-mgmt) machine
     _LOAD_METHOD = "gnmi"
+    _MERGE_MAP = True   # Merge mapping files into fewer chunks before pushing
 
     # Cert setup depends on the load method.
     if _LOAD_METHOD in ("ptf", "cli"):
@@ -809,19 +850,35 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         logger.info("Setting up gNMI server (no client auth) for remote access...")
         _setup_gnmi_server_no_client_auth(localhost, duthost)
 
+    # Optionally merge map files to reduce per-file overhead.
+    merged_dir = None
+    effective_config_dir = config_dir
+    effective_files = files
+    if _MERGE_MAP:
+        merged_dir, effective_files = _merge_config_files(config_dir, files, chunk_size=16)
+        effective_config_dir = merged_dir
+
     timings = {}
     total_start = time.time()
 
-    if _LOAD_METHOD == "ptf":
-        load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings)
-    elif _LOAD_METHOD == "npu":
-        load_json_via_npu(duthost, dpuhost, config_dir, files, timings)
-    elif _LOAD_METHOD == "cli":
-        load_json_via_cli(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings)
-    elif _LOAD_METHOD == "gnmi":
-        load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings)
-    else:
-        raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
+    try:
+        if _LOAD_METHOD == "ptf":
+            load_json_via_ptf(localhost, duthost, dpuhost, ptfhost,
+                              effective_config_dir, effective_files, timings)
+        elif _LOAD_METHOD == "npu":
+            load_json_via_npu(duthost, dpuhost, effective_config_dir, effective_files, timings)
+        elif _LOAD_METHOD == "cli":
+            load_json_via_cli(localhost, duthost, dpuhost, ptfhost,
+                              effective_config_dir, effective_files, timings)
+        elif _LOAD_METHOD == "gnmi":
+            load_json_via_gnmi(localhost, duthost, dpuhost,
+                               effective_config_dir, effective_files, timings)
+        else:
+            raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
+    finally:
+        if merged_dir:
+            shutil.rmtree(merged_dir, ignore_errors=True)
+            logger.info("Cleaned up merged dir: %s", merged_dir)
 
     total_elapsed = time.time() - total_start
 
