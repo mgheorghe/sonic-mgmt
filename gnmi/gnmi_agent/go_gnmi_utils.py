@@ -39,7 +39,7 @@ def _log_timing_summary():
 class GNMIEnvironment:
     gnmi_ip = "127.0.0.1"
     gnmi_port = 8080
-    work_dir = "/dev/shm/gnmi_work/"
+    work_dir = "/dev/shm/g/"
     username = "admin"
     password = "password"
     dpu_index = 0
