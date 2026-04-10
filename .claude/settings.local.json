@@ -1,7 +1,18 @@
 {
   "permissions": {
     "allow": [
-      "Bash(git commit -s -m ':*)"
+      "Bash(git commit -s -m ':*)",
+      "Bash(scp \"c:/github-keysight/sonic-mgmt/tests/dash/test_dash_api_speed_pl.py\" dash@10.36.79.161:/home/dash/sonic-mgmt/tests/dash/test_dash_api_speed_pl.py)",
+      "Bash(scp -o PreferredAuthentications=password /c/github-keysight/sonic-mgmt/tests/dash/test_dash_api_speed_pl.py dash@10.36.79.161:/home/dash/sonic-mgmt/sonic-mgmt/tests/dash/test_dash_api_speed_pl.py)",
+      "Read(//c/Users/mgheorgh/.ssh/**)",
+      "Bash(ssh-add -l)",
+      "Bash(sshpass -p 'wrinkle#B52' scp -o StrictHostKeyChecking=no \"c:/github-keysight/sonic-mgmt/gnmi/gnmi_agent/go_gnmi_utils.py\" dash@10.36.79.161:/home/dash/sonic-mgmt/gnmi/gnmi_agent/go_gnmi_utils.py)",
+      "Bash(ssh -o StrictHostKeyChecking=no dash@10.36.79.161 echo ok)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=publickey -o ConnectTimeout=5 -i ~/.ssh/id_rsa dash@10.36.79.161 echo ok)",
+      "Bash(ssh -o StrictHostKeyChecking=no -o PreferredAuthentications=publickey -o ConnectTimeout=5 -i ~/.ssh/id_ed25519 dash@10.36.79.161 echo ok)",
+      "Bash(pip install:*)",
+      "Bash(python3 -c ':*)",
+      "Bash(python -c ':*)"
     ]
   }
 }
