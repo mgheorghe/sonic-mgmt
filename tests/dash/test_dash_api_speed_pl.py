@@ -707,7 +707,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         if failed:
             logger.error("  [%d/%d] FAILED %s after %.2fs — %s\n  stderr: %s",
                          idx, len(files), filename, elapsed, failure_reason,
-                         stderr[:500])
+                         stderr[:2000])
             push_errors.append(f"{filename}: {failure_reason}")
         else:
             logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d",

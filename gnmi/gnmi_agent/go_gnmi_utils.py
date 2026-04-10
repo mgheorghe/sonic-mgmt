@@ -71,8 +71,10 @@ def cleanup_proto_files(cmd_list):
 
 
 # Max command length (bytes) before we split into sub-calls.
-# Linux ARG_MAX is ~2MB but includes env vars; stay well under.
-_MAX_CMD_BYTES = 1_200_000
+# Linux MAX_ARG_STRLEN limits each individual execve() string to
+# PAGE_SIZE*32 = 128 KB.  With shell=True the entire command is one
+# string passed to /bin/sh -c, so we must stay under that limit.
+_MAX_CMD_BYTES = 120_000
 
 
 def _build_gnmi_set_cmd(env, delete_list, update_list, replace_list):
