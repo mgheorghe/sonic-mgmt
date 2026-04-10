@@ -57,8 +57,8 @@ def exec_cmd(cmd):
         logging.debug(result.stdout)
     else:
         logging.error("Error executing the command.")
-        logging.error("Error output:")
-        logging.error(result.stderr)
+        logging.error("Error output (first 500 chars):")
+        logging.error(result.stderr[:500])
     return result
 
 
@@ -88,7 +88,7 @@ def _build_gnmi_set_cmd(env, delete_list, update_list, replace_list):
     """Build the gnmi_set CLI command string and return it."""
     cmd = '/usr/sbin/gnmi_set '
     cmd += '-insecure -target_addr %s:%u ' % (env.gnmi_ip, env.gnmi_port)
-    cmd += '-username %s -password %s -alsologtostderr ' % (env.username, env.password)
+    cmd += '-username %s -password %s ' % (env.username, env.password)
     for delete in delete_list:
         cmd += '--delete ' + delete + ' '
     for update in update_list:
