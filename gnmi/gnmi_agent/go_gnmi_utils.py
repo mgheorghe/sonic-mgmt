@@ -5,6 +5,7 @@ import time
 import subprocess
 import shutil
 import os
+import concurrent.futures
 
 
 TIME_BETWEEN_CHUNKS = 1
@@ -24,7 +25,7 @@ def _log_timing_summary():
     logging.info("-" * 60)
     for phase in ("json_load", "template_render", "proto_serialize",
                   "proto_file_write", "cmd_build", "gnmi_set_subprocess",
-                  "proto_cleanup", "sleep"):
+                  "proto_cleanup", "pipeline_wait", "sleep"):
         val = _phase_totals.get(phase, 0.0)
         if val > 0:
             logging.info("  %-25s %10.3f s", phase, val)
@@ -97,7 +98,7 @@ def _build_gnmi_set_cmd(env, delete_list, update_list, replace_list):
     return cmd
 
 
-def gnmi_set(env, delete_list, update_list, replace_list):
+def gnmi_set(env, delete_list, update_list, replace_list, skip_cleanup=False):
     """
     Send GNMI set request with GNMI client.
 
@@ -109,6 +110,7 @@ def gnmi_set(env, delete_list, update_list, replace_list):
         delete_list: list for delete operations
         update_list: list for update operations
         replace_list: list for replace operations
+        skip_cleanup: if True, caller handles temp file cleanup
 
     Returns:
     """
@@ -171,11 +173,12 @@ def gnmi_set(env, delete_list, update_list, replace_list):
         logging.info("TIMING: gnmi_set split into %d sub-batches for %d total ops",
                      sub_idx, total_ops)
 
-    # Cleanup the proto files created for update and replace
-    t0 = time.time()
-    cleanup_proto_files(update_list, work_dir=env.work_dir)
-    cleanup_proto_files(replace_list)
-    _record("proto_cleanup", time.time() - t0)
+    if not skip_cleanup:
+        # Cleanup the proto files created for update and replace
+        t0 = time.time()
+        cleanup_proto_files(update_list, work_dir=env.work_dir)
+        cleanup_proto_files(replace_list)
+        _record("proto_cleanup", time.time() - t0)
 
     return
 
@@ -232,6 +235,16 @@ def gnmi_get(env, path_list):
         os.unlink("get_result")
 
 
+def _send_batch(env, batch_num, delete_list, update_list, replace_list, batch_work_dir):
+    """Send one batch via gnmi_set and clean up its temp dir. Runs in background thread."""
+    logging.info("TIMING: batch %d — sending gnmi_set with %d del, %d upd, %d rep",
+                 batch_num, len(delete_list), len(update_list), len(replace_list))
+    gnmi_set(env, delete_list, update_list, replace_list, skip_cleanup=True)
+    t0 = time.time()
+    shutil.rmtree(batch_work_dir, ignore_errors=True)
+    _record("proto_cleanup", time.time() - t0)
+
+
 def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
 
     get_list = []
@@ -243,6 +256,14 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
     base_path = "%s/dpu%d" % (base_path, env.dpu_index)
     batch_cnt = 0
     batch_num = 0
+
+    # ── Pipeline: background send thread ──
+    executor = concurrent.futures.ThreadPoolExecutor(max_workers=1)
+    pending_future = None
+
+    # First batch writes to its own subdirectory
+    batch_work_dir = os.path.join(env.work_dir, "b1") + "/"
+    os.makedirs(batch_work_dir, exist_ok=True)
 
     logging.info("TIMING: processing %d operations, batch_val=%d", len(res), batch_val)
 
@@ -261,21 +282,21 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
                     _record("proto_serialize", time.time() - t0)
 
                     t0 = time.time()
-                    with open(env.work_dir+filename, "wb") as file:
+                    with open(batch_work_dir+filename, "wb") as file:
                         file.write(message)
                     _record("proto_file_write", time.time() - t0)
                 else:
                     t0 = time.time()
                     text = json.dumps(v)
-                    with open(env.work_dir+filename, "w") as file:
+                    with open(batch_work_dir+filename, "w") as file:
                         file.write(text)
                     _record("proto_file_write", time.time() - t0)
                 keys = k.split(":", 1)
                 k = keys[0] + "[key=" + keys[1] + "]"
                 if proto_utils.ENABLE_PROTO:
-                    path = "%s/%s:$%s" % (base_path, k, env.work_dir+filename)
+                    path = "%s/%s:$%s" % (base_path, k, batch_work_dir+filename)
                 else:
-                    path = "%s/%s:@%s" % (base_path, k, env.work_dir+filename)
+                    path = "%s/%s:@%s" % (base_path, k, batch_work_dir+filename)
                 if operation["OP"] == "REP":
                     replace_list.append(path)
                 else:
@@ -311,17 +332,36 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
             if get_list:
                 gnmi_get(env, get_list)
             if delete_list or update_list or replace_list:
-                logging.info("TIMING: batch %d — sending gnmi_set with %d del, %d upd, %d rep",
-                             batch_num, len(delete_list), len(update_list), len(replace_list))
-                gnmi_set(env, delete_list, update_list, replace_list)
+                # Wait for previous batch to finish before submitting next
+                if pending_future is not None:
+                    t0 = time.time()
+                    pending_future.result()      # raises on error
+                    _record("pipeline_wait", time.time() - t0)
+
+                # Submit this batch to background thread
+                pending_future = executor.submit(
+                    _send_batch, env, batch_num,
+                    delete_list, update_list, replace_list,
+                    batch_work_dir,
+                )
+
+            # Reset for next batch — new lists, new subdir
             batch_cnt = 0
             update_cnt = 0
             delete_list = []
             update_list = []
             replace_list = []
             get_list = []
+            batch_work_dir = os.path.join(env.work_dir, "b%d" % (batch_num + 1)) + "/"
+            os.makedirs(batch_work_dir, exist_ok=True)
 
-    # Final partial batch
+    # Wait for last pipelined batch
+    if pending_future is not None:
+        t0 = time.time()
+        pending_future.result()
+        _record("pipeline_wait", time.time() - t0)
+
+    # Final partial batch (runs synchronously)
     if get_list:
         gnmi_get(env, get_list)
     if delete_list or update_list or replace_list:
@@ -330,6 +370,7 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
                      batch_num, len(delete_list), len(update_list), len(replace_list))
         gnmi_set(env, delete_list, update_list, replace_list)
 
+    executor.shutdown(wait=False)
     logging.info("TIMING: total batches sent: %d", batch_num)
 
 
