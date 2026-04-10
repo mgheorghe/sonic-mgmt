@@ -1,4 +1,35 @@
-import json
+try:
+    import orjson
+
+    def _json_load(f):
+        return orjson.loads(f.read())
+
+    def _json_dumps(v):
+        return orjson.dumps(v).decode("utf-8")
+
+    _json_impl = "orjson"
+except ImportError:
+    try:
+        import ujson
+
+        def _json_load(f):
+            return ujson.load(f)
+
+        def _json_dumps(v):
+            return ujson.dumps(v)
+
+        _json_impl = "ujson"
+    except ImportError:
+        import json
+
+        def _json_load(f):
+            return json.load(f)
+
+        def _json_dumps(v):
+            return json.dumps(v)
+
+        _json_impl = "json"
+
 import logging
 import proto_utils
 import time
@@ -295,7 +326,7 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
                     _record("proto_file_write", time.time() - t0)
                 else:
                     t0 = time.time()
-                    text = json.dumps(v)
+                    text = _json_dumps(v)
                     with open(batch_work_dir+filename, "w") as file:
                         file.write(text)
                     _record("proto_file_write", time.time() - t0)
@@ -403,9 +434,10 @@ def apply_gnmi_file(env, dest_path, batch_val=10, sleep_secs=0):
 
     t0 = time.time()
     with open(dest_path, 'r') as file:
-        res = json.load(file)
+        res = _json_load(file)
     _record("json_load", time.time() - t0)
-    logging.info("TIMING: json_load took %.3f s for %s", _phase_totals["json_load"], dest_path)
+    logging.info("TIMING: json_load took %.3f s for %s (impl=%s)",
+                 _phase_totals["json_load"], dest_path, _json_impl)
 
     if isinstance(res[0], dict):
         process_template_chunk(res, env, dest_path, batch_val, sleep_secs)
