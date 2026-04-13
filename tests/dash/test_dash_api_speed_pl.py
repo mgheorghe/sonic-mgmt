@@ -942,15 +942,17 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
             shutil.rmtree(merged_dir, ignore_errors=True)
             logger.info("Cleaned up merged dir: %s", merged_dir)
 
-    total_elapsed = time.time() - total_start
-
-    mem_after = {
-        "NPU": _collect_memory(duthost),
-        "DPU": _collect_memory(dpuhost),
-    }
-    redis_after = _collect_redis_memory(dpuhost)
-
-    _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after)
+        # Always print results, even if the load raised an exception.
+        total_elapsed = time.time() - total_start
+        try:
+            mem_after = {
+                "NPU": _collect_memory(duthost),
+                "DPU": _collect_memory(dpuhost),
+            }
+            redis_after = _collect_redis_memory(dpuhost)
+            _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after)
+        except Exception:
+            logger.exception("Failed to collect/print post-test results")
 
     # ── Check DPU is still up after the push ──────────────────────────────────
     # Midplane reachability (169.254.200.x) is expected to be False after we
