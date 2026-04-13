@@ -689,10 +689,15 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         stdout = out.get("stdout", "")
         stderr = out.get("stderr", "")
 
-        # Extract and log TIMING lines from gnmi_client.py instrumentation.
+        # Extract and log TIMING/breakdown lines from gnmi_client.py instrumentation.
         for line in (stdout + "\n" + stderr).splitlines():
-            if "TIMING" in line:
-                logger.info("  [%d/%d] %s", idx, len(files), line.strip())
+            stripped = line.strip()
+            if "TIMING" in stripped or "=====" in stripped or "-----" in stripped \
+                    or "TOTAL accounted" in stripped or stripped.startswith("json_load") \
+                    or stripped.startswith("proto_") or stripped.startswith("cmd_build") \
+                    or stripped.startswith("gnmi_set_") or stripped.startswith("pipeline_") \
+                    or stripped.startswith("sleep"):
+                logger.info("  [%d/%d] %s", idx, len(files), stripped)
 
         # Only log errors and summary — skip per-line stderr for speed.
         failed = False
@@ -896,7 +901,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     #   "cli"  — py_gnmicli.py invoked directly on PTF (same tool as "ptf", no helpers)
     #   "gnmi" — gnmi_client.py via sonic-gnmi-agent container on the local (sonic-mgmt) machine
     _LOAD_METHOD = "gnmi"
-    _MERGE_MAP = True   # Merge mapping files into fewer chunks before pushing
+    _MERGE_MAP = False  # Push individual files (no merging) for per-file timing
 
     # Cert setup depends on the load method.
     if _LOAD_METHOD in ("ptf", "cli"):
