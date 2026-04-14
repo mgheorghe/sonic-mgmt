@@ -1,3 +1,4 @@
+import collections
 import fnmatch
 import json
 import logging
@@ -205,6 +206,177 @@ def _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, 
         logger.info("  %-52s  %10d  %10d  %+10d", key, b, a, a - b)
 
     logger.info(sep)
+
+
+# ── Regex for parsing the TIMING BREAKDOWN block from gnmi_client.py output ──
+_PHASE_LINE_RE = re.compile(r"^\s+(\S+)\s+([\d.]+)\s+s\s*$")
+
+# Phases in display order (matches _log_timing_summary in go_gnmi_utils.py)
+_PHASE_ORDER = [
+    "json_load", "template_render", "proto_serialize",
+    "proto_file_write", "cmd_build", "gnmi_set_subprocess",
+    "proto_cleanup", "pipeline_wait", "sleep",
+]
+
+
+def _parse_timing_breakdown(output_text):
+    """Extract per-phase seconds from a TIMING BREAKDOWN block in gnmi output.
+
+    Returns a dict {phase_name: seconds} or empty dict if not found.
+    """
+    phases = {}
+    in_block = False
+    for line in output_text.splitlines():
+        stripped = line.strip()
+        if "TIMING BREAKDOWN" in stripped:
+            in_block = True
+            continue
+        if in_block:
+            if "TOTAL accounted" in stripped:
+                m = _PHASE_LINE_RE.match(line)
+                if m:
+                    phases["TOTAL_accounted"] = float(m.group(2))
+                break
+            m = _PHASE_LINE_RE.match(line)
+            if m:
+                phases[m.group(1)] = float(m.group(2))
+    return phases
+
+
+def _print_gnmi_timing_breakdown(timings, sub_timings):
+    """Print a consolidated table of per-file sub-operation timings.
+
+    Args:
+        timings: {filename: wall_clock_seconds}
+        sub_timings: {filename: {phase: seconds}}
+    """
+    if not sub_timings:
+        return
+
+    # Human-friendly labels for each phase
+    _PHASE_LABELS = {
+        "json_load":          "JSON Load",
+        "template_render":    "Template Render",
+        "proto_serialize":    "Proto Serialize",
+        "proto_file_write":   "File Write",
+        "cmd_build":          "Cmd Build",
+        "gnmi_set_subprocess": "gNMI Set (RPC)",
+        "proto_cleanup":      "Cleanup",
+        "pipeline_wait":      "Pipeline Wait",
+        "sleep":              "Sleep",
+    }
+
+    # Collect all phases that appeared in any file, in display order
+    all_phases = []
+    for phase in _PHASE_ORDER:
+        if any(phase in st for st in sub_timings.values()):
+            all_phases.append(phase)
+    # Add any unexpected phases not in _PHASE_ORDER
+    extra = sorted(
+        set(p for st in sub_timings.values() for p in st)
+        - set(_PHASE_ORDER) - {"TOTAL_accounted"}
+    )
+    all_phases.extend(extra)
+
+    col_w = 16   # width of each phase column
+    file_w = 44  # width of the file name column
+    wall_w = 12  # width of the Wall Clock column
+    acct_w = 12  # width of the Accounted column
+    unacc_w = 12  # width of the Unaccounted column
+    row_w = file_w + wall_w + col_w * len(all_phases) + acct_w + unacc_w
+
+    sep = "=" * row_w
+    thin_sep = "-" * row_w
+
+    logger.info("")
+    logger.info(sep)
+    logger.info("  GNMI SUB-OPERATION TIMING BREAKDOWN")
+    logger.info("  All times in seconds.  'Wall Clock' = total elapsed real time per docker exec call.")
+    logger.info("  'Accounted' = sum of instrumented phases.  'Unaccounted' = Wall Clock - Accounted")
+    logger.info("  (process startup, gRPC connect, stdout flush, Python interpreter overhead, etc.)")
+    logger.info(sep)
+
+    # Header row
+    phase_hdrs = "".join(
+        ("{:>%d}" % col_w).format(_PHASE_LABELS.get(p, p)[:col_w])
+        for p in all_phases
+    )
+    hdr = ("  {:<{fw}}{:>{ww}}{phases}{:>{aw}}{:>{uw}}").format(
+        "File", "Wall Clock", "Accounted", "Unaccounted",
+        fw=file_w, ww=wall_w, aw=acct_w, uw=unacc_w, phases=phase_hdrs,
+    )
+    logger.info(hdr)
+    logger.info("  " + thin_sep)
+
+    # Accumulators for the totals row
+    totals = collections.defaultdict(float)
+    total_wall = 0.0
+    total_accounted = 0.0
+
+    for filename in sorted(timings.keys()):
+        wall = timings[filename]
+        total_wall += wall
+        st = sub_timings.get(filename, {})
+        accounted = st.get("TOTAL_accounted", sum(st.get(p, 0.0) for p in all_phases))
+        total_accounted += accounted
+        unaccounted = wall - accounted
+
+        vals = ""
+        for p in all_phases:
+            v = st.get(p, 0.0)
+            totals[p] += v
+            if v > 0:
+                vals += ("{:>%d.3f}" % col_w).format(v)
+            else:
+                vals += ("{:>%d}" % col_w).format("-")
+
+        logger.info(
+            "  {:<{fw}}{:>{ww}.2f}{vals}{:>{aw}.3f}{:>{uw}.3f}".format(
+                filename[:file_w], wall, accounted, unaccounted,
+                fw=file_w, ww=wall_w, aw=acct_w, uw=unacc_w, vals=vals,
+            )
+        )
+
+    # Totals row
+    logger.info("  " + thin_sep)
+    tot_vals = "".join(("{:>%d.3f}" % col_w).format(totals[p]) for p in all_phases)
+    total_unaccounted = total_wall - total_accounted
+    logger.info(
+        "  {:<{fw}}{:>{ww}.2f}{vals}{:>{aw}.3f}{:>{uw}.3f}".format(
+            "TOTAL", total_wall, total_accounted, total_unaccounted,
+            fw=file_w, ww=wall_w, aw=acct_w, uw=unacc_w, vals=tot_vals,
+        )
+    )
+
+    # Average row
+    if timings:
+        n = len(timings)
+        avg_vals = "".join(("{:>%d.3f}" % col_w).format(totals[p] / n) for p in all_phases)
+        logger.info(
+            "  {:<{fw}}{:>{ww}.2f}{vals}{:>{aw}.3f}{:>{uw}.3f}".format(
+                "AVERAGE", total_wall / n, total_accounted / n, total_unaccounted / n,
+                fw=file_w, ww=wall_w, aw=acct_w, uw=unacc_w, vals=avg_vals,
+            )
+        )
+
+    # Percentage-of-wall-time row
+    if total_wall > 0:
+        pct_vals = ""
+        for p in all_phases:
+            pct = 100.0 * totals[p] / total_wall
+            pct_vals += ("{:>%d}" % col_w).format("%.1f%%" % pct)
+        acct_pct = "%.1f%%" % (100.0 * total_accounted / total_wall)
+        unacc_pct = "%.1f%%" % (100.0 * total_unaccounted / total_wall)
+        logger.info("  " + thin_sep)
+        logger.info(
+            "  {:<{fw}}{:>{ww}}{vals}{:>{aw}}{:>{uw}}".format(
+                "% of Wall Clock", "100.0%", acct_pct, unacc_pct,
+                fw=file_w, ww=wall_w, aw=acct_w, uw=unacc_w, vals=pct_vals,
+            )
+        )
+
+    logger.info(sep)
+    logger.info("")
 
 
 _NPU_STATIC_ARP = [
@@ -568,13 +740,15 @@ def _merge_config_files(config_dir, files, chunk_size=16):
     return merged_dir, merged_files
 
 
-def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
+def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, sub_timings=None):
     """Push each JSON config file via a persistent sonic-gnmi-agent container.
 
     Starts one long-lived container with config_dir bind-mounted to /dpu,
     then uses 'docker exec' for each file push — avoiding per-file container
     startup overhead.  Verification is batched at the end for speed.
     """
+    if sub_timings is None:
+        sub_timings = {}
     env = GNMIEnvironment(duthost)
     dpu_index = dpuhost.dpu_index
     ip = duthost.mgmt_ip
@@ -690,7 +864,8 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
         stderr = out.get("stderr", "")
 
         # Extract and log TIMING/breakdown lines from gnmi_client.py instrumentation.
-        for line in (stdout + "\n" + stderr).splitlines():
+        combined_output = stdout + "\n" + stderr
+        for line in combined_output.splitlines():
             stripped = line.strip()
             if "TIMING" in stripped or "=====" in stripped or "-----" in stripped \
                     or "TOTAL accounted" in stripped or stripped.startswith("json_load") \
@@ -698,6 +873,11 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings):
                     or stripped.startswith("gnmi_set_") or stripped.startswith("pipeline_") \
                     or stripped.startswith("sleep"):
                 logger.info("  [%d/%d] %s", idx, len(files), stripped)
+
+        # Parse the TIMING BREAKDOWN block into sub_timings for the summary table.
+        phases = _parse_timing_breakdown(combined_output)
+        if phases:
+            sub_timings[filename] = phases
 
         # Only log errors and summary — skip per-line stderr for speed.
         failed = False
@@ -921,6 +1101,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         effective_config_dir = merged_dir
 
     timings = {}
+    sub_timings = {}
     total_start = time.time()
 
     try:
@@ -934,7 +1115,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
                               effective_config_dir, effective_files, timings)
         elif _LOAD_METHOD == "gnmi":
             load_json_via_gnmi(localhost, duthost, dpuhost,
-                               effective_config_dir, effective_files, timings)
+                               effective_config_dir, effective_files, timings,
+                               sub_timings)
         else:
             raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
     finally:
@@ -951,6 +1133,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
             }
             redis_after = _collect_redis_memory(dpuhost)
             _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after)
+            if sub_timings:
+                _print_gnmi_timing_breakdown(timings, sub_timings)
         except Exception:
             logger.exception("Failed to collect/print post-test results")
 
