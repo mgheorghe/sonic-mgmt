@@ -837,6 +837,26 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
         file_info.append((filename, op_count, tables))
         all_tables.update(tables.keys())
 
+    # ── Pre-check: verify gNMI server is reachable before pushing files ──
+    logger.info("Pre-check: verifying gNMI connectivity to %s:%s ...", ip, port)
+    check_cmd = (
+        f"docker exec {_GNMI_CONTAINER_NAME}"
+        f" /usr/sbin/gnmi_set -insecure -target_addr {ip}:{port}"  # noqa: E231
+        f" -username admin -password password"
+    )
+    check_out = localhost.shell(check_cmd, module_ignore_errors=True)
+    check_rc = check_out.get("rc", -1)
+    check_stderr = check_out.get("stderr", "")
+    if check_rc != 0 and ("DeadlineExceeded" in check_stderr
+                          or "connection refused" in check_stderr.lower()
+                          or "unavailable" in check_stderr.lower()
+                          or "transport" in check_stderr.lower()):
+        pytest.fail(
+            f"gNMI server unreachable at {ip}:{port} — aborting.\n"  # noqa: E231
+            f"stderr: {check_stderr[:500]}"
+        )
+    logger.info("Pre-check: gNMI server reachable (rc=%d)", check_rc)
+
     push_errors = []
 
     for idx, (filename, op_count, tables) in enumerate(file_info, start=1):
@@ -895,6 +915,10 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
                          idx, len(files), filename, elapsed, failure_reason,
                          stderr[-3000:])
             push_errors.append(f"{filename}: {failure_reason}")
+            # Fail fast — if the first file fails, no point continuing
+            if idx == 1:
+                logger.error("First file failed — aborting remaining files")
+                break
         else:
             logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d",
                         idx, len(files), filename, elapsed, rc)
