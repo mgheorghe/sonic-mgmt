@@ -619,9 +619,11 @@ def _count_json_operations(filepath):
 
 def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
     """Query DPU_APPL_DB for keys matching table_pattern and return count + sample keys."""
+    quiet = "DASH_VNET_MAPPING_TABLE" in table_pattern
     out = dpuhost.shell(
         f"sonic-db-cli DPU_APPL_DB KEYS '{table_pattern}' 2>/dev/null",
         module_ignore_errors=True,
+        verbose=not quiet,
     )
     keys = [k.strip() for k in out.get("stdout", "").splitlines() if k.strip()]
     if label:
