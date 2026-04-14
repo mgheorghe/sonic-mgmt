@@ -74,7 +74,7 @@ all:
           ansible_ssh_pass: password123
         ptf_keysight-css01:
           ansible_host: 172.17.0.1
-          ansible_port: 2223
+          ansible_port: 2222
           ansible_ssh_pass: password123
 
 sonic_sn2700_40:
