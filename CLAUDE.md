@@ -173,19 +173,19 @@ cd /home/dash/sonic-mgmt/sonic-mgmt/tests && \
   ANSIBLE_LIBRARY=/home/dash/sonic-mgmt/sonic-mgmt/ansible/library \
   ANSIBLE_MODULE_UTILS=/home/dash/sonic-mgmt/sonic-mgmt/ansible/module_utils \
   pytest dash/test_dash_api_speed_pl.py \
-    --testbed=keysight-ss01 \
+    --testbed=keysight-nss01 \
     --testbed_file=../ansible/testbed.yaml \
     --inventory=../ansible/lab \
-    --host-pattern=keysight-ss01 \
+    --host-pattern=keysight-nss01 \
     --dpu_index=0 \
-    --dpu-pattern=keysight-ss01-dpu0 \
+    --dpu-pattern=keysight-nss01-dpu0 \
     --cache-clear -v
 ```
 
 **Infrastructure:**
-- **NPU:** `keysight-ss01` — 10.36.78.150
+- **NPU:** `keysight-nss01` — 10.36.78.150
 - **DPU0 midplane:** 169.254.200.1 — only reachable from the NPU, not from SMD
-- **PTF container:** `ptf_keysight-ss01` — runs on SMD server (NOT on NPU)
+- **PTF container:** `ptf_keysight-nss01` — runs on SMD server (NOT on NPU)
 - **PTF image:** `sonicdev-microsoft.azurecr.io:443/docker-ptf:latest`
 - **SMD test server:** 10.36.79.161 (user: dash)
 - **Ansible vault password:** `password123`
@@ -194,7 +194,7 @@ cd /home/dash/sonic-mgmt/sonic-mgmt/tests && \
 1. `docker start sonic-mgmt` — start the sonic-mgmt container on SMD
 2. `docker ps | grep ptf` — check PTF container; if missing, recreate:
    ```bash
-   docker run -d --name ptf_keysight-ss01 --privileged \
+   docker run -d --name ptf_keysight-nss01 --privileged \
      sonicdev-microsoft.azurecr.io:443/docker-ptf:latest
    ```
 3. SSH to NPU and `ping -c 2 169.254.200.1` — verify DPU0 is alive (ping FROM NPU)

@@ -14,9 +14,9 @@ onto a DPU via gNMI, then verifies that 64 ENIs are correctly programmed in `COU
 | Component | Host | Address | Credentials |
 |-----------|------|---------|-------------|
 | SMD test server | smd | 10.36.79.161 | dash / dash (root also available) |
-| NPU | keysight-ss01 | 10.36.78.150 | admin / password |
+| NPU | keysight-nss01 | 10.36.78.150 | admin / password |
 | DPU0 midplane | — | 169.254.200.1 | reachable from NPU only |
-| PTF container | ptf_keysight-ss01 | runs on SMD | — |
+| PTF container | ptf_keysight-nss01 | runs on SMD | — |
 | sonic-mgmt container | sonic-mgmt | runs on SMD | — |
 
 **Ansible vault password:** `password123`
@@ -48,14 +48,14 @@ docker ps | grep ptf
 **If the container is stopped:**
 
 ```bash
-docker start ptf_keysight-ss01
+docker start ptf_keysight-nss01
 ```
 
 **If the container is gone entirely (first run or after wipe), recreate it:**
 
 ```bash
 docker run -d \
-  --name ptf_keysight-ss01 \
+  --name ptf_keysight-nss01 \
   --privileged \
   sonicdev-microsoft.azurecr.io:443/docker-ptf:latest
 ```
@@ -75,10 +75,10 @@ Run all of the following **on SMD as root**:
 
 ```bash
 # Verify PTF container IP (expected: 172.17.0.3)
-docker inspect ptf_keysight-ss01 --format '{{json .NetworkSettings.Networks}}'
+docker inspect ptf_keysight-nss01 --format '{{json .NetworkSettings.Networks}}'
 
 # Start SSH inside the PTF container
-docker exec ptf_keysight-ss01 service ssh start
+docker exec ptf_keysight-nss01 service ssh start
 
 # Set up NAT: 172.17.0.1:2222 → PTF:22
 iptables -t nat -A PREROUTING -p tcp -d 172.17.0.1 --dport 2222 -j DNAT --to-destination 172.17.0.3:22
@@ -86,7 +86,7 @@ iptables -t nat -A POSTROUTING -j MASQUERADE
 
 # Inject sonic-mgmt SSH public key into PTF container (password auth does not work)
 docker exec sonic-mgmt cat /root/.ssh/id_rsa.pub | \
-  docker exec -i ptf_keysight-ss01 bash -c "mkdir -p /root/.ssh && cat >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys"
+  docker exec -i ptf_keysight-nss01 bash -c "mkdir -p /root/.ssh && cat >> /root/.ssh/authorized_keys && chmod 600 /root/.ssh/authorized_keys"
 ```
 
 Verify connectivity from **inside the sonic-mgmt container**:
@@ -140,12 +140,12 @@ cd /home/dash/sonic-mgmt/sonic-mgmt/tests && \
   ANSIBLE_LIBRARY=/home/dash/sonic-mgmt/sonic-mgmt/ansible/library \
   ANSIBLE_MODULE_UTILS=/home/dash/sonic-mgmt/sonic-mgmt/ansible/module_utils \
   pytest dash/test_dash_api_speed_pl.py \
-    --testbed=keysight-ss01 \
+    --testbed=keysight-nss01 \
     --testbed_file=../ansible/testbed.yaml \
     --inventory=../ansible/lab \
-    --host-pattern=keysight-ss01 \
+    --host-pattern=keysight-nss01 \
     --dpu_index=0 \
-    --dpu-pattern=keysight-ss01-dpu0 \
+    --dpu-pattern=keysight-nss01-dpu0 \
     --cache-clear -v
 ```
 
