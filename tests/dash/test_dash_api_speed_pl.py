@@ -879,9 +879,12 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
                     idx, len(files), filename, op_count, table_summary)
 
         # docker exec on the persistent container — no startup overhead.
+        # For large files (mapping tables), reduce batch size to avoid
+        # saturating the DPU's ZMQ queue and crashing orchagent.
+        batch_val = 1000 if op_count >= _THROTTLE_OP_THRESHOLD else 10000
         cmd = (
             f"docker exec {_GNMI_CONTAINER_NAME}"
-            f" gnmi_client.py --batch_val 10000 --no-proto -i {dpu_index}"
+            f" gnmi_client.py --batch_val {batch_val} --no-proto -i {dpu_index}"
             f" -n 8 -t {ip}:{port} update -f /dpu/{filename}"  # noqa: E231
         )
 
