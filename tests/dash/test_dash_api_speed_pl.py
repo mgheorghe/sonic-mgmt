@@ -700,6 +700,15 @@ def _container_path_to_host(container_path):
 
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
+# ── DPU push-rate throttling ──
+# After pushing a file with more than _THROTTLE_OP_THRESHOLD operations,
+# pause for (_THROTTLE_SEC_PER_1K_OPS * ops/1000) seconds so the DPU's
+# ZMQ consumer and orchagent can drain the queue.  Without this, 64 000
+# DASH_VNET_MAPPING_TABLE entries saturate the DPU's 6 GB RAM, stall
+# the FW heartbeat, and crash orchagent (observed 2026-04-15).
+_THROTTLE_OP_THRESHOLD = 5000     # files with fewer ops are not throttled
+_THROTTLE_SEC_PER_1K_OPS = 0.5   # 0.5 s per 1 000 ops  →  32 s for 64 000 ops
+
 
 def _merge_config_files(config_dir, files, chunk_size=16):
     """Merge config JSON files into fewer, larger files to reduce per-file overhead.
@@ -924,6 +933,14 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
         else:
             logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d",
                         idx, len(files), filename, elapsed, rc)
+
+        # ── Throttle after large pushes to let the DPU drain its ZMQ queue ──
+        if not failed and op_count >= _THROTTLE_OP_THRESHOLD:
+            throttle_secs = round(_THROTTLE_SEC_PER_1K_OPS * op_count / 1000, 1)
+            logger.info("  [%d/%d] throttle %.1fs  (%d ops > %d threshold)",
+                        idx, len(files), throttle_secs, op_count,
+                        _THROTTLE_OP_THRESHOLD)
+            time.sleep(throttle_secs)
 
     # Stop the persistent container.
     localhost.shell(
