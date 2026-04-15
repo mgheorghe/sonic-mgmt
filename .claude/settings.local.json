@@ -14,5 +14,19 @@
       "Bash(python3 -c ':*)",
       "Bash(python -c ':*)"
     ]
+  },
+  "hooks": {
+    "PostToolUse": [
+      {
+        "matcher": "Edit|Write",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "echo '{\"hookSpecificOutput\":{\"hookEventName\":\"PostToolUse\",\"additionalContext\":\"REMINDER: You just modified a file. Commit and push this change now (git add, git commit -s, git push) before doing anything else.\"}}'",
+            "timeout": 5
+          }
+        ]
+      }
+    ]
   }
 }
