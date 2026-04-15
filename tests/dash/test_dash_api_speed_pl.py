@@ -55,7 +55,8 @@ def _parse_mem_str(mem_str):
 def _collect_memory(host):
     """
     Return a dict with per-container memory (MiB) keyed by container name,
-    plus '_system_used' for total system used MiB from `free -m`.
+    plus '_system_used', '_system_total', '_system_free', '_system_available'
+    for system-level memory from `free -m`.
     """
     result = {}
 
@@ -72,12 +73,28 @@ def _collect_memory(host):
         name, used_str = line.split("\t", 1)
         result[name.strip()] = _parse_mem_str(used_str.strip())
 
+    _parse_free_m(host, result)
+    return result
+
+
+def _parse_free_m(host, result):
+    """Run ``free -m`` on *host* and populate *result* with system memory keys."""
     free_out = host.shell("free -m", module_ignore_errors=True)
     for line in free_out.get("stdout", "").splitlines():
         if line.startswith("Mem:"):
             parts = line.split()
+            # free -m columns: total used free shared buff/cache available
+            result["_system_total"] = float(parts[1])
             result["_system_used"] = float(parts[2])
+            result["_system_free"] = float(parts[3])
+            if len(parts) >= 7:
+                result["_system_available"] = float(parts[6])
 
+
+def _collect_free_memory(host):
+    """Lightweight memory snapshot — only ``free -m``, no docker stats."""
+    result = {}
+    _parse_free_m(host, result)
     return result
 
 
@@ -122,7 +139,8 @@ def _collect_redis_memory(dpuhost):
     return result
 
 
-def _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after):
+def _print_results(timings, total_elapsed, mem_before, mem_after,
+                   redis_before, redis_after, mem_timeline=None):
     sep = "=" * 72
     logger.info(sep)
     logger.info("  DASH API LOAD SPEED TEST — RESULTS")
@@ -177,6 +195,42 @@ def _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, 
             sys_a,
             sys_a - sys_b,
         )
+        sys_total = before.get("_system_total", after.get("_system_total", 0.0))
+        for key, label in [("_system_free", "System free"),
+                           ("_system_available", "System available")]:
+            b = before.get(key, 0.0)
+            a = after.get(key, 0.0)
+            logger.info(
+                "  %-30s  %8.1f  %8.1f  %+8.1f",
+                label, b, a, a - b,
+            )
+        if sys_total:
+            logger.info("  %-30s  %8.1f", "System total", sys_total)
+
+    # Memory timeline (per-file free memory after each push)
+    if mem_timeline:
+        logger.info("\n  Memory timeline — free memory after each file push (MiB):")
+        logger.info(
+            "  %-6s  %-40s  %7s  %9s  %9s  %9s  %9s",
+            "#", "File", "Ops",
+            "NPU free", "NPU avail", "DPU free", "DPU avail")
+        logger.info("  " + "-" * 96)
+        for entry in mem_timeline:
+            logger.info(
+                "  %-6s  %-40s  %7d  %9.0f  %9.0f  %9.0f  %9.0f",
+                entry["idx"], entry["file"][:40], entry["ops"],
+                entry["npu_free"], entry["npu_available"],
+                entry["dpu_free"], entry["dpu_available"])
+        # Summary: min free across all snapshots
+        if len(mem_timeline) > 1:
+            logger.info("  " + "-" * 96)
+            logger.info(
+                "  %-6s  %-40s  %7s  %9.0f  %9.0f  %9.0f  %9.0f",
+                "", "MINIMUM", "",
+                min(e["npu_free"] for e in mem_timeline),
+                min(e["npu_available"] for e in mem_timeline),
+                min(e["dpu_free"] for e in mem_timeline),
+                min(e["dpu_available"] for e in mem_timeline))
 
     # Redis (DPU_APPL_DB) memory
     logger.info("\n  DPU Redis memory — DPU_APPL_DB (bytes):")
@@ -751,7 +805,8 @@ def _merge_config_files(config_dir, files, chunk_size=16):
     return merged_dir, merged_files
 
 
-def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, sub_timings=None):
+def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
+                       sub_timings=None, mem_timeline=None):
     """Push each JSON config file via a persistent sonic-gnmi-agent container.
 
     Starts one long-lived container with config_dir bind-mounted to /dpu,
@@ -760,6 +815,8 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
     """
     if sub_timings is None:
         sub_timings = {}
+    if mem_timeline is None:
+        mem_timeline = []
     env = GNMIEnvironment(duthost)
     dpu_index = dpuhost.dpu_index
     ip = duthost.mgmt_ip
@@ -944,6 +1001,28 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
                         idx, len(files), throttle_secs, op_count,
                         _THROTTLE_OP_THRESHOLD)
             time.sleep(throttle_secs)
+
+        # ── Per-file memory snapshot (lightweight — free -m only) ──
+        try:
+            npu_mem = _collect_free_memory(duthost)
+            dpu_mem = _collect_free_memory(dpuhost)
+            mem_timeline.append({
+                "idx": idx,
+                "file": filename,
+                "ops": op_count,
+                "npu_free": npu_mem.get("_system_free", 0),
+                "npu_available": npu_mem.get("_system_available", 0),
+                "dpu_free": dpu_mem.get("_system_free", 0),
+                "dpu_available": dpu_mem.get("_system_available", 0),
+            })
+            logger.info(
+                "  [%d/%d] mem: NPU free=%dM avail=%dM | DPU free=%dM avail=%dM",
+                idx, len(files),
+                npu_mem.get("_system_free", 0), npu_mem.get("_system_available", 0),
+                dpu_mem.get("_system_free", 0), dpu_mem.get("_system_available", 0),
+            )
+        except Exception:
+            logger.debug("  [%d/%d] mem snapshot failed (non-fatal)", idx, len(files))
 
     # Stop the persistent container.
     localhost.shell(
@@ -1156,6 +1235,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
 
     timings = {}
     sub_timings = {}
+    mem_timeline = []
     total_start = time.time()
 
     try:
@@ -1170,7 +1250,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         elif _LOAD_METHOD == "gnmi":
             load_json_via_gnmi(localhost, duthost, dpuhost,
                                effective_config_dir, effective_files, timings,
-                               sub_timings)
+                               sub_timings, mem_timeline)
         else:
             raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
     finally:
@@ -1186,7 +1266,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
                 "DPU": _collect_memory(dpuhost),
             }
             redis_after = _collect_redis_memory(dpuhost)
-            _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after)
+            _print_results(timings, total_elapsed, mem_before, mem_after,
+                           redis_before, redis_after, mem_timeline)
             if sub_timings:
                 _print_gnmi_timing_breakdown(timings, sub_timings)
         except Exception:
