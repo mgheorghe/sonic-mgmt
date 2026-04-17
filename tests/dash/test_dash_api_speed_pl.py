@@ -5,6 +5,7 @@ import logging
 import os
 import re
 import shutil
+import sys
 import tempfile
 import time
 
@@ -14,6 +15,9 @@ from gnmi_utils import GNMIEnvironment
 _RENDER_PATH = os.path.join(os.path.dirname(__file__), "configs", "dash_api_speed_pl", "render.py")
 _render_spec = importlib.util.spec_from_file_location("dash_render", _RENDER_PATH)
 render = importlib.util.module_from_spec(_render_spec)
+# Register before exec_module so multiprocessing workers can pickle/unpickle
+# top-level functions (_render_apl etc.) by their __module__ name.
+sys.modules["dash_render"] = render
 _render_spec.loader.exec_module(render)
 
 logger = logging.getLogger(__name__)
