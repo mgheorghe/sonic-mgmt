@@ -266,12 +266,8 @@ def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
     logger.info("NPU: adding permanent static ARP entries for dataplane next-hops")
     for ip, mac in _NPU_STATIC_ARP:
         route_out = duthost.shell(f"ip route get {ip}", module_ignore_errors=True)
-        dev = None
-        for token in route_out.get("stdout", "").split():
-            if token == "dev":
-                idx = route_out.get("stdout", "").split().index("dev")
-                dev = route_out.get("stdout", "").split()[idx + 1]
-                break
+        tokens = route_out.get("stdout", "").split()
+        dev = next((tokens[i + 1] for i, t in enumerate(tokens) if t == "dev"), None)
         assert dev, f"Could not determine egress interface for {ip} on NPU"
 
         for attempt in range(3):
