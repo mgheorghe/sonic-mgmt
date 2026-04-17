@@ -27,14 +27,8 @@ pytestmark = [
     pytest.mark.sanity_check(skip_sanity=True),
 ]
 
-CONFIG_DIR = os.path.join(os.path.dirname(__file__), "configs", "pl_100")
-
-# Path on NPU where JSON files are staged for the docker mount
-_NPU_STAGE_DIR = "/tmp/dash_load"
-
-# gnmi-agent container image and fixed paths expected on the NPU
+# gnmi-agent container image and path to the instrumented utility inside it
 _GNMI_AGENT_IMAGE = "sonic-gnmi-agent:2026march13"
-_GO_GNMI_UTILS_NPU = "/root/pl_100/go_gnmi_utils.py"
 _GO_GNMI_UTILS_CTR = "/usr/lib/python3/dist-packages/gnmi_agent/go_gnmi_utils.py"
 
 
@@ -505,9 +499,6 @@ def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
     for line in ping_out.get("stdout", "").splitlines():
         logger.info("  %s", line)
 
-    # ── Prepare stage directory on NPU ────────────────────────────────────────
-    duthost.shell(f"mkdir -p {_NPU_STAGE_DIR}", module_ignore_errors=True)
-
 
 def dpu_pre_config(dpuhost):
     """
@@ -731,47 +722,6 @@ _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 # the FW heartbeat, and crash orchagent (observed 2026-04-15).
 _THROTTLE_OP_THRESHOLD = 5000     # files with fewer ops are not throttled
 _THROTTLE_SEC_PER_1K_OPS = 0.5   # 0.5 s per 1 000 ops  →  32 s for 64 000 ops
-
-
-def _merge_config_files(config_dir, files, chunk_size=16):
-    """Merge config JSON files into fewer, larger files to reduce per-file overhead.
-
-    Files are sorted by name, then grouped into chunks of ``chunk_size``.
-    Each chunk's JSON operations are concatenated (preserving order) into a
-    single merged file.
-
-    Returns (merged_dir, merged_files) where merged_dir is a temp directory
-    and merged_files is the new file list.  The caller must delete merged_dir
-    when done.
-    """
-    # Create merged dir inside config_dir so it shares the same bind-mount
-    # visible to Docker on the host (tempfile.mkdtemp uses /tmp which is
-    # only inside the sonic-mgmt container and not visible to the host).
-    merged_dir = tempfile.mkdtemp(prefix="dash_merged_", dir=config_dir)
-    sorted_files = sorted(files)
-
-    merged_files = []
-    for chunk_idx in range(0, len(sorted_files), chunk_size):
-        chunk = sorted_files[chunk_idx:chunk_idx + chunk_size]
-        merged_ops = []
-        for f in chunk:
-            with open(os.path.join(config_dir, f)) as fh:
-                merged_ops.extend(json.load(fh))
-
-        merged_name = "merged_%03d.json" % (chunk_idx // chunk_size)
-        with open(os.path.join(merged_dir, merged_name), "w") as fh:
-            json.dump(merged_ops, fh)
-
-        logger.info(
-            "  Merged %d files (%d ops) -> %s  [%s .. %s]",
-            len(chunk), len(merged_ops), merged_name, chunk[0], chunk[-1],
-        )
-        merged_files.append(merged_name)
-
-    logger.info("Merge complete: %d original files -> %d merged files",
-                len(files), len(merged_files))
-
-    return merged_dir, merged_files
 
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
@@ -1019,12 +969,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
 
 def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost):
     """
-    Measure the time to load private-link-50 DASH configs onto a DPU via gNMI.
+    Measure the time to load DASH configs onto a DPU via gNMI.
 
-    For each JSON config file:
-      1. Copy the file to _NPU_STAGE_DIR on the NPU.
-      2. Run sonic-gnmi-agent docker container on the NPU with the stage dir
-         mounted, invoking gnmi_client.py to push the file to the DPU.
+    Steps:
+      1. Render the DASH JSON configs into a temp dir via render.generate().
+      2. Push each JSON file to the DPU via the selected load method
+         (gnmi_client.py in a sonic-gnmi-agent container on the sonic-mgmt
+         machine, or py_gnmicli.py on PTF).
       3. Record and log the time taken per file.
     """
     dpuhost = dpuhosts[dpu_index]
@@ -1081,7 +1032,6 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     #   "ptf"  — py_gnmicli.py via write_gnmi_files/gnmi_set helpers on PTF
     #   "gnmi" — gnmi_client.py via sonic-gnmi-agent container on the local (sonic-mgmt) machine
     _LOAD_METHOD = "gnmi"
-    _MERGE_MAP = False  # Push individual files (no merging) for per-file timing
 
     # Cert setup depends on the load method.
     if _LOAD_METHOD == "ptf":
@@ -1092,14 +1042,6 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         logger.info("Setting up gNMI server (no client auth) for remote access...")
         _setup_gnmi_server_no_client_auth(localhost, duthost)
 
-    # Optionally merge map files to reduce per-file overhead.
-    merged_dir = None
-    effective_config_dir = config_dir
-    effective_files = files
-    if _MERGE_MAP:
-        merged_dir, effective_files = _merge_config_files(config_dir, files, chunk_size=16)
-        effective_config_dir = merged_dir
-
     timings = {}
     sub_timings = {}
     mem_timeline = []
@@ -1108,17 +1050,14 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     try:
         if _LOAD_METHOD == "ptf":
             load_json_via_ptf(localhost, duthost, dpuhost, ptfhost,
-                              effective_config_dir, effective_files, timings)
+                              config_dir, files, timings)
         elif _LOAD_METHOD == "gnmi":
             load_json_via_gnmi(localhost, duthost, dpuhost,
-                               effective_config_dir, effective_files, timings,
+                               config_dir, files, timings,
                                sub_timings, mem_timeline)
         else:
             raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
     finally:
-        if merged_dir:
-            shutil.rmtree(merged_dir, ignore_errors=True)
-            logger.info("Cleaned up merged dir: %s", merged_dir)
         shutil.rmtree(render_output_dir, ignore_errors=True)
         logger.info("Cleaned up rendered config dir: %s", render_output_dir)
 
