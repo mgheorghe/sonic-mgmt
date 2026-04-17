@@ -69,12 +69,13 @@ def _collect_memory(host):
         name, used_str = line.split("\t", 1)
         result[name.strip()] = _parse_mem_str(used_str.strip())
 
-    _parse_free_m(host, result)
+    result.update(_collect_free_memory(host))
     return result
 
 
-def _parse_free_m(host, result):
-    """Run ``free -m`` on *host* and populate *result* with system memory keys."""
+def _collect_free_memory(host):
+    """Run ``free -m`` on *host* and return a dict with system memory keys (MiB)."""
+    result = {}
     free_out = host.shell("free -m", module_ignore_errors=True)
     for line in free_out.get("stdout", "").splitlines():
         if line.startswith("Mem:"):
@@ -85,12 +86,6 @@ def _parse_free_m(host, result):
             result["_system_free"] = float(parts[3])
             if len(parts) >= 7:
                 result["_system_available"] = float(parts[6])
-
-
-def _collect_free_memory(host):
-    """Lightweight memory snapshot — only ``free -m``, no docker stats."""
-    result = {}
-    _parse_free_m(host, result)
     return result
 
 
