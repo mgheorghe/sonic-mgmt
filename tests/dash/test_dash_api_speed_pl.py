@@ -26,9 +26,8 @@ pytestmark = [
     pytest.mark.sanity_check(skip_sanity=True),
 ]
 
-# gnmi-agent container image and path to the instrumented utility inside it
+# gnmi-agent container image
 _GNMI_AGENT_IMAGE = "sonic-gnmi-agent:2026march13"
-_GO_GNMI_UTILS_CTR = "/usr/lib/python3/dist-packages/gnmi_agent/go_gnmi_utils.py"
 
 
 def _parse_mem_str(mem_str):
@@ -711,51 +710,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
         pytest.fail("Could not start %s: %s" % (
             _GNMI_CONTAINER_NAME, start_out.get("stderr", "")))
     logger.info("Started persistent container %s", _GNMI_CONTAINER_NAME)
-
-    # ── Inject instrumented gnmi_client.py + go_gnmi_utils.py for timing ──
-    # docker cp doesn't work in Docker-in-Docker (daemon reads host FS, not
-    # sonic-mgmt FS).  Instead we bind-mount the gnmi/ directory and then use
-    # 'docker exec cp' to overwrite inside the running container.
-    _gnmi_src_dir = os.path.realpath(
-        os.path.join(os.path.dirname(__file__), "..", "..", "gnmi")
-    )
-    _host_gnmi_dir = _container_path_to_host(_gnmi_src_dir)
-    logger.info("Injecting instrumented files from %s (host: %s)",
-                _gnmi_src_dir, _host_gnmi_dir)
-    # Find where gnmi_client.py lives inside the container
-    which_out = localhost.shell(
-        f"docker exec {_GNMI_CONTAINER_NAME} which gnmi_client.py",
-        module_ignore_errors=True,
-    )
-    _ctr_gnmi_client = which_out.get("stdout", "").strip() or "/usr/sbin/gnmi_client.py"
-    logger.info("gnmi_client.py in container at: %s", _ctr_gnmi_client)
-    # Pipe file contents into the container via 'docker exec ... tee'.
-    # This avoids docker cp path issues in Docker-in-Docker.
-    for src_local, dst_ctr in [
-        (os.path.join(_gnmi_src_dir, "gnmi_client.py"), _ctr_gnmi_client),
-        (os.path.join(_gnmi_src_dir, "gnmi_agent", "go_gnmi_utils.py"), _GO_GNMI_UTILS_CTR),
-    ]:
-        with open(src_local, "r") as f:
-            content = f.read()
-        # Use a heredoc to pipe the content into the container.
-        inject_cmd = (
-            f"docker exec -i {_GNMI_CONTAINER_NAME}"
-            f" tee {dst_ctr} > /dev/null <<'__INJECT_EOF__'\n"
-            f"{content}\n__INJECT_EOF__"
-        )
-        inject_out = localhost.shell(inject_cmd, module_ignore_errors=True)
-        rc = inject_out.get("rc", -1)
-        logger.info("  injected %s -> %s (rc=%d)", os.path.basename(src_local), dst_ctr, rc)
-        if rc != 0:
-            logger.warning("  injection stderr: %s", inject_out.get("stderr", "")[:300])
-    # Verify the files were updated by checking for the TIMING marker.
-    verify_out = localhost.shell(
-        f"docker exec {_GNMI_CONTAINER_NAME} grep -c '_phase_totals' {_GO_GNMI_UTILS_CTR}",
-        module_ignore_errors=True,
-    )
-    logger.info("Verification — _phase_totals count in container go_gnmi_utils.py: %s",
-                verify_out.get("stdout", "").strip())
-    # ── End instrumentation injection ──
 
     # Pre-count operations for all files (outside the timed loop).
     file_info = []
