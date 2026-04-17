@@ -543,10 +543,6 @@ def _container_path_to_host(container_path):
 
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
-# Throttle large pushes so DPU ZMQ/orchagent can drain (prior incident: 64k entries OOM-crashed orchagent).
-_THROTTLE_OP_THRESHOLD = 5000     # files with fewer ops are not throttled
-_THROTTLE_SEC_PER_1K_OPS = 0.5   # 0.5 s per 1 000 ops  →  32 s for 64 000 ops
-
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
                        sub_timings=None, mem_timeline=None):
@@ -628,11 +624,9 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
         logger.info("  [%d/%d] pushing %s (%d ops: %s) ...",
                     idx, len(files), filename, op_count, table_summary)
 
-        # Large files use smaller batch to avoid saturating the DPU's ZMQ queue.
-        batch_val = 1000 if op_count >= _THROTTLE_OP_THRESHOLD else 10000
         cmd = (
             f"docker exec {_GNMI_CONTAINER_NAME}"
-            f" gnmi_client.py --batch_val {batch_val} --no-proto -i {dpu_index}"
+            f" gnmi_client.py --batch_val 10000 --no-proto -i {dpu_index}"
             f" -n 8 -t {ip}:{port} update -f /dpu/{filename}"  # noqa: E231
         )
 
@@ -684,14 +678,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
         else:
             logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d",
                         idx, len(files), filename, elapsed, rc)
-
-        # ── Throttle after large pushes to let the DPU drain its ZMQ queue ──
-        if not failed and op_count >= _THROTTLE_OP_THRESHOLD:
-            throttle_secs = round(_THROTTLE_SEC_PER_1K_OPS * op_count / 1000, 1)
-            logger.info("  [%d/%d] throttle %.1fs  (%d ops > %d threshold)",
-                        idx, len(files), throttle_secs, op_count,
-                        _THROTTLE_OP_THRESHOLD)
-            time.sleep(throttle_secs)
 
         # ── Per-file memory snapshot (lightweight — free -m only) ──
         try:
