@@ -51,15 +51,10 @@ def _parse_mem_str(mem_str):
 
 
 def _collect_memory(host):
-    """
-    Return a dict with per-container memory (MiB) keyed by container name,
-    plus '_system_used', '_system_total', '_system_free', '_system_available'
-    for system-level memory from `free -m`.
-    """
+    """Per-container memory (MiB) plus '_system_*' keys from `free -m`."""
     result = {}
 
-    # Use awk to avoid Jinja2 templating issues with Go's {{.Name}} format syntax.
-    # docker stats columns: ID NAME CPU% MEM_USED / MEM_LIMIT MEM% ...
+    # awk avoids Jinja2 issues with Go's {{.Name}}; docker stats cols: ID NAME CPU% MEM_USED / ...
     out = host.shell(
         "docker stats --no-stream | awk 'NR>1 {print $2\"\\t\"$4}'",
         module_ignore_errors=True,
@@ -97,12 +92,7 @@ def _collect_free_memory(host):
 
 
 def _collect_redis_memory(dpuhost):
-    """
-    Return a dict with Redis memory info from DPU_APPL_DB:
-      '_used_memory_human' — overall used memory (human string)
-      '_used_memory'       — overall used memory (bytes, int)
-      per VNET_MAPPING key (2 samples) — per-key MEMORY USAGE in bytes
-    """
+    """Redis memory info from DPU_APPL_DB: totals plus 2 VNET_MAPPING key samples."""
     result = {}
 
     info_out = dpuhost.shell("sonic-db-cli DPU_APPL_DB INFO MEMORY",
@@ -272,10 +262,7 @@ _PHASE_ORDER = [
 
 
 def _parse_timing_breakdown(output_text):
-    """Extract per-phase seconds from a TIMING BREAKDOWN block in gnmi output.
-
-    Returns a dict {phase_name: seconds} or empty dict if not found.
-    """
+    """Extract {phase_name: seconds} from a TIMING BREAKDOWN block; empty if not found."""
     phases = {}
     in_block = False
     for line in output_text.splitlines():
@@ -296,12 +283,7 @@ def _parse_timing_breakdown(output_text):
 
 
 def _print_gnmi_timing_breakdown(timings, sub_timings):
-    """Print a consolidated table of per-file sub-operation timings.
-
-    Args:
-        timings: {filename: wall_clock_seconds}
-        sub_timings: {filename: {phase: seconds}}
-    """
+    """Print per-file sub-op timings. timings={file: wall_s}; sub_timings={file: {phase: s}}."""
     if not sub_timings:
         return
 
@@ -440,14 +422,7 @@ _NPU_STATIC_ARP = [
 
 
 def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
-    """
-    Prepare the NPU for a DASH config push:
-      - Add permanent static ARP entries for dataplane next-hops.
-      - Ping the DPU midplane IP to populate the NPU ARP table.
-      - Log NPU routing and interface state.
-      - Ping the DPU dataplane IP to confirm end-to-end reachability.
-      - Create the stage directory for JSON file uploads.
-    """
+    """Prepare NPU for DASH push: static ARPs, midplane/dataplane ping, log routes/ifaces."""
     logger.info("NPU: adding permanent static ARP entries for dataplane next-hops")
     for ip, mac in _NPU_STATIC_ARP:
         route_out = duthost.shell(f"ip route get {ip}", module_ignore_errors=True)
@@ -499,13 +474,7 @@ def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
 
 
 def dpu_pre_config(dpuhost):
-    """
-    Prepare the DPU for a DASH config push:
-      - Add Loopback0 IP and verify it was applied.
-      - Log DPU routing and interface state.
-      - Remove all default routes via the midplane gateway (last step, so SSH
-        to the midplane still works during the setup above).
-    """
+    """Prepare DPU for DASH push: add+verify Loopback0 IP, log routes/ifaces."""
     loopback_ip = "221.0.0.%d/32" % (dpuhost.dpu_index + 1)
     logger.info("DPU: creating Loopback0 interface (if not present)")
     dpuhost.shell("sudo config loopback add Loopback0", module_ignore_errors=True)
@@ -524,36 +493,6 @@ def dpu_pre_config(dpuhost):
     dpu_ifaces = dpuhost.shell("show ip interfaces", module_ignore_errors=True)
     for line in dpu_ifaces.get("stdout", "").splitlines():
         logger.info("  DPU iface: %s", line)
-
-    # Remove ALL default routes via the midplane gateway — last step before push.
-    # Done last so SSH/ping to the midplane IP still works during all setup above.
-    # logger.info("DPU: removing all default routes via 169.254.200.254")
-    # for _ in range(10):
-    #     routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
-    #     midplane_defaults = [
-    #         route for route in routes_out.get("stdout", "").splitlines()
-    #         if "169.254.200.254" in route
-    #     ]
-    #     if not midplane_defaults:
-    #         break
-    #     dpuhost.shell("sudo ip route del default via 169.254.200.254",
-    #                   module_ignore_errors=True)
-    # routes_out = dpuhost.shell("ip route show default", module_ignore_errors=True)
-    # remaining = [
-    #     route for route in routes_out.get("stdout", "").splitlines()
-    #     if "169.254.200.254" in route
-    # ]
-    # assert not remaining, \
-    #     "Midplane default route(s) still present after removal: %s" % remaining
-
-    # dataplane_defaults = [
-    #     route for route in routes_out.get("stdout", "").splitlines()
-    #     if route.startswith("default") and "169.254.200.254" not in route
-    # ]
-    # assert dataplane_defaults, \
-    #     "No dataplane default route found after removing midplane routes. " \
-    #     "'ip route show default': %s" % routes_out.get("stdout", "")
-    # logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
 
 
 def _count_json_operations(filepath):
@@ -591,17 +530,7 @@ def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
 
 
 def _container_path_to_host(container_path):
-    """Translate a path inside this (sonic-mgmt) container to the host path.
-
-    The sonic-mgmt container is typically started with:
-        docker run -v /home/dash/sonic-mgmt:/home/dash/sonic-mgmt/sonic-mgmt ...
-    so a container path like /home/dash/sonic-mgmt/sonic-mgmt/tests/...
-    maps to host path        /home/dash/sonic-mgmt/tests/...
-
-    Detect and collapse any repeated adjacent directory component
-    (e.g. .../sonic-mgmt/sonic-mgmt/... → .../sonic-mgmt/...).
-    Falls back to the original path if no repeated component is found.
-    """
+    """Collapse a repeated adjacent dir (e.g. .../x/x/... → .../x/...) for Docker-in-Docker paths."""
     parts = container_path.split("/")
     for i in range(1, len(parts) - 1):
         if parts[i] and parts[i] == parts[i + 1]:
@@ -614,24 +543,14 @@ def _container_path_to_host(container_path):
 
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
-# ── DPU push-rate throttling ──
-# After pushing a file with more than _THROTTLE_OP_THRESHOLD operations,
-# pause for (_THROTTLE_SEC_PER_1K_OPS * ops/1000) seconds so the DPU's
-# ZMQ consumer and orchagent can drain the queue.  Without this, 64 000
-# DASH_VNET_MAPPING_TABLE entries saturate the DPU's 6 GB RAM, stall
-# the FW heartbeat, and crash orchagent (observed 2026-04-15).
+# Throttle large pushes so DPU ZMQ/orchagent can drain (prior incident: 64k entries OOM-crashed orchagent).
 _THROTTLE_OP_THRESHOLD = 5000     # files with fewer ops are not throttled
 _THROTTLE_SEC_PER_1K_OPS = 0.5   # 0.5 s per 1 000 ops  →  32 s for 64 000 ops
 
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
                        sub_timings=None, mem_timeline=None):
-    """Push each JSON config file via a persistent sonic-gnmi-agent container.
-
-    Starts one long-lived container with config_dir bind-mounted to /dpu,
-    then uses 'docker exec' for each file push — avoiding per-file container
-    startup overhead.  Verification is batched at the end for speed.
-    """
+    """Push each JSON via a long-lived sonic-gnmi-agent container (config_dir mounted at /dpu)."""
     if sub_timings is None:
         sub_timings = {}
     if mem_timeline is None:
@@ -709,9 +628,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
         logger.info("  [%d/%d] pushing %s (%d ops: %s) ...",
                     idx, len(files), filename, op_count, table_summary)
 
-        # docker exec on the persistent container — no startup overhead.
-        # For large files (mapping tables), reduce batch size to avoid
-        # saturating the DPU's ZMQ queue and crashing orchagent.
+        # Large files use smaller batch to avoid saturating the DPU's ZMQ queue.
         batch_val = 1000 if op_count >= _THROTTLE_OP_THRESHOLD else 10000
         cmd = (
             f"docker exec {_GNMI_CONTAINER_NAME}"
@@ -823,22 +740,10 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
 
 
 def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
-    """
-    Measure the time to load DASH configs onto a DPU via gNMI.
-
-    Steps:
-      1. Render the DASH JSON configs into a temp dir via render.generate().
-      2. Push each JSON file to the DPU via the selected load method
-         (gnmi_client.py in a sonic-gnmi-agent container on the sonic-mgmt
-         machine, or py_gnmicli.py on PTF).
-      3. Record and log the time taken per file.
-    """
+    """Render DASH configs to a temp dir then push via gnmi_client.py; record per-file load time."""
     dpuhost = dpuhosts[dpu_index]
 
-    # ── Pre-flight: verify DPU is alive via SSH port check ───────────────────
-    # ping and 'show chassis module midplane-status' are both unreliable after
-    # a previous run removed the midplane default route. Check TCP port 22
-    # instead — if SSH is listening the DPU is up.
+    # Pre-flight: SSH port check (ping/midplane-status unreliable after route removal).
     dpu_name = f"DPU{dpuhost.dpu_index}"
     dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
     logger.info("Pre-flight: assuming %s is up at %s (no automated check)", dpu_name, dpu_midplane_ip)
@@ -911,10 +816,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
         except Exception:
             logger.exception("Failed to collect/print post-test results")
 
-    # ── Check DPU is still up after the push ──────────────────────────────────
-    # Midplane reachability (169.254.200.x) is expected to be False after we
-    # removed the midplane default route, so it is not a reliable crash indicator.
-    # Instead, ping the dataplane IP — if that also fails the DPU is truly down.
+    # Check DPU alive via dataplane ping (midplane reachability unreliable after route removal).
     midplane_out = duthost.show_and_parse("show chassis module midplane-status")
     dpu_row = next((r for r in midplane_out if r.get("name", "").strip().upper() == dpu_name), None)
     midplane_reachability = dpu_row.get("reachability", "").strip() if dpu_row else "unknown"
@@ -932,10 +834,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     )
     logger.info("%s dataplane reachability after push: OK", dpu_name)
 
-    # ── Verify ENIs are programmed on DPU ───────────────────────────────────
-    # ENIs take time to propagate from APPL_DB through the DPU pipeline into
-    # COUNTERS_ENI_NAME_MAP. Poll with a generous timeout.
-    # With 3 config files (1 ENI set) we expect 1 ENI; full 129 files → 64 ENIs.
+    # Verify ENIs propagated from APPL_DB into COUNTERS_ENI_NAME_MAP (takes time).
     _ENI_EXPECTED = (len(files) - 1) // 2  # 2 files per ENI (eni, map) + apl per DPU
     if _ENI_EXPECTED < 1:
         _ENI_EXPECTED = 1
@@ -951,8 +850,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
             module_ignore_errors=True,
         )
         eni_stdout = eni_out.get("stdout", "")
-        # sonic-db-cli returns a Python dict string like {'k1': 'v1', 'k2': 'v2'}.
-        # Count the number of keys by counting 'eni-' occurrences.
+        # sonic-db-cli returns a Python-repr dict; count keys via 'eni-' occurrences.
         eni_count = eni_stdout.count("eni-")
         logger.info("DPU: ENIs found: %d / %d", eni_count, _ENI_EXPECTED)
         logger.info("DPU: COUNTERS_ENI_NAME_MAP raw output:\n%s", eni_stdout or "(empty)")
