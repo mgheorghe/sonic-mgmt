@@ -28,6 +28,10 @@ pytestmark = [
 # gnmi-agent container image
 _GNMI_AGENT_IMAGE = "sonic-gnmi-agent:2026march13"
 
+# How many ENIs to push per DPU. "ALL" = every rendered file.
+# Int N = apl + eni/map files with index 000..(N-1), e.g. 1 → just 000, 32 → 000..031.
+_ENI_COUNT = "ALL"
+
 
 def _parse_mem_str(mem_str):
     """Parse a docker memory string like '512MiB', '1.5GiB', '256kB' into MiB."""
@@ -566,6 +570,20 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
         if fnmatch.fnmatch(f, pattern) and f.endswith(".json")
     )
     assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
+
+    # Filter by _ENI_COUNT: keep files whose 3-digit index is < N; "ALL" keeps everything.
+    if _ENI_COUNT != "ALL":
+        n = int(_ENI_COUNT)
+        filtered = []
+        for f in files:
+            m = re.search(r"\.(\d{3})(apl|eni|map)\.json$", f)
+            if m and int(m.group(1)) < n:
+                filtered.append(f)
+        assert filtered, f"_ENI_COUNT={_ENI_COUNT} filtered out all files (had {len(files)})"
+        logger.info("_ENI_COUNT=%s: pushing %d/%d rendered files",
+                    _ENI_COUNT, len(filtered), len(files))
+        files = filtered
+
     logger.info(
         "Rendered %d config files to load for dpu%d",
         len(files), dpuhost.dpu_index,
