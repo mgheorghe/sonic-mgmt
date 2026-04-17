@@ -1,5 +1,6 @@
 import collections
 import fnmatch
+import importlib.util
 import json
 import logging
 import os
@@ -11,6 +12,11 @@ import time
 import proto_utils
 import pytest
 from gnmi_utils import GNMIEnvironment, apply_gnmi_cert, generate_gnmi_cert, write_gnmi_files
+
+_RENDER_PATH = os.path.join(os.path.dirname(__file__), "configs", "dash_api_speed_pl", "render.py")
+_render_spec = importlib.util.spec_from_file_location("dash_render", _RENDER_PATH)
+render = importlib.util.module_from_spec(_render_spec)
+_render_spec.loader.exec_module(render)
 
 logger = logging.getLogger(__name__)
 
@@ -561,43 +567,6 @@ def dpu_pre_config(dpuhost):
     # logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
 
 
-def load_json_via_npu(duthost, dpuhost, config_dir, files, timings):
-    """Push each JSON config file to the DPU via docker run on the NPU."""
-    for idx, filename in enumerate(files, start=1):
-        local_path = os.path.join(config_dir, filename)
-        npu_path = f"{_NPU_STAGE_DIR}/{filename}"
-
-        duthost.copy(src=local_path, dest=npu_path, verbose=False)
-        logger.info("  [%d/%d] pushing %s ...", idx, len(files), filename)
-
-        cmd = (
-            "docker run --network host"
-            f" --mount src={_NPU_STAGE_DIR},target=/dpu,type=bind,readonly"  # noqa: E231
-            f" --mount src={_GO_GNMI_UTILS_NPU},target={_GO_GNMI_UTILS_CTR},type=bind,readonly"  # noqa: E231
-            f" -t {_GNMI_AGENT_IMAGE}"
-            f" -c 'gnmi_client.py --batch_val 10000 -i {dpuhost.dpu_index}"
-            f" -n 8 -t 127.0.0.1:50052 update -f /dpu/{filename}'"  # noqa: E231
-        )
-
-        t_start = time.time()
-        out = duthost.shell(cmd, module_ignore_errors=True)
-        elapsed = time.time() - t_start
-        timings[filename] = elapsed
-
-        stdout = out.get("stdout", "")
-        for line in stdout.splitlines():
-            logger.info("    %s", line)
-
-        if "Set failed" in stdout or out.get("rc", 0) != 0:
-            logger.error("  [%d/%d] FAILED %s after %.2fs", idx, len(files), filename, elapsed)
-            logger.error("  stderr: %s", out.get("stderr", ""))
-            pytest.fail(f"gnmi_client.py failed for {filename}: {stdout}")
-
-        logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
-
-        duthost.shell(f"rm -f {npu_path}", module_ignore_errors=True)
-
-
 def load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings):
     """Push each JSON config file to the DPU via py_gnmicli.py on the PTF container."""
     env = GNMIEnvironment(duthost)
@@ -1048,110 +1017,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
             len(push_errors), "\n".join("  - %s" % e for e in push_errors)))
 
 
-def load_json_via_cli(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings):
-    """Push each JSON config file to the DPU via py_gnmicli.py CLI on the PTF container.
-
-    Equivalent to load_json_via_ptf but directly constructs and runs the
-    py_gnmicli.py command without going through write_gnmi_files/gnmi_set helpers.
-    """
-    env = GNMIEnvironment(duthost)
-    dpu_host_str = f"dpu{dpuhost.dpu_index}"
-    ip = duthost.mgmt_ip
-    port = env.gnmi_port
-
-    localhost.shell(f"mkdir -p {env.work_dir}", module_ignore_errors=True)
-
-    base_cmd = (
-        f'/root/env-python3/bin/python /root/gnxi/gnmi_cli_py/py_gnmicli.py '
-        f'--timeout 30 '
-        f'-t {ip} -p {port} '
-        f'-xo sonic-db '
-        f'-rcert /root/{env.gnmi_ca_cert} '
-        f'-pkey /root/{env.gnmi_client_key} '
-        f'-cchain /root/{env.gnmi_client_cert} '
-    )
-
-    for idx, filename in enumerate(files, start=1):
-        local_path = os.path.join(config_dir, filename)
-        logger.info("  [%d/%d] pushing %s ...", idx, len(files), filename)
-
-        with open(local_path) as f:
-            operations = json.load(f)
-
-        update_list = []
-        delete_list = []
-        update_cnt = 0
-
-        for operation in operations:
-            if operation["OP"] == "SET":
-                for k, v in operation.items():
-                    if k == "OP":
-                        continue
-                    update_cnt += 1
-                    file_name = f"update{update_cnt}"
-                    keys = k.split(":", 1)
-                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
-                    if proto_utils.ENABLE_PROTO:
-                        message = proto_utils.parse_dash_proto(k, v)
-                        with open(env.work_dir + file_name, "wb") as bf:
-                            bf.write(message.SerializeToString())
-                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:$/root/{file_name}"     # noqa: E231
-                    else:
-                        with open(env.work_dir + file_name, "w") as tf:
-                            tf.write(json.dumps(v))
-                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:@/root/{file_name}"     # noqa: E231
-                    update_list.append(path)
-            elif operation["OP"] == "DEL":
-                for k, v in operation.items():
-                    if k == "OP":
-                        continue
-                    keys = k.split(":", 1)
-                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
-                    delete_list.append(f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}")
-
-        localhost.shell(f'tar -czf /tmp/updates.tar.gz -C {env.work_dir} .')
-        ptfhost.copy(src='/tmp/updates.tar.gz', dest='~')
-        ptfhost.shell('tar -xf updates.tar.gz')
-
-        t_start = time.time()
-        try:
-            if delete_list:
-                xpath = ' '.join(p.replace('sonic-db:', '') for p in delete_list)
-                xvalue = ' '.join('""' for _ in delete_list)
-                cmd = base_cmd + f'-m set-delete --xpath {xpath} --value {xvalue}'
-                output = ptfhost.shell(cmd, module_ignore_errors=True)
-                if "GRPC error\n" in output['stdout']:
-                    raise Exception("GRPC error: " + output['stdout'].split("GRPC error\n", 1)[1])
-
-            if update_list:
-                xpath = ''
-                xvalue = ''
-                for update in update_list:
-                    update = update.replace('sonic-db:', '')
-                    result = update.rsplit(':', 1)
-                    xpath += ' ' + result[0]
-                    xvalue += ' ' + result[1]
-                cmd = base_cmd + f'-m set-update --xpath {xpath} --value {xvalue}'
-                output = ptfhost.shell(cmd, module_ignore_errors=True)
-                if "GRPC error\n" in output['stdout']:
-                    raise Exception("GRPC error: " + output['stdout'].split("GRPC error\n", 1)[1])
-
-        except Exception as e:
-            elapsed = time.time() - t_start
-            timings[filename] = elapsed
-            logger.error("  [%d/%d] FAILED %s after %.2fs: %s", idx, len(files), filename, elapsed, e)
-            pytest.fail(f"gNMI CLI push failed for {filename}: {e}")
-
-        elapsed = time.time() - t_start
-        timings[filename] = elapsed
-        logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
-
-        localhost.shell('rm -f /tmp/updates.tar.gz')
-        ptfhost.shell('rm -f updates.tar.gz')
-        localhost.shell(f'find {env.work_dir} -name "update*" -delete')
-        ptfhost.shell('find . -maxdepth 1 -name "update*" -delete')
-
-
 def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost):
     """
     Measure the time to load private-link-50 DASH configs onto a DPU via gNMI.
@@ -1172,10 +1037,14 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
     logger.info("Pre-flight: assuming %s is up at %s (no automated check)", dpu_name, dpu_midplane_ip)
 
-    config_dir = os.path.join(CONFIG_DIR, f"dpu{dpuhost.dpu_index}")
+    # Generate DASH config JSONs on the fly via the Jinja2 renderer.
+    render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_")
+    logger.info("Rendering DASH configs into %s", render_output_dir)
+    render.generate(dict(render.DEFAULTS), render_output_dir, prefix="pl_100")
 
+    config_dir = os.path.join(render_output_dir, f"dpu{dpuhost.dpu_index}")
     assert os.path.isdir(config_dir), \
-        f"Config directory not found: {config_dir}"
+        f"Config directory not found after render: {config_dir}"
 
     pattern = f"*dpu{dpuhost.dpu_index}*.json"
     files = sorted(
@@ -1184,7 +1053,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     )
     assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
     logger.info(
-        "Found %d config files to load for dpu%d",
+        "Rendered %d config files to load for dpu%d",
         len(files), dpuhost.dpu_index,
     )
 
@@ -1209,15 +1078,13 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
 
     # Select the load method:
-    #   "npu"  — gnmi_client.py via docker run on the NPU (connects to 127.0.0.1:50052)
     #   "ptf"  — py_gnmicli.py via write_gnmi_files/gnmi_set helpers on PTF
-    #   "cli"  — py_gnmicli.py invoked directly on PTF (same tool as "ptf", no helpers)
     #   "gnmi" — gnmi_client.py via sonic-gnmi-agent container on the local (sonic-mgmt) machine
     _LOAD_METHOD = "gnmi"
     _MERGE_MAP = False  # Push individual files (no merging) for per-file timing
 
     # Cert setup depends on the load method.
-    if _LOAD_METHOD in ("ptf", "cli"):
+    if _LOAD_METHOD == "ptf":
         logger.info("Setting up gNMI certs on NPU and PTF...")
         generate_gnmi_cert(localhost, duthost)
         apply_gnmi_cert(duthost, ptfhost)
@@ -1242,11 +1109,6 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         if _LOAD_METHOD == "ptf":
             load_json_via_ptf(localhost, duthost, dpuhost, ptfhost,
                               effective_config_dir, effective_files, timings)
-        elif _LOAD_METHOD == "npu":
-            load_json_via_npu(duthost, dpuhost, effective_config_dir, effective_files, timings)
-        elif _LOAD_METHOD == "cli":
-            load_json_via_cli(localhost, duthost, dpuhost, ptfhost,
-                              effective_config_dir, effective_files, timings)
         elif _LOAD_METHOD == "gnmi":
             load_json_via_gnmi(localhost, duthost, dpuhost,
                                effective_config_dir, effective_files, timings,
@@ -1257,6 +1119,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
         if merged_dir:
             shutil.rmtree(merged_dir, ignore_errors=True)
             logger.info("Cleaned up merged dir: %s", merged_dir)
+        shutil.rmtree(render_output_dir, ignore_errors=True)
+        logger.info("Cleaned up rendered config dir: %s", render_output_dir)
 
         # Always print results, even if the load raised an exception.
         total_elapsed = time.time() - total_start
