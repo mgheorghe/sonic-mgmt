@@ -58,10 +58,7 @@ def _collect_memory(host):
     result = {}
 
     # awk avoids Jinja2 issues with Go's {{.Name}}; docker stats cols: ID NAME CPU% MEM_USED / ...
-    out = host.shell(
-        "docker stats --no-stream | awk 'NR>1 {print $2\"\\t\"$4}'",
-        module_ignore_errors=True,
-    )
+    out = host.shell("docker stats --no-stream | awk 'NR>1 {print $2\"\\t\"$4}'", module_ignore_errors=True)
     for line in out.get("stdout", "").splitlines():
         line = line.strip()
         if not line or "\t" not in line:
@@ -93,8 +90,7 @@ def _collect_redis_memory(dpuhost):
     """Redis memory info from DPU_APPL_DB: totals plus 2 VNET_MAPPING key samples."""
     result = {}
 
-    info_out = dpuhost.shell("sonic-db-cli DPU_APPL_DB INFO MEMORY",
-                             module_ignore_errors=True)
+    info_out = dpuhost.shell("sonic-db-cli DPU_APPL_DB INFO MEMORY", module_ignore_errors=True)
     for line in info_out.get("stdout", "").splitlines():
         line = line.strip()
         if line.startswith("used_memory:"):
@@ -105,18 +101,12 @@ def _collect_redis_memory(dpuhost):
         elif line.startswith("used_memory_human:"):
             result["_used_memory_human"] = line.split(":", 1)[1].strip()
 
-    keys_out = dpuhost.shell(
-        "sonic-db-cli DPU_APPL_DB KEYS 'DASH_VNET_MAPPING_TABLE:*' 2>/dev/null | head -2",
-        module_ignore_errors=True,
-    )
+    keys_out = dpuhost.shell("sonic-db-cli DPU_APPL_DB KEYS 'DASH_VNET_MAPPING_TABLE:*' 2>/dev/null | head -2", module_ignore_errors=True)
     for key in keys_out.get("stdout", "").splitlines():
         key = key.strip()
         if not key:
             continue
-        usage_out = dpuhost.shell(
-            f"sonic-db-cli DPU_APPL_DB MEMORY USAGE '{key}'",
-            module_ignore_errors=True,
-        )
+        usage_out = dpuhost.shell(f"sonic-db-cli DPU_APPL_DB MEMORY USAGE '{key}'", module_ignore_errors=True)
         try:
             result[key] = int(usage_out.get("stdout", "0").strip())
         except ValueError:
@@ -164,59 +154,39 @@ def _print_results(timings, total_elapsed, mem_before, mem_after,
             logger.info("  %-30s  %8.1f  %8.1f  %+8.1f", name, b, a, a - b)
 
         logger.info("  " + "-" * 58)
-        logger.info(
-            "  %-30s  %8.1f  %8.1f  %+8.1f",
-            "Containers total",
-            total_before,
-            total_after,
-            total_after - total_before,
-        )
+        logger.info("  %-30s  %8.1f  %8.1f  %+8.1f", "Containers total",
+                    total_before, total_after, total_after - total_before)
 
         sys_b = before.get("_system_used", 0.0)
         sys_a = after.get("_system_used", 0.0)
-        logger.info(
-            "  %-30s  %8.1f  %8.1f  %+8.1f",
-            "System used (free -m)",
-            sys_b,
-            sys_a,
-            sys_a - sys_b,
-        )
+        logger.info("  %-30s  %8.1f  %8.1f  %+8.1f", "System used (free -m)", sys_b, sys_a, sys_a - sys_b)
         sys_total = before.get("_system_total", after.get("_system_total", 0.0))
-        for key, label in [("_system_free", "System free"),
-                           ("_system_available", "System available")]:
+        for key, label in [("_system_free", "System free"), ("_system_available", "System available")]:
             b = before.get(key, 0.0)
             a = after.get(key, 0.0)
-            logger.info(
-                "  %-30s  %8.1f  %8.1f  %+8.1f",
-                label, b, a, a - b,
-            )
+            logger.info("  %-30s  %8.1f  %8.1f  %+8.1f", label, b, a, a - b)
         if sys_total:
             logger.info("  %-30s  %8.1f", "System total", sys_total)
 
     # Memory timeline (per-file free memory after each push)
     if mem_timeline:
         logger.info("\n  Memory timeline — free memory after each file push (MiB):")
-        logger.info(
-            "  %-6s  %-40s  %7s  %9s  %9s  %9s  %9s",
-            "#", "File", "Ops",
-            "NPU free", "NPU avail", "DPU free", "DPU avail")
+        logger.info("  %-6s  %-40s  %7s  %9s  %9s  %9s  %9s",
+                    "#", "File", "Ops", "NPU free", "NPU avail", "DPU free", "DPU avail")
         logger.info("  " + "-" * 96)
         for entry in mem_timeline:
-            logger.info(
-                "  %-6s  %-40s  %7d  %9.0f  %9.0f  %9.0f  %9.0f",
-                entry["idx"], entry["file"][:40], entry["ops"],
-                entry["npu_free"], entry["npu_available"],
-                entry["dpu_free"], entry["dpu_available"])
+            logger.info("  %-6s  %-40s  %7d  %9.0f  %9.0f  %9.0f  %9.0f",
+                        entry["idx"], entry["file"][:40], entry["ops"],
+                        entry["npu_free"], entry["npu_available"],
+                        entry["dpu_free"], entry["dpu_available"])
         # Summary: min free across all snapshots
         if len(mem_timeline) > 1:
             logger.info("  " + "-" * 96)
-            logger.info(
-                "  %-6s  %-40s  %7s  %9.0f  %9.0f  %9.0f  %9.0f",
-                "", "MINIMUM", "",
-                min(e["npu_free"] for e in mem_timeline),
-                min(e["npu_available"] for e in mem_timeline),
-                min(e["dpu_free"] for e in mem_timeline),
-                min(e["dpu_available"] for e in mem_timeline))
+            logger.info("  %-6s  %-40s  %7s  %9.0f  %9.0f  %9.0f  %9.0f", "", "MINIMUM", "",
+                        min(e["npu_free"] for e in mem_timeline),
+                        min(e["npu_available"] for e in mem_timeline),
+                        min(e["dpu_free"] for e in mem_timeline),
+                        min(e["dpu_available"] for e in mem_timeline))
 
     # Redis (DPU_APPL_DB) memory
     logger.info("\n  DPU Redis memory — DPU_APPL_DB (bytes):")
@@ -225,19 +195,11 @@ def _print_results(timings, total_elapsed, mem_before, mem_after,
 
     redis_b_total = redis_before.get("_used_memory", 0)
     redis_a_total = redis_after.get("_used_memory", 0)
-    logger.info(
-        "  %-52s  %10d  %10d  %+10d",
-        "used_memory (total)",
-        redis_b_total,
-        redis_a_total,
-        redis_a_total - redis_b_total,
-    )
-    logger.info(
-        "  %-52s  %10s  %10s",
-        "used_memory_human",
-        redis_before.get("_used_memory_human", "n/a"),
-        redis_after.get("_used_memory_human", "n/a"),
-    )
+    logger.info("  %-52s  %10d  %10d  %+10d", "used_memory (total)",
+                redis_b_total, redis_a_total, redis_a_total - redis_b_total)
+    logger.info("  %-52s  %10s  %10s", "used_memory_human",
+                redis_before.get("_used_memory_human", "n/a"),
+                redis_after.get("_used_memory_human", "n/a"))
 
     sample_keys = sorted(k for k in set(redis_before) | set(redis_after) if not k.startswith("_"))
     for key in sample_keys:
@@ -266,14 +228,10 @@ def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
         assert dev, f"Could not determine egress interface for {ip} on NPU"
 
         for attempt in range(3):
-            duthost.shell(
-                f"sudo ip neigh replace {ip} lladdr {mac} dev {dev} nud permanent",
-                module_ignore_errors=True,
-            )
+            duthost.shell(f"sudo ip neigh replace {ip} lladdr {mac} dev {dev} nud permanent", module_ignore_errors=True)
             verify = duthost.shell(f"ip neigh show {ip}", module_ignore_errors=True)
             if "PERMANENT" in verify.get("stdout", "").upper():
-                logger.info("  NPU: permanent ARP %s lladdr %s dev %s (attempt %d)",
-                            ip, mac, dev, attempt + 1)
+                logger.info("  NPU: permanent ARP %s lladdr %s dev %s (attempt %d)", ip, mac, dev, attempt + 1)
                 break
         else:
             raise AssertionError(
@@ -285,8 +243,7 @@ def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
     duthost.shell(f"ping -c 3 -W 2 {dpu_midplane_ip}", module_ignore_errors=True)
 
     arp_out = duthost.shell(f"ip n show {dpu_midplane_ip}", module_ignore_errors=True)
-    logger.info("NPU ARP entry for %s: %s", dpu_midplane_ip,
-                arp_out.get("stdout", "").strip() or "(none)")
+    logger.info("NPU ARP entry for %s: %s", dpu_midplane_ip, arp_out.get("stdout", "").strip() or "(none)")
 
     logger.info("NPU: show ip route")
     npu_route = duthost.shell("show ip route", module_ignore_errors=True)
@@ -345,11 +302,8 @@ def _count_json_operations(filepath):
 def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
     """Query DPU_APPL_DB for keys matching table_pattern and return count + sample keys."""
     quiet = "DASH_VNET_MAPPING_TABLE" in table_pattern
-    out = dpuhost.shell(
-        f"sonic-db-cli DPU_APPL_DB KEYS '{table_pattern}' 2>/dev/null",
-        module_ignore_errors=True,
-        verbose=not quiet,
-    )
+    out = dpuhost.shell(f"sonic-db-cli DPU_APPL_DB KEYS '{table_pattern}' 2>/dev/null",
+                        module_ignore_errors=True, verbose=not quiet)
     keys = [k.strip() for k in out.get("stdout", "").splitlines() if k.strip()]
     if label:
         logger.info("  DPU_APPL_DB %s: %d keys matching '%s'", label, len(keys), table_pattern)
@@ -366,8 +320,7 @@ def _container_path_to_host(container_path):
     for i in range(1, len(parts) - 1):
         if parts[i] and parts[i] == parts[i + 1]:
             candidate = "/".join(parts[:i] + parts[i + 1:])
-            logger.info("Path translation: %s -> %s (collapsed '%s')",
-                        container_path, candidate, parts[i])
+            logger.info("Path translation: %s -> %s (collapsed '%s')", container_path, candidate, parts[i])
             return candidate
     return container_path
 
@@ -375,8 +328,7 @@ def _container_path_to_host(container_path):
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
 
-def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
-                       mem_timeline=None):
+def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, mem_timeline=None):
     """Push each JSON via a long-lived sonic-gnmi-agent container (config_dir mounted at /dpu)."""
     if mem_timeline is None:
         mem_timeline = []
@@ -391,17 +343,11 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
     logger.info("config_dir (host):      %s", host_config_dir)
 
     # Snapshot DPU_APPL_DB key count before pushing
-    db_before = dpuhost.shell(
-        "sonic-db-cli DPU_APPL_DB DBSIZE",
-        module_ignore_errors=True,
-    )
+    db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
     logger.info("DPU_APPL_DB DBSIZE before push: %s", db_before.get("stdout", "").strip())
 
     # Start a persistent container (reuse if already running).
-    localhost.shell(
-        f"docker rm -f {_GNMI_CONTAINER_NAME}",
-        module_ignore_errors=True,
-    )
+    localhost.shell(f"docker rm -f {_GNMI_CONTAINER_NAME}", module_ignore_errors=True)
     start_out = localhost.shell(
         f"docker run -d --name {_GNMI_CONTAINER_NAME} --network host"
         f" --shm-size=256m"
@@ -410,8 +356,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
         module_ignore_errors=True,
     )
     if start_out.get("rc", 1) != 0:
-        pytest.fail("Could not start %s: %s" % (
-            _GNMI_CONTAINER_NAME, start_out.get("stderr", "")))
+        pytest.fail("Could not start %s: %s" % (_GNMI_CONTAINER_NAME, start_out.get("stderr", "")))
     logger.info("Started persistent container %s", _GNMI_CONTAINER_NAME)
 
     # Pre-count operations for all files (outside the timed loop).
@@ -445,8 +390,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
             "{0}:{1}S/{2}D".format(t, tables[t]['SET'], tables[t]['DEL'])
             for t in sorted(tables)
         )
-        logger.info("  [%d/%d] pushing %s (%d ops: %s) ...",
-                    idx, len(files), filename, op_count, table_summary)
+        logger.info("  [%d/%d] pushing %s (%d ops: %s) ...", idx, len(files), filename, op_count, table_summary)
 
         cmd = (
             f"docker exec {_GNMI_CONTAINER_NAME}"
@@ -475,16 +419,14 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
 
         if failed:
             logger.error("  [%d/%d] FAILED %s after %.2fs — %s\n  stderr (tail): %s",
-                         idx, len(files), filename, elapsed, failure_reason,
-                         stderr[-3000:])
+                         idx, len(files), filename, elapsed, failure_reason, stderr[-3000:])
             push_errors.append(f"{filename}: {failure_reason}")
             # Fail fast — if the first file fails, no point continuing
             if idx == 1:
                 logger.error("First file failed — aborting remaining files")
                 break
         else:
-            logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d",
-                        idx, len(files), filename, elapsed, rc)
+            logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d", idx, len(files), filename, elapsed, rc)
 
         # ── Per-file memory snapshot (lightweight — free -m only) ──
         try:
@@ -509,23 +451,16 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
             logger.debug("  [%d/%d] mem snapshot failed (non-fatal)", idx, len(files))
 
     # Stop the persistent container.
-    localhost.shell(
-        f"docker rm -f {_GNMI_CONTAINER_NAME}",
-        module_ignore_errors=True,
-    )
+    localhost.shell(f"docker rm -f {_GNMI_CONTAINER_NAME}", module_ignore_errors=True)
 
     # Batch verification: check DPU_APPL_DB once for all tables.
     for table in sorted(all_tables):
         _verify_dpu_appl_db(dpuhost, "%s:*" % table, label="after all files")
 
     # Final DB size check
-    db_after = dpuhost.shell(
-        "sonic-db-cli DPU_APPL_DB DBSIZE",
-        module_ignore_errors=True,
-    )
+    db_after = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
     logger.info("DPU_APPL_DB DBSIZE after push: %s (was: %s)",
-                db_after.get("stdout", "").strip(),
-                db_before.get("stdout", "").strip())
+                db_after.get("stdout", "").strip(), db_before.get("stdout", "").strip())
 
     if push_errors:
         pytest.fail("gNMI push had %d error(s):\n%s" % (
@@ -547,14 +482,10 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     render.generate(dict(render.DEFAULTS), render_output_dir, prefix="pl_100")
 
     config_dir = os.path.join(render_output_dir, f"dpu{dpuhost.dpu_index}")
-    assert os.path.isdir(config_dir), \
-        f"Config directory not found after render: {config_dir}"
+    assert os.path.isdir(config_dir), f"Config directory not found after render: {config_dir}"
 
     pattern = f"*dpu{dpuhost.dpu_index}*.json"
-    files = sorted(
-        f for f in os.listdir(config_dir)
-        if fnmatch.fnmatch(f, pattern) and f.endswith(".json")
-    )
+    files = sorted(f for f in os.listdir(config_dir) if fnmatch.fnmatch(f, pattern) and f.endswith(".json"))
     assert files, f"No JSON config files found matching '{pattern}' in {config_dir}"
 
     # Filter by _ENI_COUNT: keep files whose 3-digit index is < N; "ALL" keeps everything.
@@ -566,14 +497,10 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
             if m and int(m.group(1)) < n:
                 filtered.append(f)
         assert filtered, f"_ENI_COUNT={_ENI_COUNT} filtered out all files (had {len(files)})"
-        logger.info("_ENI_COUNT=%s: pushing %d/%d rendered files",
-                    _ENI_COUNT, len(filtered), len(files))
+        logger.info("_ENI_COUNT=%s: pushing %d/%d rendered files", _ENI_COUNT, len(filtered), len(files))
         files = filtered
 
-    logger.info(
-        "Rendered %d config files to load for dpu%d",
-        len(files), dpuhost.dpu_index,
-    )
+    logger.info("Rendered %d config files to load for dpu%d", len(files), dpuhost.dpu_index)
 
     # ── Derive DPU IPs based on hwsku ──────────────────────────────────────
     hwsku = duthost.facts.get("hwsku", "")
@@ -599,8 +526,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     total_start = time.time()
 
     try:
-        load_json_via_gnmi(localhost, duthost, dpuhost,
-                           config_dir, files, timings, mem_timeline)
+        load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, mem_timeline)
     finally:
         shutil.rmtree(render_output_dir, ignore_errors=True)
         logger.info("Cleaned up rendered config dir: %s", render_output_dir)
@@ -613,8 +539,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
                 "DPU": _collect_memory(dpuhost),
             }
             redis_after = _collect_redis_memory(dpuhost)
-            _print_results(timings, total_elapsed, mem_before, mem_after,
-                           redis_before, redis_after, mem_timeline)
+            _print_results(timings, total_elapsed, mem_before, mem_after, redis_before, redis_after, mem_timeline)
         except Exception:
             logger.exception("Failed to collect/print post-test results")
 
@@ -622,8 +547,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     midplane_out = duthost.show_and_parse("show chassis module midplane-status")
     dpu_row = next((r for r in midplane_out if r.get("name", "").strip().upper() == dpu_name), None)
     midplane_reachability = dpu_row.get("reachability", "").strip() if dpu_row else "unknown"
-    logger.info("%s midplane reachability after push: %s (expected False — midplane route removed)",
-                dpu_name, midplane_reachability)
+    logger.info("%s midplane reachability after push: %s (expected False — midplane route removed)", dpu_name, midplane_reachability)
 
     logger.info("Verifying %s is alive via dataplane ping to %s ...", dpu_name, dpu_dataplane_ip)
     ping_out = duthost.shell(f"ping -c 3 -W 2 {dpu_dataplane_ip}", module_ignore_errors=True)
@@ -642,15 +566,11 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
         _ENI_EXPECTED = 1
     _ENI_POLL_INTERVAL = 4   # seconds between polls
     _ENI_TIMEOUT = 15        # 15 seconds total
-    logger.info("DPU: waiting for %d ENIs in COUNTERS_ENI_NAME_MAP (timeout %ds)...",
-                _ENI_EXPECTED, _ENI_TIMEOUT)
+    logger.info("DPU: waiting for %d ENIs in COUNTERS_ENI_NAME_MAP (timeout %ds)...", _ENI_EXPECTED, _ENI_TIMEOUT)
     deadline = time.time() + _ENI_TIMEOUT
     eni_count = 0
     while time.time() < deadline:
-        eni_out = dpuhost.shell(
-            'sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
-            module_ignore_errors=True,
-        )
+        eni_out = dpuhost.shell('sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"', module_ignore_errors=True)
         eni_stdout = eni_out.get("stdout", "")
         # sonic-db-cli returns a Python-repr dict; count keys via 'eni-' occurrences.
         eni_count = eni_stdout.count("eni-")
@@ -660,5 +580,4 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
             break
         time.sleep(_ENI_POLL_INTERVAL)
     assert eni_count >= _ENI_EXPECTED, \
-        "Expected %d ENIs in COUNTERS_ENI_NAME_MAP but found %d after %ds" % (
-            _ENI_EXPECTED, eni_count, _ENI_TIMEOUT)
+        "Expected %d ENIs in COUNTERS_ENI_NAME_MAP but found %d after %ds" % (_ENI_EXPECTED, eni_count, _ENI_TIMEOUT)
