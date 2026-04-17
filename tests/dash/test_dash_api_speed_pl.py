@@ -589,7 +589,6 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     hwsku = duthost.facts.get("hwsku", "")
     logger.info("NPU hwsku: %s", hwsku)
 
-    dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
     if "Cisco" in hwsku:
         dpu_dataplane_ip = "18.%d.202.1" % dpuhost.dpu_index
     else:
