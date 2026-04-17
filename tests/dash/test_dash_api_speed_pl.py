@@ -10,7 +10,7 @@ import tempfile
 import time
 
 import pytest
-from gnmi_utils import GNMIEnvironment, generate_gnmi_cert
+from gnmi_utils import GNMIEnvironment
 
 _RENDER_PATH = os.path.join(os.path.dirname(__file__), "configs", "dash_api_speed_pl", "render.py")
 _render_spec = importlib.util.spec_from_file_location("dash_render", _RENDER_PATH)
@@ -590,47 +590,6 @@ def _verify_dpu_appl_db(dpuhost, table_pattern, label=""):
     return keys
 
 
-def _setup_gnmi_server_no_client_auth(localhost, duthost):
-    """Generate certs and restart gNMI server without client cert requirement.
-
-    Generates a fresh CA + server cert (with NPU mgmt IP in SAN), deploys
-    to the NPU, and restarts the gNMI server with no client auth.  This
-    allows the sonic-gnmi-agent container to connect remotely without
-    needing to present a client certificate.
-    """
-    generate_gnmi_cert(localhost, duthost)
-    env = GNMIEnvironment(duthost)
-
-    # Deploy server certs to NPU
-    duthost.copy(src=env.work_dir + env.gnmi_ca_cert, dest=env.gnmi_cert_path)
-    duthost.copy(src=env.work_dir + env.gnmi_server_cert, dest=env.gnmi_cert_path)
-    duthost.copy(src=env.work_dir + env.gnmi_server_key, dest=env.gnmi_cert_path)
-
-    # Restart gNMI server with --allow_no_client_auth
-    port = env.gnmi_port
-    assert int(port) > 0, "Invalid GNMI port"
-    duthost.shell(
-        "docker exec %s supervisorctl stop %s" % (env.gnmi_container, env.gnmi_program)
-    )
-    duthost.shell(
-        "docker exec %s pkill telemetry" % env.gnmi_container,
-        module_ignore_errors=True,
-    )
-    dut_command = "docker exec %s bash -c " % env.gnmi_container
-    dut_command += "\"/usr/bin/nohup /usr/sbin/telemetry -logtostderr --port %s " % port
-    dut_command += "--server_crt %s%s " % (env.gnmi_cert_path, env.gnmi_server_cert)
-    dut_command += "--server_key %s%s " % (env.gnmi_cert_path, env.gnmi_server_key)
-    dut_command += "--ca_crt %s%s " % (env.gnmi_cert_path, env.gnmi_ca_cert)
-    dut_command += "--allow_no_client_auth "
-    if env.enable_zmq:
-        dut_command += "-zmq_address=tcp://127.0.0.1:8100 "
-    dut_command += "-gnmi_native_write=true -v=10 >/root/gnmi.log 2>&1 &\""
-    duthost.shell(dut_command)
-    logger.info("Waiting %ds for gNMI server restart (no client auth)...",
-                env.gnmi_server_start_wait_time)
-    time.sleep(env.gnmi_server_start_wait_time)
-
-
 def _container_path_to_host(container_path):
     """Translate a path inside this (sonic-mgmt) container to the host path.
 
@@ -923,9 +882,6 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
 
     dpu_pre_config(dpuhost)
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
-
-    logger.info("Setting up gNMI server (no client auth) for remote access...")
-    _setup_gnmi_server_no_client_auth(localhost, duthost)
 
     timings = {}
     sub_timings = {}
