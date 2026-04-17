@@ -431,17 +431,12 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
         f" -username admin -password password"
     )
     check_out = localhost.shell(check_cmd, module_ignore_errors=True)
-    check_rc = check_out.get("rc", -1)
-    check_stderr = check_out.get("stderr", "")
-    if check_rc != 0 and ("DeadlineExceeded" in check_stderr
-                          or "connection refused" in check_stderr.lower()
-                          or "unavailable" in check_stderr.lower()
-                          or "transport" in check_stderr.lower()):
+    if check_out.get("rc", -1) != 0:
         pytest.fail(
             f"gNMI server unreachable at {ip}:{port} — aborting.\n"  # noqa: E231
-            f"stderr: {check_stderr[:500]}"
+            f"stderr: {check_out.get('stderr', '')[:500]}"
         )
-    logger.info("Pre-check: gNMI server reachable (rc=%d)", check_rc)
+    logger.info("Pre-check: gNMI server reachable")
 
     push_errors = []
 
