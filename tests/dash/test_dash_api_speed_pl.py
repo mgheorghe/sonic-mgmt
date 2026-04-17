@@ -9,9 +9,8 @@ import shutil
 import tempfile
 import time
 
-import proto_utils
 import pytest
-from gnmi_utils import GNMIEnvironment, apply_gnmi_cert, generate_gnmi_cert, write_gnmi_files
+from gnmi_utils import GNMIEnvironment, generate_gnmi_cert
 
 _RENDER_PATH = os.path.join(os.path.dirname(__file__), "configs", "dash_api_speed_pl", "render.py")
 _render_spec = importlib.util.spec_from_file_location("dash_render", _RENDER_PATH)
@@ -558,63 +557,6 @@ def dpu_pre_config(dpuhost):
     # logger.info("DPU: active default route(s): %s", "; ".join(dataplane_defaults))
 
 
-def load_json_via_ptf(localhost, duthost, dpuhost, ptfhost, config_dir, files, timings):
-    """Push each JSON config file to the DPU via py_gnmicli.py on the PTF container."""
-    env = GNMIEnvironment(duthost)
-    dpu_host_str = f"dpu{dpuhost.dpu_index}"
-
-    for idx, filename in enumerate(files, start=1):
-        local_path = os.path.join(config_dir, filename)
-        logger.info("  [%d/%d] pushing %s ...", idx, len(files), filename)
-
-        with open(local_path) as f:
-            operations = json.load(f)
-
-        update_list = []
-        delete_list = []
-        update_cnt = 0
-
-        for operation in operations:
-            if operation["OP"] == "SET":
-                for k, v in operation.items():
-                    if k == "OP":
-                        continue
-                    update_cnt += 1
-                    file_name = f"update{update_cnt}"
-                    keys = k.split(":", 1)
-                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
-                    if proto_utils.ENABLE_PROTO:
-                        message = proto_utils.parse_dash_proto(k, v)
-                        with open(env.work_dir + file_name, "wb") as bf:
-                            bf.write(message.SerializeToString())
-                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:$/root/{file_name}"     # noqa: E231
-                    else:
-                        with open(env.work_dir + file_name, "w") as tf:
-                            tf.write(json.dumps(v))
-                        path = f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}:@/root/{file_name}"     # noqa: E231
-                    update_list.append(path)
-            elif operation["OP"] == "DEL":
-                for k, v in operation.items():
-                    if k == "OP":
-                        continue
-                    keys = k.split(":", 1)
-                    gnmi_key = keys[0] + "[key=" + keys[1] + "]"
-                    delete_list.append(f"/DPU_APPL_DB/{dpu_host_str}/{gnmi_key}")
-
-        t_start = time.time()
-        try:
-            write_gnmi_files(localhost, duthost, ptfhost, env, delete_list, update_list, 1024)
-        except Exception as e:
-            elapsed = time.time() - t_start
-            timings[filename] = elapsed
-            logger.error("  [%d/%d] FAILED %s after %.2fs: %s", idx, len(files), filename, elapsed, e)
-            pytest.fail(f"gNMI push failed for {filename}: {e}")
-        elapsed = time.time() - t_start
-        timings[filename] = elapsed
-
-        logger.info("  [%d/%d] done    %-40s  %.2fs", idx, len(files), filename, elapsed)
-
-
 def _count_json_operations(filepath):
     """Count SET/DEL operations and distinct table types in a config JSON file."""
     with open(filepath) as f:
@@ -967,7 +909,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings,
             len(push_errors), "\n".join("  - %s" % e for e in push_errors)))
 
 
-def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost):
+def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     """
     Measure the time to load DASH configs onto a DPU via gNMI.
 
@@ -1028,19 +970,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     dpu_pre_config(dpuhost)
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
 
-    # Select the load method:
-    #   "ptf"  — py_gnmicli.py via write_gnmi_files/gnmi_set helpers on PTF
-    #   "gnmi" — gnmi_client.py via sonic-gnmi-agent container on the local (sonic-mgmt) machine
-    _LOAD_METHOD = "gnmi"
-
-    # Cert setup depends on the load method.
-    if _LOAD_METHOD == "ptf":
-        logger.info("Setting up gNMI certs on NPU and PTF...")
-        generate_gnmi_cert(localhost, duthost)
-        apply_gnmi_cert(duthost, ptfhost)
-    elif _LOAD_METHOD == "gnmi":
-        logger.info("Setting up gNMI server (no client auth) for remote access...")
-        _setup_gnmi_server_no_client_auth(localhost, duthost)
+    logger.info("Setting up gNMI server (no client auth) for remote access...")
+    _setup_gnmi_server_no_client_auth(localhost, duthost)
 
     timings = {}
     sub_timings = {}
@@ -1048,15 +979,9 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, ptfhost
     total_start = time.time()
 
     try:
-        if _LOAD_METHOD == "ptf":
-            load_json_via_ptf(localhost, duthost, dpuhost, ptfhost,
-                              config_dir, files, timings)
-        elif _LOAD_METHOD == "gnmi":
-            load_json_via_gnmi(localhost, duthost, dpuhost,
-                               config_dir, files, timings,
-                               sub_timings, mem_timeline)
-        else:
-            raise ValueError(f"Invalid load method: {_LOAD_METHOD}")
+        load_json_via_gnmi(localhost, duthost, dpuhost,
+                           config_dir, files, timings,
+                           sub_timings, mem_timeline)
     finally:
         shutil.rmtree(render_output_dir, ignore_errors=True)
         logger.info("Cleaned up rendered config dir: %s", render_output_dir)
