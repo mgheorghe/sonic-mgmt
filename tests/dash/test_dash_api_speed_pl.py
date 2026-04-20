@@ -410,7 +410,10 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
     logger.info("Pre-check: verifying gNMI connectivity to %s:%s ...", ip, port)
     check_cmd = (
         f"docker exec {_GNMI_CONTAINER_NAME}"
-        f" /usr/sbin/gnmi_set -insecure -target_addr {ip}:{port}"  # noqa: E231
+        f" /usr/sbin/gnmi_set -target_addr {ip}:{port}"  # noqa: E231
+        f" -cert /etc/sonic/telemetry/{env.gnmi_client_cert}"
+        f" -key /etc/sonic/telemetry/{env.gnmi_client_key}"
+        f" -ca /etc/sonic/telemetry/{env.gnmi_ca_cert}"
         f" -username admin -password password"
     )
     check_out = localhost.shell(check_cmd, module_ignore_errors=True)
