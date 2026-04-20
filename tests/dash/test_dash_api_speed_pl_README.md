@@ -210,27 +210,26 @@ exit
 Path B requires the telemetry process to reload the new server cert — skip this path
 if you cannot restart the gnmi container.
 
-### Register cert paths in CONFIG_DB (NPU host, outside the container)
+### CONFIG_DB — leave it alone
 
-Only `ca_crt` needs to be added — `client_crt`/`client_key` are derived by convention
-from the same directory (`/etc/sonic/tls/client.crt`, `client.key`) and must NOT be
-written into CONFIG_DB (the GNMI YANG model rejects them and breaks `config
-apply-patch`):
+Don't add `ca_crt`, `client_crt`, or `client_key` under `GNMI|certs`:
+
+- The GNMI YANG model's path pattern only accepts filenames ending in `.cer`, so
+  `/etc/sonic/tls/ca.crt` will fail `config apply-patch` with *"does not satisfy
+  the constraint … `.cer`"*.
+- `client_crt` / `client_key` aren't in the YANG schema at all and trigger
+  *"All Keys are not parsed in GNMI"*.
+
+The test derives all three from the directory of `server_crt` (e.g.
+`/etc/sonic/tls/` → `ca.crt`, `client.crt`, `client.key`) at runtime, so only
+`server_crt` and `server_key` need to be in CONFIG_DB.
+
+If you previously added any of the forbidden keys, remove them:
 
 ```bash
-sonic-db-cli CONFIG_DB HSET "GNMI|certs" ca_crt /etc/sonic/tls/ca.crt
+sonic-db-cli CONFIG_DB HDEL "GNMI|certs" ca_crt client_crt client_key
 sudo config save -y
 ```
-
-If you previously added `client_crt`/`client_key`, remove them:
-
-```bash
-sonic-db-cli CONFIG_DB HDEL "GNMI|certs" client_crt client_key
-sudo config save -y
-```
-
-Leave `server_crt`/`server_key` untouched unless you took Path B and changed the
-filename (e.g. `.cer` → `.crt`).
 
 ---
 
