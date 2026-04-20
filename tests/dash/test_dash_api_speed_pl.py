@@ -481,7 +481,10 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     logger.info("Pre-flight: assuming %s is up at %s (no automated check)", dpu_name, dpu_midplane_ip)
 
     # Generate DASH config JSONs on the fly via the Jinja2 renderer.
-    render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_")
+    # Must live under the repo (bind-mounted into sonic-mgmt container) so the
+    # host docker daemon can bind-mount it into the gnmi-agent container.
+    # /tmp inside this container is NOT shared with the host.
+    render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
     logger.info("Rendering DASH configs into %s", render_output_dir)
     render.generate(dict(render.DEFAULTS), render_output_dir, prefix="pl_100")
 
