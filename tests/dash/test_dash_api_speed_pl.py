@@ -133,7 +133,8 @@ def _print_results(timings, total_elapsed, mem_before, mem_after,
         logger.info("  %-44s  %8.2f", filename, elapsed)
     logger.info("  " + "-" * 56)
     logger.info("  %-44s  %8.2f", "TOTAL", total_elapsed)
-    logger.info("  %-44s  %8.2f", "Average per file", total_elapsed / len(timings))
+    if timings:
+        logger.info("  %-44s  %8.2f", "Average per file", total_elapsed / len(timings))
     logger.info("  Files loaded: %d", len(timings))
 
     for host_label in ("NPU", "DPU"):
@@ -329,63 +330,86 @@ def _container_path_to_host(container_path):
     return container_path
 
 
-def _fetch_gnmi_certs_from_npu(duthost, env, dest_dir):
-    """Copy the NPU gnmi container's CA + client cert/key into dest_dir.
+def _inspect_gnmi_server(config_facts):
+    """Discover TLS mode and cert paths from the NPU's already-loaded CONFIG_DB.
 
-    Used when the server enforces mTLS. Pulls the existing client material
-    that the server already trusts so we don't need to restart it with a
-    new CA.
+    Reads the GNMI table as present in the running config (passed in via the
+    module-scope `config_facts` fixture — no extra shell calls, no hardcoded
+    paths). Three shapes are recognised:
+
+      no `certs` subtable                    → "insecure" (server runs noTLS)
+      `certs` without `ca_crt`, or           → "tls"      (server-only TLS;
+        `gnmi.client_auth` == "false"                     client cert not required)
+      `certs.ca_crt` + client_auth truthy    → "mtls"     (mutual TLS)
+
+    Returns {"mode": ..., "paths": {flag: path_or_None}, "client_auth": bool}.
+    Cert paths reflect whatever the switch actually has configured — they may
+    point anywhere (e.g. /etc/sonic/tls/server.cer on Cisco, /etc/sonic/telemetry
+    on community SONiC, or be absent entirely).
     """
-    cert_path = env.gnmi_cert_path  # /etc/sonic/telemetry/
+    gnmi_cfg = (config_facts or {}).get("GNMI", {}) or {}
+    certs = gnmi_cfg.get("certs", {}) or {}
+    gnmi = gnmi_cfg.get("gnmi", {}) or {}
+
+    paths = {
+        "server_crt": certs.get("server_crt"),
+        "server_key": certs.get("server_key"),
+        "ca_crt": certs.get("ca_crt"),
+    }
+    # Default when absent is permissive (client_auth off), matching the shape of
+    # the example the user shared: GNMI.gnmi without an explicit client_auth.
+    client_auth = str(gnmi.get("client_auth", "false")).lower() == "true"
+
+    has_tls = bool(paths["server_crt"] and paths["server_key"])
+    if not has_tls:
+        mode = "insecure"
+    elif paths["ca_crt"] and client_auth:
+        mode = "mtls"
+    else:
+        mode = "tls"
+
+    logger.info("CONFIG_DB GNMI.certs: %s", {k: v for k, v in paths.items() if v} or "(none)")
+    logger.info("CONFIG_DB GNMI.gnmi.client_auth=%s → mode=%s", client_auth, mode)
+    return {"mode": mode, "paths": paths, "client_auth": client_auth}
+
+
+def _fetch_gnmi_certs_from_npu(duthost, env, paths, dest_dir):
+    """Fetch only the cert files the server actually references (from CONFIG_DB).
+
+    `paths` is the runtime mapping from `_inspect_gnmi_server()`. For each
+    non-None entry we `docker cp` out of the gnmi container and `fetch` to
+    dest_dir. Missing files are skipped with a warning — the server may not
+    have all three (e.g. no ca_crt when client_auth is off). Returns
+    {flag: basename} for every file successfully staged locally.
+    """
     container = env.gnmi_container
-    for cert_file in [env.gnmi_ca_cert, env.gnmi_client_cert, env.gnmi_client_key]:
-        duthost.shell(
-            f"docker cp {container}:{cert_path}{cert_file} /tmp/{cert_file}",  # noqa: E231
+    fetched = {}
+    for flag, src in paths.items():
+        if not src:
+            continue
+        name = os.path.basename(src)
+        cp = duthost.shell(
+            f"docker cp {container}:{src} /tmp/{name}",  # noqa: E231
             module_ignore_errors=True,
         )
-        duthost.fetch(
-            src=f"/tmp/{cert_file}",
-            dest=f"{dest_dir}/{cert_file}",
-            flat=True,
-        )
-        logger.info("  Fetched %s from NPU gnmi container", cert_file)
-
-
-def _detect_gnmi_server_mode(duthost, env):
-    """Inspect the running telemetry/gnmi process to decide client TLS mode.
-
-    Returns one of:
-      "insecure" — server runs with no TLS or allows no-client-auth; use -insecure
-      "mtls"     — server requires client certs signed by its CA; fetch + present them
-    """
-    container = env.gnmi_container
-    out = duthost.shell(
-        f"docker exec {container} ps -eo args | grep -E 'telemetry|gnmi' | grep -v grep",
-        module_ignore_errors=True,
-    )
-    cmdline = out.get("stdout", "") or ""
-    logger.info("NPU gNMI server cmdline: %s", cmdline.strip() or "(not found)")
-
-    if not cmdline.strip():
-        logger.warning("Could not read gNMI server cmdline — defaulting to mtls")
-        return "mtls"
-
-    # No TLS at all, or server explicitly allows clients without a cert.
-    if "--noTLS" in cmdline or "-noTLS" in cmdline:
-        return "insecure"
-    if "-allow_no_client_auth" in cmdline or "--allow_no_client_auth" in cmdline:
-        return "insecure"
-    # CA-based client verification → mTLS required.
-    if "--ca_crt" in cmdline or "-ca_crt" in cmdline:
-        return "mtls"
-    # TLS without CA verification — treat as insecure from the client side.
-    return "insecure"
+        if cp.get("rc", 1) != 0:
+            logger.warning("  docker cp %s failed, skipping: %s",
+                           src, (cp.get("stderr", "") or "").strip()[:200])
+            continue
+        try:
+            duthost.fetch(src=f"/tmp/{name}", dest=f"{dest_dir}/{name}", flat=True)
+            fetched[flag] = name
+            logger.info("  Fetched %s (%s) from %s", name, flag, src)
+        except Exception as e:
+            logger.warning("  fetch %s failed: %s", src, e)
+    return fetched
 
 
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
 
-def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, mem_timeline=None):
+def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
+                       mem_timeline=None):
     """Push each JSON via a long-lived sonic-gnmi-agent container (config_dir mounted at /dpu)."""
     if mem_timeline is None:
         mem_timeline = []
@@ -399,23 +423,38 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
     logger.info("config_dir (container): %s", config_dir)
     logger.info("config_dir (host):      %s", host_config_dir)
 
-    # Detect the NPU server mode so the client matches (insecure vs mTLS).
-    server_mode = _detect_gnmi_server_mode(duthost, env)
-    logger.info("Detected NPU gNMI server mode: %s", server_mode)
+    # Mode + cert paths come from the NPU's loaded CONFIG_DB (module fixture),
+    # so we don't re-query the switch or assume /etc/sonic/telemetry/.
+    server = _inspect_gnmi_server(config_facts)
+    server_mode = server["mode"]
 
     cert_mount_opt = ""
-    if server_mode == "mtls":
-        # Stage NPU client certs under the rendered config dir so the host
-        # docker daemon can bind-mount them into the gnmi-agent container.
+    tls_flags = " -insecure"
+    if server_mode in ("tls", "mtls"):
+        # Stage whatever certs the server lists (CA is enough for tls-only; mtls
+        # still needs a client cert+key from somewhere — flagged below if absent).
         cert_stage_dir = os.path.join(os.path.dirname(config_dir), ".gnmi_certs")
         localhost.shell(f"mkdir -p {cert_stage_dir}", module_ignore_errors=True)
-        _fetch_gnmi_certs_from_npu(duthost, env, cert_stage_dir)
-        host_cert_dir = _container_path_to_host(cert_stage_dir)
-        logger.info("cert_stage_dir (container): %s", cert_stage_dir)
-        logger.info("cert_stage_dir (host):      %s", host_cert_dir)
-        cert_mount_opt = (
-            f" --mount src={host_cert_dir},target=/etc/sonic/telemetry,type=bind,readonly"  # noqa: E231
-        )
+        fetched = _fetch_gnmi_certs_from_npu(duthost, env, server["paths"], cert_stage_dir)
+        if fetched:
+            host_cert_dir = _container_path_to_host(cert_stage_dir)
+            logger.info("cert_stage_dir (container): %s", cert_stage_dir)
+            logger.info("cert_stage_dir (host):      %s", host_cert_dir)
+            cert_mount_opt = (
+                f" --mount src={host_cert_dir},target=/certs,type=bind,readonly"  # noqa: E231
+            )
+            parts = []
+            if "ca_crt" in fetched:
+                parts.append(f" -ca /certs/{fetched['ca_crt']}")
+            if server_mode == "mtls":
+                if "client_crt" in fetched and "client_key" in fetched:
+                    parts.append(f" -cert /certs/{fetched['client_crt']}")
+                    parts.append(f" -key /certs/{fetched['client_key']}")
+                else:
+                    logger.warning("mTLS server but no client cert/key available on NPU — "
+                                   "falling back to -insecure; push will likely be rejected")
+                    parts = [" -insecure"]
+            tls_flags = "".join(parts) if parts else " -insecure"
 
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
@@ -445,15 +484,8 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
         all_tables.update(tables.keys())
 
     # ── Pre-check: verify gNMI server is reachable before pushing files ──
-    logger.info("Pre-check: verifying gNMI connectivity to %s:%s ...", ip, port)
-    if server_mode == "mtls":
-        tls_flags = (
-            f" -cert /etc/sonic/telemetry/{env.gnmi_client_cert}"
-            f" -key /etc/sonic/telemetry/{env.gnmi_client_key}"
-            f" -ca /etc/sonic/telemetry/{env.gnmi_ca_cert}"
-        )
-    else:
-        tls_flags = " -insecure"
+    logger.info("Pre-check: verifying gNMI connectivity to %s:%s (tls=%s)",
+                ip, port, tls_flags.strip())
     check_cmd = (
         f"docker exec {_GNMI_CONTAINER_NAME}"
         f" /usr/sbin/gnmi_set -target_addr {ip}:{port}"  # noqa: E231
@@ -552,7 +584,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
             len(push_errors), "\n".join("  - %s" % e for e in push_errors)))
 
 
-def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
+def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_facts):
     """Render DASH configs to a temp dir then push via gnmi_client.py; record per-file load time."""
     dpuhost = dpuhosts[dpu_index]
 
@@ -611,7 +643,8 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index):
     total_start = time.time()
 
     try:
-        load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, mem_timeline)
+        load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
+                           mem_timeline)
     finally:
         shutil.rmtree(render_output_dir, ignore_errors=True)
         logger.info("Cleaned up rendered config dir: %s", render_output_dir)
