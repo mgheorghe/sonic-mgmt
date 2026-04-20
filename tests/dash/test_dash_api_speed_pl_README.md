@@ -118,9 +118,11 @@ ping -c 2 169.254.200.1
 ## Step 3b — gNMI client certificates (NPU)
 
 The test pushes via gNMI. If the NPU's `GNMI|gnmi.client_auth` is `true`, the server
-requires a client cert+key signed by a CA it trusts. `config_facts` surfaces the cert
-paths from CONFIG_DB — the test looks for `server_crt`, `server_key`, `ca_crt`,
-`client_crt`, `client_key` under `GNMI|certs`.
+requires a client cert+key signed by a CA it trusts. `config_facts` surfaces
+`server_crt`, `server_key`, and `ca_crt` paths from `GNMI|certs` — the test then
+derives `client.crt`/`client.key` by convention (same directory as the CA or server
+cert). Don't add `client_crt`/`client_key` to CONFIG_DB: the GNMI YANG model rejects
+them and `config apply-patch` (run by YANG pre-test validation) will fail.
 
 Check current CONFIG_DB state on the NPU:
 
