@@ -334,19 +334,10 @@ def _container_path_to_host(container_path):
 def _inspect_gnmi_server(config_facts):
     """Discover TLS mode and cert paths from the NPU's already-loaded CONFIG_DB.
 
-    Reads the GNMI table as present in the running config (passed in via the
-    module-scope `config_facts` fixture — no extra shell calls, no hardcoded
-    paths). Three shapes are recognised:
-
-      no `certs` subtable                    → "insecure" (server runs noTLS)
-      `certs` without `ca_crt`, or           → "tls"      (server-only TLS;
-        `gnmi.client_auth` == "false"                     client cert not required)
-      `certs.ca_crt` + client_auth truthy    → "mtls"     (mutual TLS)
-
-    Returns {"mode": ..., "paths": {flag: path_or_None}, "client_auth": bool}.
-    Cert paths reflect whatever the switch actually has configured — they may
-    point anywhere (e.g. /etc/sonic/tls/server.cer on Cisco, /etc/sonic/telemetry
-    on community SONiC, or be absent entirely).
+    `client_auth` is the authoritative switch for mTLS: if it's true, the server
+    will reject clients that don't present a cert, regardless of whether
+    `GNMI.certs.ca_crt` is listed. Absence of server_crt/server_key means the
+    server is running noTLS.
     """
     gnmi_cfg = (config_facts or {}).get("GNMI", {}) or {}
     certs = gnmi_cfg.get("certs", {}) or {}
@@ -357,14 +348,12 @@ def _inspect_gnmi_server(config_facts):
         "server_key": certs.get("server_key"),
         "ca_crt": certs.get("ca_crt"),
     }
-    # Default when absent is permissive (client_auth off), matching the shape of
-    # the example the user shared: GNMI.gnmi without an explicit client_auth.
     client_auth = str(gnmi.get("client_auth", "false")).lower() == "true"
 
     has_tls = bool(paths["server_crt"] and paths["server_key"])
     if not has_tls:
         mode = "insecure"
-    elif paths["ca_crt"] and client_auth:
+    elif client_auth:
         mode = "mtls"
     else:
         mode = "tls"
