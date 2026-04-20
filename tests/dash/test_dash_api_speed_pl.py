@@ -399,15 +399,23 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
     logger.info("config_dir (container): %s", config_dir)
     logger.info("config_dir (host):      %s", host_config_dir)
 
-    # Stage NPU client certs under the rendered config dir so the host docker
-    # daemon can bind-mount them into the gnmi-agent container. Without these
-    # the server's mTLS check fails with "tls: bad certificate".
-    cert_stage_dir = os.path.join(os.path.dirname(config_dir), ".gnmi_certs")
-    localhost.shell(f"mkdir -p {cert_stage_dir}", module_ignore_errors=True)
-    _fetch_gnmi_certs_from_npu(duthost, env, cert_stage_dir)
-    host_cert_dir = _container_path_to_host(cert_stage_dir)
-    logger.info("cert_stage_dir (container): %s", cert_stage_dir)
-    logger.info("cert_stage_dir (host):      %s", host_cert_dir)
+    # Detect the NPU server mode so the client matches (insecure vs mTLS).
+    server_mode = _detect_gnmi_server_mode(duthost, env)
+    logger.info("Detected NPU gNMI server mode: %s", server_mode)
+
+    cert_mount_opt = ""
+    if server_mode == "mtls":
+        # Stage NPU client certs under the rendered config dir so the host
+        # docker daemon can bind-mount them into the gnmi-agent container.
+        cert_stage_dir = os.path.join(os.path.dirname(config_dir), ".gnmi_certs")
+        localhost.shell(f"mkdir -p {cert_stage_dir}", module_ignore_errors=True)
+        _fetch_gnmi_certs_from_npu(duthost, env, cert_stage_dir)
+        host_cert_dir = _container_path_to_host(cert_stage_dir)
+        logger.info("cert_stage_dir (container): %s", cert_stage_dir)
+        logger.info("cert_stage_dir (host):      %s", host_cert_dir)
+        cert_mount_opt = (
+            f" --mount src={host_cert_dir},target=/etc/sonic/telemetry,type=bind,readonly"  # noqa: E231
+        )
 
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
@@ -419,7 +427,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
         f"docker run -d --name {_GNMI_CONTAINER_NAME} --network host"
         f" --shm-size=256m"
         f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
-        f" --mount src={host_cert_dir},target=/etc/sonic/telemetry,type=bind,readonly"  # noqa: E231
+        f"{cert_mount_opt}"
         f" {_GNMI_AGENT_IMAGE} -c 'sleep infinity'",
         module_ignore_errors=True,
     )
