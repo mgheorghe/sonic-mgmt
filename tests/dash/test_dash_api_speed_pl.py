@@ -4,6 +4,7 @@ import json
 import logging
 import os
 import re
+import shlex
 import shutil
 import sys
 import tempfile
@@ -409,7 +410,7 @@ _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
-                       mem_timeline=None):
+                       creds, mem_timeline=None):
     """Push each JSON via a long-lived sonic-gnmi-agent container (config_dir mounted at /dpu)."""
     if mem_timeline is None:
         mem_timeline = []
@@ -486,11 +487,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
     # ── Pre-check: verify gNMI server is reachable before pushing files ──
     logger.info("Pre-check: verifying gNMI connectivity to %s:%s (tls=%s)",
                 ip, port, tls_flags.strip())
+    gnmi_user = shlex.quote(creds["sonicadmin_user"])
+    gnmi_pass = shlex.quote(creds["sonicadmin_password"])
     check_cmd = (
         f"docker exec {_GNMI_CONTAINER_NAME}"
         f" /usr/sbin/gnmi_set -target_addr {ip}:{port}"  # noqa: E231
         f"{tls_flags}"
-        f" -username admin -password password"
+        f" -username {gnmi_user} -password {gnmi_pass}"
     )
     check_out = localhost.shell(check_cmd, module_ignore_errors=True)
     if check_out.get("rc", -1) != 0:
@@ -584,7 +587,7 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             len(push_errors), "\n".join("  - %s" % e for e in push_errors)))
 
 
-def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_facts):
+def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_facts, creds):
     """Render DASH configs to a temp dir then push via gnmi_client.py; record per-file load time."""
     dpuhost = dpuhosts[dpu_index]
 
@@ -644,7 +647,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_
 
     try:
         load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
-                           mem_timeline)
+                           creds, mem_timeline)
     finally:
         shutil.rmtree(render_output_dir, ignore_errors=True)
         logger.info("Cleaned up rendered config dir: %s", render_output_dir)
