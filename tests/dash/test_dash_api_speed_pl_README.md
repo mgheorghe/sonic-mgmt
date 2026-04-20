@@ -212,12 +212,20 @@ if you cannot restart the gnmi container.
 
 ### Register cert paths in CONFIG_DB (NPU host, outside the container)
 
-The test reads these via `config_facts`, so after generating the files expose them:
+Only `ca_crt` needs to be added — `client_crt`/`client_key` are derived by convention
+from the same directory (`/etc/sonic/tls/client.crt`, `client.key`) and must NOT be
+written into CONFIG_DB (the GNMI YANG model rejects them and breaks `config
+apply-patch`):
 
 ```bash
-sonic-db-cli CONFIG_DB HSET "GNMI|certs" ca_crt     /etc/sonic/tls/ca.crt
-sonic-db-cli CONFIG_DB HSET "GNMI|certs" client_crt /etc/sonic/tls/client.crt
-sonic-db-cli CONFIG_DB HSET "GNMI|certs" client_key /etc/sonic/tls/client.key
+sonic-db-cli CONFIG_DB HSET "GNMI|certs" ca_crt /etc/sonic/tls/ca.crt
+sudo config save -y
+```
+
+If you previously added `client_crt`/`client_key`, remove them:
+
+```bash
+sonic-db-cli CONFIG_DB HDEL "GNMI|certs" client_crt client_key
 sudo config save -y
 ```
 
