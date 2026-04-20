@@ -338,6 +338,12 @@ def _inspect_gnmi_server(config_facts):
     will reject clients that don't present a cert, regardless of whether
     `GNMI.certs.ca_crt` is listed. Absence of server_crt/server_key means the
     server is running noTLS.
+
+    The GNMI YANG model only accepts `server_crt`/`server_key`/`ca_crt` under
+    `GNMI|certs` — `client_crt`/`client_key` break `config apply-patch`. So for
+    mTLS we derive them by convention (`client.crt` / `client.key` alongside the
+    CA or server cert) and let `_fetch_gnmi_certs_from_npu` skip any that are
+    absent on disk.
     """
     gnmi_cfg = (config_facts or {}).get("GNMI", {}) or {}
     certs = gnmi_cfg.get("certs", {}) or {}
@@ -357,6 +363,15 @@ def _inspect_gnmi_server(config_facts):
         mode = "mtls"
     else:
         mode = "tls"
+
+    if mode == "mtls":
+        ref = paths["ca_crt"] or paths["server_crt"]
+        if ref:
+            cert_dir = os.path.dirname(ref)
+            paths["client_crt"] = f"{cert_dir}/client.crt"
+            paths["client_key"] = f"{cert_dir}/client.key"
+            if not paths["ca_crt"]:
+                paths["ca_crt"] = f"{cert_dir}/ca.crt"
 
     logger.info("CONFIG_DB GNMI.certs: %s", {k: v for k, v in paths.items() if v} or "(none)")
     logger.info("CONFIG_DB GNMI.gnmi.client_auth=%s → mode=%s", client_auth, mode)
