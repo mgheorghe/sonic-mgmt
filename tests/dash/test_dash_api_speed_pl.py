@@ -561,6 +561,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
     # replied at all. Connection-level failures (port closed, bad cert, bad
     # creds) must still abort.
     stderr = check_out.get("stderr", "") or ""
+    stdout = check_out.get("stdout", "") or ""
+    rc = check_out.get("rc", -1)
+    logger.info("Pre-check result: rc=%s", rc)
+    if stdout:
+        logger.info("Pre-check stdout: %s", stdout[:1000])
+    if stderr:
+        logger.info("Pre-check stderr: %s", stderr[:1000])
     unreachable_markers = (
         "connection refused",
         "no route to host",
