@@ -513,12 +513,27 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         f" -username {gnmi_user} -password {gnmi_pass}"
     )
     check_out = localhost.shell(check_cmd, module_ignore_errors=True)
-    if check_out.get("rc", -1) != 0:
+    # An empty setRequest always fails on the server side ("Translib write is
+    # disabled" / "Unimplemented"), so rc != 0 is expected. What we're actually
+    # checking is whether the TLS+auth handshake completed — i.e. the server
+    # replied at all. Connection-level failures (port closed, bad cert, bad
+    # creds) must still abort.
+    stderr = check_out.get("stderr", "") or ""
+    unreachable_markers = (
+        "connection refused",
+        "no route to host",
+        "handshake failed",
+        "x509:",
+        "transport: Error while dialing",
+        "authentication failed",
+        "PermissionDenied",
+    )
+    if any(m.lower() in stderr.lower() for m in unreachable_markers):
         pytest.fail(
             f"gNMI server unreachable at {ip}:{port} — aborting.\n"  # noqa: E231
-            f"stderr: {check_out.get('stderr', '')[:500]}"
+            f"stderr: {stderr[:500]}"
         )
-    logger.info("Pre-check: gNMI server reachable")
+    logger.info("Pre-check: gNMI server reachable (server replied past TLS/auth)")
 
     push_errors = []
 
