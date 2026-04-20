@@ -454,18 +454,20 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
                 f" --mount src={host_cert_dir},target=/certs,type=bind,readonly"  # noqa: E231
             )
         parts = []
+        # Server verification: use CA if available, else skip with -insecure.
         if "ca_crt" in fetched:
             parts.append(f" -ca /certs/{fetched['ca_crt']}")
+        else:
+            parts.append(" -insecure")
+        # mTLS additionally requires the client to present its own cert.
         if server_mode == "mtls":
             if "client_crt" in fetched and "client_key" in fetched:
                 parts.append(f" -cert /certs/{fetched['client_crt']}")
                 parts.append(f" -key /certs/{fetched['client_key']}")
             else:
                 logger.warning("mTLS server but no client cert/key available — "
-                               "falling back to -insecure; push will likely be rejected")
-                parts = [" -insecure"]
-        # TLS-only (no client auth required): -insecure skips server verification.
-        tls_flags = "".join(parts) if parts else " -insecure"
+                               "push will likely be rejected")
+        tls_flags = "".join(parts)
 
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
