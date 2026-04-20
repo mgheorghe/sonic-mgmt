@@ -115,6 +115,115 @@ ping -c 2 169.254.200.1
 
 ---
 
+## Step 3b — gNMI client certificates (NPU)
+
+The test pushes via gNMI. If the NPU's `GNMI|gnmi.client_auth` is `true`, the server
+requires a client cert+key signed by a CA it trusts. `config_facts` surfaces the cert
+paths from CONFIG_DB — the test looks for `server_crt`, `server_key`, `ca_crt`,
+`client_crt`, `client_key` under `GNMI|certs`.
+
+Check current CONFIG_DB state on the NPU:
+
+```bash
+sonic-db-cli CONFIG_DB HGETALL "GNMI|certs"
+sonic-db-cli CONFIG_DB HGETALL "GNMI|gnmi"   # look for client_auth=true
+```
+
+### Path A — Reuse the existing CA (no telemetry restart)
+
+If `/etc/sonic/tls/ca.crt` + `ca.key` already exist in the `gnmi` container (they do on
+`keysight-nss01` by default), just sign a new client pair against them:
+
+```bash
+docker exec -it gnmi bash
+cd /etc/sonic/tls
+
+openssl genrsa -out client.key 2048
+openssl req -new -key client.key -subj '/CN=dash-test-client' -out client.csr
+openssl x509 -req -in client.csr -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -out client.crt -days 825 -sha256
+
+openssl verify -CAfile ca.crt client.crt    # must print: client.crt: OK
+
+chmod 600 client.key
+rm -f client.csr ca.srl
+exit
+```
+
+### Path B — Full regeneration (CA + server + client; requires telemetry restart)
+
+Only if the server is rejecting Path A's chain. Regenerates everything in `/etc/sonic/tls/`:
+
+```bash
+docker exec -it gnmi bash
+cd /etc/sonic/tls
+NPU_IP=10.36.78.150   # adjust per testbed
+
+# CA
+openssl genrsa -out ca.key 4096
+openssl req -x509 -new -nodes -key ca.key -sha256 -days 3650 \
+    -subj '/CN=dash-test-ca' -out ca.crt
+
+# Server (with SAN so clients can verify against IP)
+cat > /tmp/server_ext.cnf <<EOF
+[ req ]
+distinguished_name = req_distinguished_name
+req_extensions = req_ext
+prompt = no
+[ req_distinguished_name ]
+CN = dash-test-server
+[ req_ext ]
+subjectAltName = @alt_names
+[ alt_names ]
+IP.1 = ${NPU_IP}
+DNS.1 = sonic
+EOF
+
+openssl genrsa -out server.key 2048
+openssl req -new -key server.key -config /tmp/server_ext.cnf -out server.csr
+openssl x509 -req -in server.csr \
+    -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -out server.crt -days 825 -sha256 \
+    -extensions req_ext -extfile /tmp/server_ext.cnf
+cp server.crt server.cer   # CONFIG_DB points at .cer on some testbeds
+
+# Client
+openssl genrsa -out client.key 2048
+openssl req -new -key client.key -subj '/CN=dash-test-client' -out client.csr
+openssl x509 -req -in client.csr \
+    -CA ca.crt -CAkey ca.key -CAcreateserial \
+    -out client.crt -days 825 -sha256
+
+# Verify
+openssl verify -CAfile ca.crt server.crt
+openssl verify -CAfile ca.crt client.crt
+
+# Permissions + cleanup
+chmod 600 ca.key server.key client.key
+chmod 644 ca.crt server.crt server.cer client.crt
+rm -f server.csr client.csr ca.srl /tmp/server_ext.cnf
+exit
+```
+
+Path B requires the telemetry process to reload the new server cert — skip this path
+if you cannot restart the gnmi container.
+
+### Register cert paths in CONFIG_DB (NPU host, outside the container)
+
+The test reads these via `config_facts`, so after generating the files expose them:
+
+```bash
+sonic-db-cli CONFIG_DB HSET "GNMI|certs" ca_crt     /etc/sonic/tls/ca.crt
+sonic-db-cli CONFIG_DB HSET "GNMI|certs" client_crt /etc/sonic/tls/client.crt
+sonic-db-cli CONFIG_DB HSET "GNMI|certs" client_key /etc/sonic/tls/client.key
+sudo config save -y
+```
+
+Leave `server_crt`/`server_key` untouched unless you took Path B and changed the
+filename (e.g. `.cer` → `.crt`).
+
+---
+
 ## Step 4 — Run the test
 
 Enter the sonic-mgmt container on SMD:
