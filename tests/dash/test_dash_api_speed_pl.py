@@ -492,6 +492,23 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         pytest.fail("Could not start %s: %s" % (_GNMI_CONTAINER_NAME, start_out.get("stderr", "")))
     logger.info("Started persistent container %s", _GNMI_CONTAINER_NAME)
 
+    # Dump what the gnmi-agent container sees at /certs — lets us catch a stale
+    # or mismatched CA before the pre-check fails with an opaque x509 error.
+    if server_mode in ("tls", "mtls") and cert_mount_opt:
+        probe = (
+            "ls -la /certs/ 2>&1; "  # noqa: E702
+            "for f in /certs/*; do "  # noqa: E702
+            "echo ---$f---; "  # noqa: E702
+            "md5sum \"$f\" 2>/dev/null; "  # noqa: E702
+            "openssl x509 -in \"$f\" -noout -subject -issuer 2>/dev/null || true; "  # noqa: E702
+            "done"
+        )
+        cert_ls = localhost.shell(
+            f"docker exec {_GNMI_CONTAINER_NAME} sh -c {shlex.quote(probe)}",
+            module_ignore_errors=True,
+        )
+        logger.info("Cert staging snapshot:\n%s", cert_ls.get("stdout", "") or cert_ls.get("stderr", ""))
+
     # Pre-count operations for all files (outside the timed loop).
     file_info = []
     all_tables = set()
