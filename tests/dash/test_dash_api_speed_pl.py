@@ -474,6 +474,29 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
                                "push will likely be rejected")
         tls_flags = "".join(parts)
 
+    # Mount the repo's go_gnmi_utils.py over the one baked into the container image
+    # (the image's copy hardcodes -insecure, which doesn't work with an mTLS server).
+    # The patched copy honors GNMI_CA / GNMI_CLIENT_CERT / GNMI_CLIENT_KEY / GNMI_TARGET_NAME.
+    repo_go_utils = os.path.abspath(os.path.join(
+        os.path.dirname(__file__), "..", "..", "gnmi", "gnmi_agent", "go_gnmi_utils.py"
+    ))
+    go_utils_host = _container_path_to_host(repo_go_utils)
+    go_utils_mount = (
+        f" --mount src={go_utils_host},"  # noqa: E231
+        f"target=/usr/lib/python3/dist-packages/gnmi_agent/go_gnmi_utils.py,type=bind,readonly"  # noqa: E231
+    )
+
+    # Export TLS material via env vars so the patched go_gnmi_utils.py can wire
+    # up gnmi_set / gnmi_get with the right flags.
+    env_opts = ""
+    if server_mode in ("tls", "mtls") and cert_mount_opt:
+        env_opts += f" -e GNMI_TARGET_NAME={ip}"
+        if "ca_crt" in fetched:
+            env_opts += f" -e GNMI_CA=/certs/{fetched['ca_crt']}"
+        if server_mode == "mtls" and "client_crt" in fetched and "client_key" in fetched:
+            env_opts += f" -e GNMI_CLIENT_CERT=/certs/{fetched['client_crt']}"
+            env_opts += f" -e GNMI_CLIENT_KEY=/certs/{fetched['client_key']}"
+
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
     logger.info("DPU_APPL_DB DBSIZE before push: %s", db_before.get("stdout", "").strip())
@@ -483,8 +506,10 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
     start_out = localhost.shell(
         f"docker run -d --name {_GNMI_CONTAINER_NAME} --network host"
         f" --shm-size=256m"
+        f"{env_opts}"
         f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
         f"{cert_mount_opt}"
+        f"{go_utils_mount}"
         f" {_GNMI_AGENT_IMAGE} -c 'sleep infinity'",
         module_ignore_errors=True,
     )
