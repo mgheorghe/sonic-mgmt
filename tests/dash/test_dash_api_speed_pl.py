@@ -329,6 +329,29 @@ def _container_path_to_host(container_path):
     return container_path
 
 
+def _fetch_gnmi_certs_from_npu(duthost, env, dest_dir):
+    """Copy the NPU gnmi container's CA + client cert/key into dest_dir.
+
+    The server enforces mTLS and only trusts certs signed by its own CA, so
+    generating fresh certs would require restarting the server. Instead we
+    pull the existing client material the server already trusts and mount it
+    into the ephemeral gnmi-agent container at /etc/sonic/telemetry/.
+    """
+    cert_path = env.gnmi_cert_path  # /etc/sonic/telemetry/
+    container = env.gnmi_container
+    for cert_file in [env.gnmi_ca_cert, env.gnmi_client_cert, env.gnmi_client_key]:
+        duthost.shell(
+            f"docker cp {container}:{cert_path}{cert_file} /tmp/{cert_file}",  # noqa: E231
+            module_ignore_errors=True,
+        )
+        duthost.fetch(
+            src=f"/tmp/{cert_file}",
+            dest=f"{dest_dir}/{cert_file}",
+            flat=True,
+        )
+        logger.info("  Fetched %s from NPU gnmi container", cert_file)
+
+
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
 
