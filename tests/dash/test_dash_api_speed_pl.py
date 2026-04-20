@@ -459,6 +459,11 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             parts.append(f" -ca /certs/{fetched['ca_crt']}")
         else:
             parts.append(" -insecure")
+        # Match hostname verification against the server cert's SAN. Server certs
+        # in sonic-mgmt testbeds include the mgmt IP as an IP SAN, so passing the
+        # mgmt IP as target_name satisfies Go's TLS hostname check against either
+        # a DNS or IP SAN. gnmi_set defaults to "hostname.com" which never matches.
+        parts.append(f" -target_name {ip}")
         # mTLS additionally requires the client to present its own cert.
         if server_mode == "mtls":
             if "client_crt" in fetched and "client_key" in fetched:
