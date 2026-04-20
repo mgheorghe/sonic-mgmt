@@ -119,10 +119,36 @@ def cleanup_proto_files(cmd_list, work_dir=None):
 _MAX_CMD_BYTES = 120_000
 
 
+def _tls_flags():
+    """Build TLS flag string from env vars set by the test harness.
+
+    When the gNMI server is running TLS/mTLS, the harness is expected to
+    export GNMI_CA / GNMI_CLIENT_CERT / GNMI_CLIENT_KEY / GNMI_TARGET_NAME
+    before spawning us. Without them we fall back to -insecure, which is
+    what the legacy local-NPU flow uses.
+    """
+    ca = os.environ.get('GNMI_CA')
+    cert = os.environ.get('GNMI_CLIENT_CERT')
+    key = os.environ.get('GNMI_CLIENT_KEY')
+    target_name = os.environ.get('GNMI_TARGET_NAME')
+    parts = []
+    if ca:
+        parts.append('-ca %s' % ca)
+    else:
+        parts.append('-insecure')
+    if target_name:
+        parts.append('-target_name %s' % target_name)
+    if cert and key:
+        parts.append('-cert %s' % cert)
+        parts.append('-key %s' % key)
+    return ' '.join(parts) + ' '
+
+
 def _build_gnmi_set_cmd(env, delete_list, update_list, replace_list):
     """Build the gnmi_set CLI command string and return it."""
     cmd = '/usr/sbin/gnmi_set '
-    cmd += '-insecure -target_addr %s:%u ' % (env.gnmi_ip, env.gnmi_port)
+    cmd += _tls_flags()
+    cmd += '-target_addr %s:%u ' % (env.gnmi_ip, env.gnmi_port)
     cmd += '-username %s -password %s ' % (env.username, env.password)
     for delete in delete_list:
         cmd += '--delete ' + delete + ' '
@@ -230,7 +256,8 @@ def gnmi_get(env, path_list):
         msg_list: list for get result
     """
     base_cmd = '/usr/sbin/gnmi_get '
-    base_cmd += '-insecure -target_addr %s:%u ' % (env.gnmi_ip, env.gnmi_port)
+    base_cmd += _tls_flags()
+    base_cmd += '-target_addr %s:%u ' % (env.gnmi_ip, env.gnmi_port)
     base_cmd += '-username %s -password %s -alsologtostderr -encoding PROTO ' % (env.username, env.password)
 
     for index, path in enumerate(path_list):
