@@ -430,32 +430,38 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
     server_mode = server["mode"]
 
     cert_mount_opt = ""
-    tls_flags = " -insecure"
+    # gnmi_set flag semantics (from `gnmi_set -help`):
+    #   -notls     → plain TCP, no TLS at all  (matches server --noTLS)
+    #   -insecure  → TLS handshake, skip server verification (still needs client cert
+    #                if the server requires one)
+    #   -cert/-key/-ca → present client material for mTLS
+    tls_flags = " -notls"
     if server_mode in ("tls", "mtls"):
         # Stage whatever certs the server lists (CA is enough for tls-only; mtls
         # still needs a client cert+key from somewhere — flagged below if absent).
         cert_stage_dir = os.path.join(os.path.dirname(config_dir), ".gnmi_certs")
         localhost.shell(f"mkdir -p {cert_stage_dir}", module_ignore_errors=True)
         fetched = _fetch_gnmi_certs_from_npu(duthost, env, server["paths"], cert_stage_dir)
+        host_cert_dir = _container_path_to_host(cert_stage_dir) if fetched else ""
         if fetched:
-            host_cert_dir = _container_path_to_host(cert_stage_dir)
             logger.info("cert_stage_dir (container): %s", cert_stage_dir)
             logger.info("cert_stage_dir (host):      %s", host_cert_dir)
             cert_mount_opt = (
                 f" --mount src={host_cert_dir},target=/certs,type=bind,readonly"  # noqa: E231
             )
-            parts = []
-            if "ca_crt" in fetched:
-                parts.append(f" -ca /certs/{fetched['ca_crt']}")
-            if server_mode == "mtls":
-                if "client_crt" in fetched and "client_key" in fetched:
-                    parts.append(f" -cert /certs/{fetched['client_crt']}")
-                    parts.append(f" -key /certs/{fetched['client_key']}")
-                else:
-                    logger.warning("mTLS server but no client cert/key available on NPU — "
-                                   "falling back to -insecure; push will likely be rejected")
-                    parts = [" -insecure"]
-            tls_flags = "".join(parts) if parts else " -insecure"
+        parts = []
+        if "ca_crt" in fetched:
+            parts.append(f" -ca /certs/{fetched['ca_crt']}")
+        if server_mode == "mtls":
+            if "client_crt" in fetched and "client_key" in fetched:
+                parts.append(f" -cert /certs/{fetched['client_crt']}")
+                parts.append(f" -key /certs/{fetched['client_key']}")
+            else:
+                logger.warning("mTLS server but no client cert/key available — "
+                               "falling back to -insecure; push will likely be rejected")
+                parts = [" -insecure"]
+        # TLS-only (no client auth required): -insecure skips server verification.
+        tls_flags = "".join(parts) if parts else " -insecure"
 
     # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
