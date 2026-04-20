@@ -210,24 +210,37 @@ exit
 Path B requires the telemetry process to reload the new server cert — skip this path
 if you cannot restart the gnmi container.
 
-### CONFIG_DB — leave it alone
+### CONFIG_DB — register ca_crt as `.cer`, never add client_crt/client_key
 
-Don't add `ca_crt`, `client_crt`, or `client_key` under `GNMI|certs`:
+The GNMI YANG model only allows `server_crt`, `server_key`, and `ca_crt` under
+`GNMI|certs`, and all three must end in `.cer`. `client_crt`/`client_key` are
+not in the schema at all.
 
-- The GNMI YANG model's path pattern only accepts filenames ending in `.cer`, so
-  `/etc/sonic/tls/ca.crt` will fail `config apply-patch` with *"does not satisfy
-  the constraint … `.cer`"*.
-- `client_crt` / `client_key` aren't in the YANG schema at all and trigger
-  *"All Keys are not parsed in GNMI"*.
+You **must** register `ca_crt` when `client_auth=true`. `gnmi-native.sh` reads
+it from CONFIG_DB; if it's missing, jq returns the string `"null"`, the script
+appends `--ca_crt null` to the telemetry invocation, and port 50052 fails to
+bind. The process stays "RUNNING" in supervisor, so the only visible symptom
+is a connect refused from the client.
 
-The test derives all three from the directory of `server_crt` (e.g.
-`/etc/sonic/tls/` → `ca.crt`, `client.crt`, `client.key`) at runtime, so only
-`server_crt` and `server_key` need to be in CONFIG_DB.
-
-If you previously added any of the forbidden keys, remove them:
+Copy the CA to a `.cer` filename and register it:
 
 ```bash
-sonic-db-cli CONFIG_DB HDEL "GNMI|certs" ca_crt client_crt client_key
+sudo cp /etc/sonic/tls/ca.crt /etc/sonic/tls/ca.cer
+sudo chmod 644 /etc/sonic/tls/ca.cer
+sudo sonic-db-cli CONFIG_DB HSET "GNMI|certs" ca_crt /etc/sonic/tls/ca.cer
+sudo config save -y
+sudo docker exec gnmi supervisorctl restart gnmi-native
+sudo ss -tlnp | grep 50052    # must show the listener
+```
+
+The test derives `client.crt`/`client.key` by convention from the directory of
+`server_crt` (e.g. `/etc/sonic/tls/` → `client.crt`, `client.key`) at runtime,
+so those two filenames must exist but are not referenced from CONFIG_DB.
+
+If you previously added `client_crt`/`client_key`, remove them:
+
+```bash
+sonic-db-cli CONFIG_DB HDEL "GNMI|certs" client_crt client_key
 sudo config save -y
 ```
 
