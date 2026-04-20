@@ -526,7 +526,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             "echo ---$f---; "  # noqa: E702
             "md5sum \"$f\" 2>/dev/null; "  # noqa: E702
             "openssl x509 -in \"$f\" -noout -subject -issuer 2>/dev/null || true; "  # noqa: E702
-            "done"
+            "done; "  # noqa: E702
+            "echo ---chain-verify---; "  # noqa: E702
+            "openssl verify -CAfile /certs/ca.cer /certs/server.cer 2>&1 || true; "  # noqa: E702
+            "openssl verify -CAfile /certs/ca.cer /certs/client.crt 2>&1 || true; "  # noqa: E702
+            "echo ---live-server-cert---; "  # noqa: E702
+            f"echo | openssl s_client -connect {ip}:{port} -showcerts -servername {ip} "  # noqa: E231,E702
+            "2>/dev/null | openssl x509 -noout -subject -issuer -fingerprint -sha256 2>&1 || true"
         )
         cert_ls = localhost.shell(
             f"docker exec {_GNMI_CONTAINER_NAME} sh -c {shlex.quote(probe)}",
