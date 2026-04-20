@@ -332,10 +332,9 @@ def _container_path_to_host(container_path):
 def _fetch_gnmi_certs_from_npu(duthost, env, dest_dir):
     """Copy the NPU gnmi container's CA + client cert/key into dest_dir.
 
-    The server enforces mTLS and only trusts certs signed by its own CA, so
-    generating fresh certs would require restarting the server. Instead we
-    pull the existing client material the server already trusts and mount it
-    into the ephemeral gnmi-agent container at /etc/sonic/telemetry/.
+    Used when the server enforces mTLS. Pulls the existing client material
+    that the server already trusts so we don't need to restart it with a
+    new CA.
     """
     cert_path = env.gnmi_cert_path  # /etc/sonic/telemetry/
     container = env.gnmi_container
@@ -350,6 +349,37 @@ def _fetch_gnmi_certs_from_npu(duthost, env, dest_dir):
             flat=True,
         )
         logger.info("  Fetched %s from NPU gnmi container", cert_file)
+
+
+def _detect_gnmi_server_mode(duthost, env):
+    """Inspect the running telemetry/gnmi process to decide client TLS mode.
+
+    Returns one of:
+      "insecure" — server runs with no TLS or allows no-client-auth; use -insecure
+      "mtls"     — server requires client certs signed by its CA; fetch + present them
+    """
+    container = env.gnmi_container
+    out = duthost.shell(
+        f"docker exec {container} ps -eo args | grep -E 'telemetry|gnmi' | grep -v grep",
+        module_ignore_errors=True,
+    )
+    cmdline = out.get("stdout", "") or ""
+    logger.info("NPU gNMI server cmdline: %s", cmdline.strip() or "(not found)")
+
+    if not cmdline.strip():
+        logger.warning("Could not read gNMI server cmdline — defaulting to mtls")
+        return "mtls"
+
+    # No TLS at all, or server explicitly allows clients without a cert.
+    if "--noTLS" in cmdline or "-noTLS" in cmdline:
+        return "insecure"
+    if "-allow_no_client_auth" in cmdline or "--allow_no_client_auth" in cmdline:
+        return "insecure"
+    # CA-based client verification → mTLS required.
+    if "--ca_crt" in cmdline or "-ca_crt" in cmdline:
+        return "mtls"
+    # TLS without CA verification — treat as insecure from the client side.
+    return "insecure"
 
 
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
