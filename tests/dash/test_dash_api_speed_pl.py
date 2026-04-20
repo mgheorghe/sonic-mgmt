@@ -446,12 +446,18 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_dir, files, timings, 
 
     # ── Pre-check: verify gNMI server is reachable before pushing files ──
     logger.info("Pre-check: verifying gNMI connectivity to %s:%s ...", ip, port)
+    if server_mode == "mtls":
+        tls_flags = (
+            f" -cert /etc/sonic/telemetry/{env.gnmi_client_cert}"
+            f" -key /etc/sonic/telemetry/{env.gnmi_client_key}"
+            f" -ca /etc/sonic/telemetry/{env.gnmi_ca_cert}"
+        )
+    else:
+        tls_flags = " -insecure"
     check_cmd = (
         f"docker exec {_GNMI_CONTAINER_NAME}"
         f" /usr/sbin/gnmi_set -target_addr {ip}:{port}"  # noqa: E231
-        f" -cert /etc/sonic/telemetry/{env.gnmi_client_cert}"
-        f" -key /etc/sonic/telemetry/{env.gnmi_client_key}"
-        f" -ca /etc/sonic/telemetry/{env.gnmi_ca_cert}"
+        f"{tls_flags}"
         f" -username admin -password password"
     )
     check_out = localhost.shell(check_cmd, module_ignore_errors=True)
