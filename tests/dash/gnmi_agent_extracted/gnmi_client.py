@@ -8,11 +8,11 @@ from gnmi_agent.go_gnmi_utils import (  # noqa: E402
 )
 import argparse  # noqa: E402
 from jinja2 import Environment, FileSystemLoader  # noqa: E402
+import orjson  # noqa: E402
 import os  # noqa: E402
 import re  # noqa: E402
 import sys  # noqa: E402
 import logging  # noqa: E402
-import json  # noqa: E402
 
 TIMINGS["module_imports"] = [1, time.perf_counter() - _START]
 
@@ -56,15 +56,15 @@ def load_template(template_path, context, reverse=False):
             template = env.get_template(template_name)
             rendered_content = template.render(context)
         with phase("json_load"):
-            res = json.loads(rendered_content)
+            res = orjson.loads(rendered_content)
     elif ext == '.json':
         with phase("json_load"):
-            with open(template_path, 'r') as f:
-                res = json.load(f)
+            with open(template_path, 'rb') as f:
+                res = orjson.loads(f.read())
     else:  # .jsonc
         with phase("jsonc_load"):
             with open(template_path, 'r') as f:
-                res = json.loads(_strip_jsonc_comments(f.read()))
+                res = orjson.loads(_strip_jsonc_comments(f.read()))
 
     if reverse and isinstance(res, list):
         res = res[::-1]

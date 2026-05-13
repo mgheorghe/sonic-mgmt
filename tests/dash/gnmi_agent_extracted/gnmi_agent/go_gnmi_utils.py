@@ -1,4 +1,3 @@
-import json
 import logging
 import os
 import queue
@@ -6,6 +5,7 @@ import threading
 import time
 
 import grpc
+import orjson
 import proto_utils
 from pygnmi.spec.v080 import gnmi_pb2, gnmi_pb2_grpc
 
@@ -455,7 +455,7 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=N
                         payload = proto_utils.json_to_proto(k, v)
                 else:
                     with phase("json_serialize"):
-                        payload = json.dumps(v).encode("utf-8")
+                        payload = orjson.dumps(v)
                 path_pb = _build_table_key_path(k)
                 if operation["OP"] == "REP":
                     replace_list.append((path_pb, payload))
@@ -529,6 +529,6 @@ def apply_gnmi_file(env, dest_path, batch_val=10, sleep_secs=0):
     apply_gnmi_data directly to skip the disk round-trip.
     """
     with phase("json_load"):
-        with open(dest_path, 'r') as file:
-            res = json.load(file)
+        with open(dest_path, 'rb') as file:
+            res = orjson.loads(file.read())
     apply_gnmi_data(env, res, batch_val, sleep_secs)

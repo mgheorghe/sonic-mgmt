@@ -6,3 +6,4 @@
 # image; grpcio/protobuf/dash_api are already present.
 pygnmi
 jinja2
+orjson
