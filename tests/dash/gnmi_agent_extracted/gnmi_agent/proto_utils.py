@@ -25,6 +25,9 @@ from google.protobuf.json_format import ParseDict
 
 ENABLE_PROTO = True
 
+_DASH_TABLE_RE = re.compile(r"DASH_(\w+)_TABLE")
+_ENUM_PARTS_RE = re.compile(r"[A-Z][^A-Z]*")
+
 PB_INT_TYPES = set([
     FieldDescriptor.TYPE_INT32,
     FieldDescriptor.TYPE_INT64,
@@ -89,7 +92,7 @@ def parse_dash_proto(key: str, proto_dict: dict):
     Custom parser for DASH configs to allow writing configs
     in a more human-readable format
     """
-    table_name = re.search(r"DASH_(\w+)_TABLE", key).group(1)
+    table_name = _DASH_TABLE_RE.search(key).group(1)
     message = PB_CLASS_MAP[table_name]()
     field_map = message.DESCRIPTOR.fields_by_name
 
@@ -143,7 +146,7 @@ def get_enum_type_from_str(enum_type_str, enum_name_str):
         else:
             return EniMode.MODE_VM
 
-    my_enum_type_parts = re.findall(r'[A-Z][^A-Z]*', enum_type_str)
+    my_enum_type_parts = _ENUM_PARTS_RE.findall(enum_type_str)
     my_enum_type_concatenated = '_'.join(my_enum_type_parts)
     enum_name = f"{my_enum_type_concatenated.upper()}_{enum_name_str.upper()}"
     a = globals()[enum_type_str]
@@ -257,7 +260,7 @@ def json_to_proto(key: str, proto_dict: dict):
     in a more human-readable format
     """
     #import pdb;pdb.set_trace()
-    table_name = re.search(r"DASH_(\w+)_TABLE", key).group(1)
+    table_name = _DASH_TABLE_RE.search(key).group(1)
     if table_name == "ROUTING_TYPE":
         pb = routing_type_from_json(proto_dict)
         return pb.SerializeToString()
