@@ -16,6 +16,12 @@ TIME_BETWEEN_CHUNKS = 1
 # rendered by dump_timings() to break down where wall-clock time is spent.
 TIMINGS = {}
 
+# Per-RPC samples: list of (bytes_sent, seconds) tuples appended by the
+# GnmiSetSession sender. Lets us see whether each gNMI Set is dominated by
+# fixed per-call cost (small variance with size) or by per-byte processing
+# (duration scales with payload). Printed by dump_timings().
+RPC_SAMPLES = []
+
 
 class phase:
     """Context manager that accumulates wall-clock time per named phase."""
@@ -46,6 +52,20 @@ def dump_timings():
     hits = getattr(proto_utils, "FAST_PATH_HITS", None)
     if hits and any(hits.values()):
         print("proto fast-path hits: %s" % hits)
+    if RPC_SAMPLES:
+        bytes_list = [b for b, _ in RPC_SAMPLES]
+        secs_list = [s for _, s in RPC_SAMPLES]
+        total_bytes = sum(bytes_list)
+        total_secs = sum(secs_list)
+        print("per-RPC samples (n=%d): bytes min=%d avg=%d max=%d total=%d  "
+              "secs min=%.4f avg=%.4f max=%.4f"
+              % (len(RPC_SAMPLES),
+                 min(bytes_list), total_bytes // len(bytes_list), max(bytes_list), total_bytes,
+                 min(secs_list), total_secs / len(secs_list), max(secs_list)))
+        print("  sorted by bytes (bytes, secs, KiB/s):")
+        for b, s in sorted(RPC_SAMPLES):
+            rate = (b / s / 1024.0) if s > 0 else 0.0
+            print("    %8d  %.4f  %8.0f" % (b, s, rate))
 
 
 class GNMIEnvironment:
@@ -215,8 +235,11 @@ class GnmiSetSession:
                 req = self._queue.get()
                 if req is None:
                     return
+                bytes_sent = req.ByteSize()
+                t0 = time.perf_counter()
                 with phase("rpc_set"):
                     response = self._stub.Set(req, metadata=_auth_metadata(self.env))
+                RPC_SAMPLES.append((bytes_sent, time.perf_counter() - t0))
                 logging.debug("SetResponse: %s", response)
                 logging.info("Command executed successfully")
         except Exception as e:
@@ -451,26 +474,38 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=N
     _flush_set(delete_list, update_list, replace_list)
 
 
-def apply_gnmi_file(env, dest_path, batch_val=10, sleep_secs=0):
+def apply_gnmi_data(env, res, batch_val=10, sleep_secs=0):
     """
-    Apply dash configuration with gnmi client. All batched Sets are
-    pipelined through a single GnmiSetSession so request build (CPU)
-    overlaps with RPC (network), and one gRPC channel is reused for
-    the whole file.
+    Apply already-parsed dash configuration with gnmi client. All batched
+    Sets are pipelined through a single GnmiSetSession so request build
+    (CPU) overlaps with RPC (network), and one gRPC channel is reused for
+    the whole payload.
 
     Args:
         env: GNMIEnvironment
-        dest_path: configuration file path
+        res: parsed configuration -- either a list of operation dicts, or a
+             list of such lists (each chunk applied separately).
         batch_val: how many commands in one batch
         sleep_secs: how many seconds to sleep between sending a batch and next
     """
-    with open(dest_path, 'r') as file:
-        res = json.load(file)
-
+    if not res:
+        return
     with GnmiSetSession(env) as session:
         if isinstance(res[0], dict):
-            process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=session)
+            process_template_chunk(res, env, None, batch_val, sleep_secs, session=session)
         else:
             for i in res:
-                process_template_chunk(i, env, dest_path, batch_val, sleep_secs, session=session)
+                process_template_chunk(i, env, None, batch_val, sleep_secs, session=session)
                 time.sleep(TIME_BETWEEN_CHUNKS)
+
+
+def apply_gnmi_file(env, dest_path, batch_val=10, sleep_secs=0):
+    """
+    Read a config file from disk and apply it. Thin wrapper around
+    apply_gnmi_data; callers that already have parsed data should call
+    apply_gnmi_data directly to skip the disk round-trip.
+    """
+    with phase("json_load"):
+        with open(dest_path, 'r') as file:
+            res = json.load(file)
+    apply_gnmi_data(env, res, batch_val, sleep_secs)

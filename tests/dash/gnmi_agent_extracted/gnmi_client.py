@@ -3,12 +3,11 @@ import time
 _START = time.perf_counter()
 
 from gnmi_agent.go_gnmi_utils import (  # noqa: E402
-    apply_gnmi_file, gnmi_get, gnmi_set, GNMIEnvironment,
+    apply_gnmi_data, gnmi_get, gnmi_set, GNMIEnvironment,
     TIMINGS, phase, dump_timings,
 )
 import argparse  # noqa: E402
 from jinja2 import Environment, FileSystemLoader  # noqa: E402
-import tempfile  # noqa: E402
 import os  # noqa: E402
 import re  # noqa: E402
 import sys  # noqa: E402
@@ -35,7 +34,14 @@ def _strip_jsonc_comments(text):
     return _JSONC_TOKEN_RE.sub(repl, text)
 
 
-def render_template(template_path, context, out_file, reverse=False):
+def load_template(template_path, context, reverse=False):
+    """Load and parse a config template, returning a Python list of ops.
+
+    For .j2 the template is rendered then JSON-parsed; for .json/.jsonc the
+    file is read (and comments stripped for .jsonc) then JSON-parsed. The
+    caller hands the parsed list straight to apply_gnmi_data -- no temp
+    file, no second read.
+    """
     ext = os.path.splitext(template_path)[1].lower()
     if ext not in SUPPORTED_EXTS:
         print("error: unsupported file extension '%s'; supported: %s"
@@ -49,20 +55,20 @@ def render_template(template_path, context, out_file, reverse=False):
             env = Environment(loader=FileSystemLoader(search_dir))
             template = env.get_template(template_name)
             rendered_content = template.render(context)
+        with phase("json_load"):
+            res = json.loads(rendered_content)
     elif ext == '.json':
         with phase("json_load"):
             with open(template_path, 'r') as f:
-                rendered_content = f.read()
+                res = json.load(f)
     else:  # .jsonc
         with phase("jsonc_load"):
             with open(template_path, 'r') as f:
-                rendered_content = _strip_jsonc_comments(f.read())
+                res = json.loads(_strip_jsonc_comments(f.read()))
 
-    if reverse:
-        reqs = json.loads(rendered_content)
-        reversed_reqs = reqs[::-1]
-        rendered_content = json.dumps(reversed_reqs)
-    out_file.write(rendered_content)
+    if reverse and isinstance(res, list):
+        res = res[::-1]
+    return res
 
 
 # overide error method, to display help message on error as well
@@ -157,14 +163,8 @@ def exec_action(args):
         reverse = True
     else:
         template_args['op'] = "GET"
-    try:
-        out_file = tempfile.NamedTemporaryFile("w", delete=False)
-
-        render_template(args.filename, template_args, out_file, reverse)
-        out_file.close()
-        apply_gnmi_file(env, out_file.name, args.batch_val, args.sleep_secs)
-    finally:
-        os.unlink(out_file.name)
+    res = load_template(args.filename, template_args, reverse)
+    apply_gnmi_data(env, res, args.batch_val, args.sleep_secs)
 
 
 def main():
