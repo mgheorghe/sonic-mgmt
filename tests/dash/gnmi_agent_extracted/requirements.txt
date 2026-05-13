@@ -1,0 +1,8 @@
+# Python deps for the extracted gnmi_agent client.
+# Install inside the sonic-mgmt container:
+#   pip install -r tests/dash/gnmi_agent_extracted/requirements.txt
+#
+# These two are the only ones not already in the sonic-mgmt container
+# image; grpcio/protobuf/dash_api are already present.
+pygnmi
+jinja2
