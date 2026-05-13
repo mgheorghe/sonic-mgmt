@@ -164,25 +164,7 @@ def exec_action(args):
     else:
         template_args['op'] = "GET"
     res = load_template(args.filename, template_args, reverse)
-    # For non-jinja inputs the "OP" baked into the file (typically SET) wins
-    # over template_args['op']. When the user explicitly chose the replace
-    # subcommand, rewrite SET -> REP across the parsed data so REPLACE
-    # semantics are actually exercised regardless of input format.
-    if args.topsubcmd == "replace":
-        _override_op(res, "SET", "REP")
     apply_gnmi_data(env, res, args.batch_val, args.sleep_secs)
-
-
-def _override_op(res, from_op, to_op):
-    if not res:
-        return
-    if isinstance(res[0], dict):
-        for op in res:
-            if op.get("OP") == from_op:
-                op["OP"] = to_op
-    else:
-        for sub in res:
-            _override_op(sub, from_op, to_op)
 
 
 def main():
