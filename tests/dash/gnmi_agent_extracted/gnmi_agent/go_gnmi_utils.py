@@ -43,6 +43,9 @@ def dump_timings():
         avg = total / count if count else 0.0
         print("  %-*s %5d x  total %8.3fs  avg %.4fs" %
               (name_w, name, count, total, avg))
+    hits = getattr(proto_utils, "FAST_PATH_HITS", None)
+    if hits and any(hits.values()):
+        print("proto fast-path hits: %s" % hits)
 
 
 class GNMIEnvironment:

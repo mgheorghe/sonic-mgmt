@@ -97,6 +97,9 @@ def parse_value_or_range(orig):
 # Cached enum string -> int lookups (get_enum_type_from_str has regex work).
 _ENUM_VALUE_CACHE = {}
 
+# Diagnostic counters -- track how often each fast path was used.
+FAST_PATH_HITS = {"vnet_mapping": 0, "route": 0, "generic": 0}
+
 
 def _enum_val(enum_type_name, enum_name_str):
     cache_key = (enum_type_name, enum_name_str)
@@ -199,13 +202,6 @@ def parse_dash_proto(key: str, proto_dict: dict):
     in a more human-readable format
     """
     table_name = _DASH_TABLE_RE.search(key).group(1)
-
-    # Fast paths for high-volume tables -- bypass ParseDict entirely.
-    if table_name == "VNET_MAPPING":
-        return _build_vnet_mapping_fast(proto_dict)
-    if table_name == "ROUTE":
-        return _build_route_fast(proto_dict)
-
     message = PB_CLASS_MAP[table_name]()
     field_map = message.DESCRIPTOR.fields_by_name
 
@@ -377,6 +373,16 @@ def json_to_proto(key: str, proto_dict: dict):
     if table_name == "ROUTING_TYPE":
         pb = routing_type_from_json(proto_dict)
         return pb.SerializeToString()
+
+    # Fast paths for high-volume tables -- bypass ParseDict and the
+    # importlib.import_module in get_message_from_table_name.
+    if table_name == "VNET_MAPPING":
+        FAST_PATH_HITS["vnet_mapping"] += 1
+        return _build_vnet_mapping_fast(proto_dict).SerializeToString()
+    if table_name == "ROUTE":
+        FAST_PATH_HITS["route"] += 1
+        return _build_route_fast(proto_dict).SerializeToString()
+    FAST_PATH_HITS["generic"] += 1
     """
     if table_name == "OUTBOUND_PORT_MAP_RANGE":
         pb = outbound_portmap_range_from_json(proto_dict)
