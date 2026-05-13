@@ -127,7 +127,7 @@ def gnmi_set(env, delete_list, update_list, replace_list):
             continue
         upd = req.update.add()
         upd.path.CopyFrom(p)
-        upd.val.bytes_val = _read_file_bytes(fp)
+        upd.val.any_val.value = _read_file_bytes(fp)
     for r in replace_list:
         p, fp = _parse_gnmi_cli_path(r)
         if fp is None:
@@ -135,7 +135,7 @@ def gnmi_set(env, delete_list, update_list, replace_list):
             continue
         rep = req.replace.add()
         rep.path.CopyFrom(p)
-        rep.val.bytes_val = _read_file_bytes(fp)
+        rep.val.any_val.value = _read_file_bytes(fp)
         logging.info("Replacing " + r)
 
     try:
