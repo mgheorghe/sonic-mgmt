@@ -132,19 +132,12 @@ def _open_channel(env):
     GNMI_CLIENT_CERT / GNMI_CLIENT_KEY env vars are set, use TLS; the
     optional GNMI_TARGET_NAME overrides the server name for SAN checks.
     Otherwise fall back to an insecure channel.
-
-    gzip compression is enabled by default to shrink the wire payload of
-    bulk Set requests (lots of repeated path strings compress well). Set
-    GNMI_COMPRESSION=none to disable if the server rejects compressed
-    requests with UNIMPLEMENTED.
     """
     target = "%s:%d" % (env.gnmi_ip, env.gnmi_port)
     ca = os.environ.get("GNMI_CA")
     cert = os.environ.get("GNMI_CLIENT_CERT")
     key = os.environ.get("GNMI_CLIENT_KEY")
     target_name = os.environ.get("GNMI_TARGET_NAME")
-    compression_env = os.environ.get("GNMI_COMPRESSION", "gzip").lower()
-    compression = grpc.Compression.Gzip if compression_env == "gzip" else grpc.Compression.NoCompression
     if ca or cert or key:
         creds = grpc.ssl_channel_credentials(
             root_certificates=_read_file_bytes(ca) if ca else None,
@@ -154,11 +147,10 @@ def _open_channel(env):
         options = []
         if target_name:
             options.append(("grpc.ssl_target_name_override", target_name))
-        logging.debug("Opening TLS channel to %s (target_name=%s, compression=%s)",
-                      target, target_name, compression_env)
-        return grpc.secure_channel(target, creds, options=options, compression=compression)
-    logging.debug("Opening insecure channel to %s (compression=%s)", target, compression_env)
-    return grpc.insecure_channel(target, compression=compression)
+        logging.debug("Opening TLS channel to %s (target_name=%s)", target, target_name)
+        return grpc.secure_channel(target, creds, options=options)
+    logging.debug("Opening insecure channel to %s", target)
+    return grpc.insecure_channel(target)
 
 
 def _auth_metadata(env):
