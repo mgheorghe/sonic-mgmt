@@ -1,6 +1,8 @@
 import json
 import logging
 import os
+import queue
+import threading
 import time
 
 import grpc
@@ -130,6 +132,92 @@ def _open_channel(env):
 
 def _auth_metadata(env):
     return [("username", env.username), ("password", env.password)]
+
+
+class GnmiSetSession:
+    """
+    Pipelined gNMI Set sender. SetRequests are built on the calling
+    thread (where proto serialization already lives) and handed to a
+    single background sender thread that does the stub.Set RPC. This
+    overlaps the CPU-bound serialize/build phase with the network RPC,
+    cutting wall-clock to ~max(build, rpc) * num_batches instead of
+    (build + rpc) * num_batches.
+
+    Also reuses one gRPC channel for the whole session so repeated
+    submits skip the per-batch TCP/HTTP2 setup cost.
+
+    Usage:
+        with GnmiSetSession(env) as sess:
+            for batch in batches:
+                sess.submit(delete_list, update_list, replace_list)
+    """
+
+    def __init__(self, env, queue_depth=2):
+        self.env = env
+        self._channel = _open_channel(env)
+        self._stub = gnmi_pb2_grpc.gNMIStub(self._channel)
+        self._queue = queue.Queue(maxsize=queue_depth)
+        self._exc = None
+        self._thread = threading.Thread(target=self._sender_loop, daemon=True)
+        self._thread.start()
+
+    def __enter__(self):
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        self.close()
+        return False
+
+    def submit(self, delete_list, update_list, replace_list):
+        if not (delete_list or update_list or replace_list):
+            return
+        # Surface any failure from the sender thread before queuing more work.
+        self._raise_if_failed()
+        with phase("build_setrequest"):
+            req = gnmi_pb2.SetRequest()
+            for d in delete_list:
+                req.delete.append(_coerce_delete(d))
+            for u in update_list:
+                item = _coerce_update(u)
+                if item is None:
+                    continue
+                p, payload = item
+                upd = req.update.add()
+                upd.path.CopyFrom(p)
+                upd.val.proto_bytes = payload
+            for r in replace_list:
+                item = _coerce_update(r)
+                if item is None:
+                    continue
+                p, payload = item
+                rep = req.replace.add()
+                rep.path.CopyFrom(p)
+                rep.val.proto_bytes = payload
+        self._queue.put(req)
+
+    def close(self):
+        self._queue.put(None)  # sentinel: stop after draining
+        self._thread.join()
+        self._channel.close()
+        self._raise_if_failed()
+
+    def _raise_if_failed(self):
+        if self._exc is not None:
+            exc, self._exc = self._exc, None
+            raise exc
+
+    def _sender_loop(self):
+        try:
+            while True:
+                req = self._queue.get()
+                if req is None:
+                    return
+                with phase("rpc_set"):
+                    response = self._stub.Set(req, metadata=_auth_metadata(self.env))
+                logging.debug("SetResponse: %s", response)
+                logging.info("Command executed successfully")
+        except Exception as e:
+            self._exc = e
 
 
 def _coerce_delete(entry):
@@ -286,7 +374,19 @@ def _build_dpu_path(dpu_index, table_key_str):
     )
 
 
-def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
+def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=None):
+    """
+    Accumulate the operations in `res` into batches of `batch_val` and
+    flush each batch as a gNMI Set. If `session` is provided, batched
+    sets are pipelined through it (build on this thread, RPC on the
+    sender thread); otherwise we fall back to the synchronous gnmi_set
+    call (kept for direct callers).
+    """
+    def _flush_set(delete_list, update_list, replace_list):
+        if session is not None:
+            session.submit(delete_list, update_list, replace_list)
+        else:
+            gnmi_set(env, delete_list, update_list, replace_list)
 
     get_list = []
     delete_list = []
@@ -336,8 +436,7 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
                     time.sleep(sleep_secs)
             if get_list:
                 gnmi_get(env, get_list)
-            if delete_list or update_list or replace_list:
-                gnmi_set(env, delete_list, update_list, replace_list)
+            _flush_set(delete_list, update_list, replace_list)
             batch_cnt = 0
             delete_list = []
             update_list = []
@@ -346,28 +445,29 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
 
     if get_list:
         gnmi_get(env, get_list)
-    if delete_list or update_list or replace_list:
-        gnmi_set(env, delete_list, update_list, replace_list)
+    _flush_set(delete_list, update_list, replace_list)
 
 
 def apply_gnmi_file(env, dest_path, batch_val=10, sleep_secs=0):
     """
-    Apply dash configuration with gnmi client
+    Apply dash configuration with gnmi client. All batched Sets are
+    pipelined through a single GnmiSetSession so request build (CPU)
+    overlaps with RPC (network), and one gRPC channel is reused for
+    the whole file.
 
     Args:
         env: GNMIEnvironment
         dest_path: configuration file path
         batch_val: how many commands in one batch
         sleep_secs: how many seconds to sleep between sending a batch and next
-
-    Returns:
     """
     with open(dest_path, 'r') as file:
         res = json.load(file)
 
-    if isinstance(res[0], dict):
-        process_template_chunk(res, env, dest_path, batch_val, sleep_secs)
-    else:
-        for i in res:
-            process_template_chunk(i, env, dest_path, batch_val, sleep_secs)
-            time.sleep(TIME_BETWEEN_CHUNKS)
+    with GnmiSetSession(env) as session:
+        if isinstance(res[0], dict):
+            process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=session)
+        else:
+            for i in res:
+                process_template_chunk(i, env, dest_path, batch_val, sleep_secs, session=session)
+                time.sleep(TIME_BETWEEN_CHUNKS)
