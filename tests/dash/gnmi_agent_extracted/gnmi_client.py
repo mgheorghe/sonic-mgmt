@@ -9,11 +9,10 @@ import json
 
 
 def render_template(template_path, context, out_file, reverse=False):
-    # Create a Jinja2 environment
-    env = Environment(loader=FileSystemLoader('.'))
-
-    # Load the template
-    template = env.get_template(template_path)
+    search_dir = os.path.dirname(os.path.abspath(template_path)) or '.'
+    template_name = os.path.basename(template_path)
+    env = Environment(loader=FileSystemLoader(search_dir))
+    template = env.get_template(template_name)
 
     # Render the template with the provided context
     rendered_content = template.render(context)
