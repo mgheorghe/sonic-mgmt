@@ -46,7 +46,10 @@ def parse_args():
     parser = MyParser(description='Parse command line arguments')
     parser.add_argument('-t', '--target', type=str, default="127.0.0.1:8080",
                         help='GNMI server address in the format of host:port')
-    parser.add_argument('-d', '--debug', action='store_true', required=False, default=False, help='turn on debug log')
+    parser.add_argument('-l', '--log-level',
+                        choices=['debug', 'info', 'warning', 'error'],
+                        default='warning',
+                        help='logging level (default: warning -- quiet)')
     parser.add_argument('-i', "--dpu_index", type=int_range_type(0, 7), default=0, required=False,
                         help="DPU index [0-7]")
     parser.add_argument('-n', "--num_dpus", type=int_range_type(1, 8), default=1, required=False, help="Number of DPUs")
@@ -75,12 +78,8 @@ def parse_args():
     get_group.add_argument('-x', '--xpath', type=str, help='the xpath of the object to return')
 
     args = parser.parse_args()
-    if args.debug:
-        logging.basicConfig(level=logging.DEBUG,  # Set the logging level
-                            format='%(asctime)s - %(levelname)s - %(message)s')
-    else:
-        logging.basicConfig(level=logging.INFO,  # Set the logging level
-                            format='%(asctime)s - %(levelname)s - %(message)s')
+    logging.basicConfig(level=getattr(logging, args.log_level.upper()),
+                        format='%(asctime)s - %(levelname)s - %(message)s')
     return args
 
 
