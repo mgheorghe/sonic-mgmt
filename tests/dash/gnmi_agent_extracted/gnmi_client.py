@@ -2,7 +2,10 @@
 import time
 _START = time.perf_counter()
 
-from gnmi_agent.go_gnmi_utils import apply_gnmi_file, gnmi_get, gnmi_set, GNMIEnvironment  # noqa: E402
+from gnmi_agent.go_gnmi_utils import (  # noqa: E402
+    apply_gnmi_file, gnmi_get, gnmi_set, GNMIEnvironment,
+    TIMINGS, phase, dump_timings,
+)
 import argparse  # noqa: E402
 from jinja2 import Environment, FileSystemLoader  # noqa: E402
 import tempfile  # noqa: E402
@@ -10,20 +13,23 @@ import os  # noqa: E402
 import logging  # noqa: E402
 import json  # noqa: E402
 
+TIMINGS["module_imports"] = [1, time.perf_counter() - _START]
+
 
 def render_template(template_path, context, out_file, reverse=False):
-    search_dir = os.path.dirname(os.path.abspath(template_path)) or '.'
-    template_name = os.path.basename(template_path)
-    env = Environment(loader=FileSystemLoader(search_dir))
-    template = env.get_template(template_name)
+    with phase("jinja_render"):
+        search_dir = os.path.dirname(os.path.abspath(template_path)) or '.'
+        template_name = os.path.basename(template_path)
+        env = Environment(loader=FileSystemLoader(search_dir))
+        template = env.get_template(template_name)
 
-    # Render the template with the provided context
-    rendered_content = template.render(context)
-    if reverse:
-        reqs = json.loads(rendered_content)
-        reversed_reqs = reqs[::-1]
-        rendered_content = json.dumps(reversed_reqs)
-    out_file.write(rendered_content)
+        # Render the template with the provided context
+        rendered_content = template.render(context)
+        if reverse:
+            reqs = json.loads(rendered_content)
+            reversed_reqs = reqs[::-1]
+            rendered_content = json.dumps(reversed_reqs)
+        out_file.write(rendered_content)
 
 
 # overide error method, to display help message on error as well
@@ -142,4 +148,5 @@ def main():
 
 if __name__ == '__main__':
     main()
+    dump_timings()
     print("elapsed: %.3fs" % (time.perf_counter() - _START))

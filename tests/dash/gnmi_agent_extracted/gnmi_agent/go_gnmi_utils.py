@@ -10,6 +10,38 @@ from pygnmi.spec.v080 import gnmi_pb2, gnmi_pb2_grpc
 
 TIME_BETWEEN_CHUNKS = 1
 
+# name -> [call_count, total_seconds]. Filled in by the `phase` context manager;
+# rendered by dump_timings() to break down where wall-clock time is spent.
+TIMINGS = {}
+
+
+class phase:
+    """Context manager that accumulates wall-clock time per named phase."""
+
+    def __init__(self, name):
+        self.name = name
+
+    def __enter__(self):
+        self._start = time.perf_counter()
+        return self
+
+    def __exit__(self, exc_type, exc_val, exc_tb):
+        entry = TIMINGS.setdefault(self.name, [0, 0.0])
+        entry[0] += 1
+        entry[1] += time.perf_counter() - self._start
+        return False
+
+
+def dump_timings():
+    if not TIMINGS:
+        return
+    name_w = max(len(n) for n in TIMINGS)
+    print("phase breakdown (sorted by total time):")
+    for name, (count, total) in sorted(TIMINGS.items(), key=lambda kv: -kv[1][1]):
+        avg = total / count if count else 0.0
+        print("  %-*s %5d x  total %8.3fs  avg %.4fs" %
+              (name_w, name, count, total, avg))
+
 
 class GNMIEnvironment:
     gnmi_ip = "127.0.0.1"
@@ -115,41 +147,52 @@ def gnmi_set(env, delete_list, update_list, replace_list):
     if not (delete_list or update_list or replace_list):
         return
 
-    req = gnmi_pb2.SetRequest()
-    for d in delete_list:
-        p, _ = _parse_gnmi_cli_path(d)
-        req.delete.append(p)
-        logging.info("Deleting " + d)
-    for u in update_list:
-        p, fp = _parse_gnmi_cli_path(u)
-        if fp is None:
-            logging.error("Update path missing :$<file>: %s", u)
-            continue
-        upd = req.update.add()
-        upd.path.CopyFrom(p)
-        upd.val.proto_bytes = _read_file_bytes(fp)
-    for r in replace_list:
-        p, fp = _parse_gnmi_cli_path(r)
-        if fp is None:
-            logging.error("Replace path missing :$<file>: %s", r)
-            continue
-        rep = req.replace.add()
-        rep.path.CopyFrom(p)
-        rep.val.any_val.value = _read_file_bytes(fp)
-        logging.info("Replacing " + r)
+    with phase("build_setrequest"):
+        req = gnmi_pb2.SetRequest()
+        for d in delete_list:
+            p, _ = _parse_gnmi_cli_path(d)
+            req.delete.append(p)
+            logging.info("Deleting " + d)
+        for u in update_list:
+            p, fp = _parse_gnmi_cli_path(u)
+            if fp is None:
+                logging.error("Update path missing :$<file>: %s", u)
+                continue
+            with phase("read_proto_file"):
+                payload = _read_file_bytes(fp)
+            upd = req.update.add()
+            upd.path.CopyFrom(p)
+            upd.val.proto_bytes = payload
+        for r in replace_list:
+            p, fp = _parse_gnmi_cli_path(r)
+            if fp is None:
+                logging.error("Replace path missing :$<file>: %s", r)
+                continue
+            with phase("read_proto_file"):
+                payload = _read_file_bytes(fp)
+            rep = req.replace.add()
+            rep.path.CopyFrom(p)
+            rep.val.any_val.value = payload
+            logging.info("Replacing " + r)
 
     try:
-        with _open_channel(env) as channel:
+        with phase("open_channel"):
+            channel = _open_channel(env)
             stub = gnmi_pb2_grpc.gNMIStub(channel)
-            response = stub.Set(req, metadata=_auth_metadata(env))
+        try:
+            with phase("rpc_set"):
+                response = stub.Set(req, metadata=_auth_metadata(env))
             logging.debug("SetResponse: %s", response)
             logging.info("Command executed successfully")
+        finally:
+            channel.close()
     except grpc.RpcError as e:
         logging.error("gNMI Set failed: %s", e)
         raise
 
-    cleanup_proto_files(update_list)
-    cleanup_proto_files(replace_list)
+    with phase("cleanup_proto_files"):
+        cleanup_proto_files(update_list)
+        cleanup_proto_files(replace_list)
 
 
 def gnmi_get(env, path_list):
@@ -226,13 +269,17 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
                 update_cnt += 1
                 filename = "update%u" % update_cnt
                 if proto_utils.ENABLE_PROTO:
-                    message = proto_utils.json_to_proto(k, v)
-                    with open(env.work_dir+filename, "wb") as file:
-                        file.write(message)
+                    with phase("proto_serialize"):
+                        message = proto_utils.json_to_proto(k, v)
+                    with phase("write_proto_file"):
+                        with open(env.work_dir+filename, "wb") as file:
+                            file.write(message)
                 else:
-                    text = json.dumps(v)
-                    with open(env.work_dir+filename, "w") as file:
-                        file.write(text)
+                    with phase("json_serialize"):
+                        text = json.dumps(v)
+                    with phase("write_proto_file"):
+                        with open(env.work_dir+filename, "w") as file:
+                            file.write(text)
                 keys = k.split(":", 1)
                 k = keys[0] + "[key=" + keys[1] + "]"
                 if proto_utils.ENABLE_PROTO:
@@ -266,7 +313,9 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
             batch_cnt -= 1
 
         if batch_cnt == batch_val:
-            time.sleep(sleep_secs)
+            if sleep_secs:
+                with phase("batch_sleep"):
+                    time.sleep(sleep_secs)
             if get_list:
                 gnmi_get(env, get_list)
             if delete_list or update_list or replace_list:
