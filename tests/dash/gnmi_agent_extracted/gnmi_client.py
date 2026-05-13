@@ -10,26 +10,59 @@ import argparse  # noqa: E402
 from jinja2 import Environment, FileSystemLoader  # noqa: E402
 import tempfile  # noqa: E402
 import os  # noqa: E402
+import re  # noqa: E402
+import sys  # noqa: E402
 import logging  # noqa: E402
 import json  # noqa: E402
 
 TIMINGS["module_imports"] = [1, time.perf_counter() - _START]
 
+SUPPORTED_EXTS = ('.j2', '.json', '.jsonc')
+
+# String-aware C-comment stripper for .jsonc:
+#   - quoted strings are matched and preserved verbatim
+#   - // line comments and /* block comments */ are matched and dropped
+_JSONC_TOKEN_RE = re.compile(
+    r'//[^\n]*|/\*.*?\*/|"(?:\\.|[^"\\])*"',
+    re.DOTALL,
+)
+
+
+def _strip_jsonc_comments(text):
+    def repl(m):
+        token = m.group(0)
+        return '' if token.startswith('/') else token
+    return _JSONC_TOKEN_RE.sub(repl, text)
+
 
 def render_template(template_path, context, out_file, reverse=False):
-    with phase("jinja_render"):
-        search_dir = os.path.dirname(os.path.abspath(template_path)) or '.'
-        template_name = os.path.basename(template_path)
-        env = Environment(loader=FileSystemLoader(search_dir))
-        template = env.get_template(template_name)
+    ext = os.path.splitext(template_path)[1].lower()
+    if ext not in SUPPORTED_EXTS:
+        print("error: unsupported file extension '%s'; supported: %s"
+              % (ext, ', '.join(SUPPORTED_EXTS)))
+        sys.exit(2)
 
-        # Render the template with the provided context
-        rendered_content = template.render(context)
-        if reverse:
-            reqs = json.loads(rendered_content)
-            reversed_reqs = reqs[::-1]
-            rendered_content = json.dumps(reversed_reqs)
-        out_file.write(rendered_content)
+    if ext == '.j2':
+        with phase("jinja_render"):
+            search_dir = os.path.dirname(os.path.abspath(template_path)) or '.'
+            template_name = os.path.basename(template_path)
+            env = Environment(loader=FileSystemLoader(search_dir))
+            template = env.get_template(template_name)
+            rendered_content = template.render(context)
+    elif ext == '.json':
+        with phase("json_load"):
+            with open(template_path, 'r') as f:
+                rendered_content = f.read()
+    else:  # .jsonc
+        with phase("jsonc_load"):
+            with open(template_path, 'r') as f:
+                rendered_content = _strip_jsonc_comments(f.read())
+
+    if reverse:
+        reqs = json.loads(rendered_content)
+        reversed_reqs = reqs[::-1]
+        rendered_content = json.dumps(reversed_reqs)
+    out_file.write(rendered_content)
 
 
 # overide error method, to display help message on error as well
