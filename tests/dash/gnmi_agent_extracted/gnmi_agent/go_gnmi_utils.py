@@ -52,6 +52,8 @@ def dump_timings():
     hits = getattr(proto_utils, "FAST_PATH_HITS", None)
     if hits and any(hits.values()):
         print("proto fast-path hits: %s" % hits)
+    if any(PREFIX_HITS.values()):
+        print("setrequest prefix shapes: %s" % PREFIX_HITS)
     if RPC_SAMPLES:
         bytes_list = [b for b, _ in RPC_SAMPLES]
         secs_list = [s for _, s in RPC_SAMPLES]
@@ -194,14 +196,14 @@ class GnmiSetSession:
         self.close()
         return False
 
-    def submit(self, delete_list, update_list, replace_list):
+    def submit(self, delete_list, update_list, replace_list, prefix=None):
         if not (delete_list or update_list or replace_list):
             return
         # Surface any failure from the sender thread before queuing more work.
         self._raise_if_failed()
         with phase("build_setrequest"):
             req = gnmi_pb2.SetRequest()
-            req.prefix.CopyFrom(self._prefix)
+            req.prefix.CopyFrom(prefix if prefix is not None else self._prefix)
             for d in delete_list:
                 req.delete.append(_coerce_delete(d))
             for u in update_list:
@@ -421,6 +423,36 @@ def _build_table_key_path(table_key_str):
     )
 
 
+def _build_dpu_table_prefix(dpu_index, table):
+    """
+    Three-elem prefix used when every entry in a SetRequest targets the
+    same table. Lifts the table name out of the per-update path so we don't
+    re-send "DASH_VNET_MAPPING_TABLE" 64k times.
+    """
+    return gnmi_pb2.Path(
+        origin="sonic-db",
+        elem=[
+            gnmi_pb2.PathElem(name="DPU_APPL_DB"),
+            gnmi_pb2.PathElem(name="dpu%d" % dpu_index),
+            gnmi_pb2.PathElem(name=table),
+        ],
+    )
+
+
+def _build_key_only_path(key):
+    """
+    Per-update path used with the table-aware prefix: just the key, no
+    name. Server-side support depends on the gnmi implementation; if
+    rejected, the caller falls back to the table-included prefix.
+    """
+    return gnmi_pb2.Path(elem=[gnmi_pb2.PathElem(key={"key": key})])
+
+
+# Diagnostic: counts how often each prefix shape was used per batch. Printed by
+# dump_timings() if any are non-zero.
+PREFIX_HITS = {"dpu_only": 0, "dpu_table": 0}
+
+
 def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=None):
     """
     Accumulate the operations in `res` into batches of `batch_val` and
@@ -429,17 +461,36 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=N
     sender thread); otherwise we fall back to the synchronous gnmi_set
     call (kept for direct callers).
     """
-    prefix = _build_dpu_prefix(env.dpu_index)
+    dpu_prefix = _build_dpu_prefix(env.dpu_index)
+    dpu_index = env.dpu_index
 
-    def _flush_set(delete_list, update_list, replace_list):
-        if session is not None:
-            session.submit(delete_list, update_list, replace_list)
+    def _flush_set(delete_strs, update_entries, replace_entries):
+        """Build paths now that we can see whether the batch is single-table."""
+        if not (delete_strs or update_entries or replace_entries):
+            return
+        all_strs = delete_strs + [s for s, _ in update_entries] + [s for s, _ in replace_entries]
+        tables = {s.partition(":")[0] for s in all_strs}
+        if len(tables) == 1:
+            (table,) = tables
+            batch_prefix = _build_dpu_table_prefix(dpu_index, table)
+            delete_pb = [_build_key_only_path(s.partition(":")[2]) for s in delete_strs]
+            update_pb = [(_build_key_only_path(s.partition(":")[2]), p) for s, p in update_entries]
+            replace_pb = [(_build_key_only_path(s.partition(":")[2]), p) for s, p in replace_entries]
+            PREFIX_HITS["dpu_table"] += 1
         else:
-            gnmi_set(env, delete_list, update_list, replace_list, prefix=prefix)
+            batch_prefix = dpu_prefix
+            delete_pb = [_build_table_key_path(s) for s in delete_strs]
+            update_pb = [(_build_table_key_path(s), p) for s, p in update_entries]
+            replace_pb = [(_build_table_key_path(s), p) for s, p in replace_entries]
+            PREFIX_HITS["dpu_only"] += 1
+        if session is not None:
+            session.submit(delete_pb, update_pb, replace_pb, prefix=batch_prefix)
+        else:
+            gnmi_set(env, delete_pb, update_pb, replace_pb, prefix=batch_prefix)
 
     get_list = []
-    delete_list = []
-    update_list = []
+    delete_list = []   # list of "TABLE:KEY" strings
+    update_list = []   # list of ("TABLE:KEY", payload) tuples
     replace_list = []
     batch_cnt = 0
 
@@ -456,16 +507,15 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=N
                 else:
                     with phase("json_serialize"):
                         payload = json.dumps(v).encode("utf-8")
-                path_pb = _build_table_key_path(k)
                 if operation["OP"] == "REP":
-                    replace_list.append((path_pb, payload))
+                    replace_list.append((k, payload))
                 else:
-                    update_list.append((path_pb, payload))
+                    update_list.append((k, payload))
         elif operation["OP"] == "DEL":
             for k, v in operation.items():
                 if k == "OP":
                     continue
-                delete_list.append(_build_table_key_path(k))
+                delete_list.append(k)
         elif operation["OP"] == "GET":
             for k, v in operation.items():
                 if k == "OP":
