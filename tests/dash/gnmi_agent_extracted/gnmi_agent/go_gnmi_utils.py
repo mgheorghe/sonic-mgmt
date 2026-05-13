@@ -132,17 +132,43 @@ def _auth_metadata(env):
     return [("username", env.username), ("password", env.password)]
 
 
+def _coerce_delete(entry):
+    """delete_list entry may be a gnmi-cli path string or a pre-built Path."""
+    if isinstance(entry, gnmi_pb2.Path):
+        return entry
+    p, _ = _parse_gnmi_cli_path(entry)
+    return p
+
+
+def _coerce_update(entry):
+    """
+    update/replace_list entry may be either:
+      - "<gnmi-cli-path>:$<file>" string (legacy; file holds proto bytes), or
+      - (gnmi_pb2.Path, bytes) tuple (preferred; no temp file).
+    Return (gnmi_pb2.Path, bytes) or None on parse failure.
+    """
+    if isinstance(entry, tuple):
+        return entry
+    p, fp = _parse_gnmi_cli_path(entry)
+    if fp is None:
+        logging.error("path missing :$<file>: %s", entry)
+        return None
+    with phase("read_proto_file"):
+        return p, _read_file_bytes(fp)
+
+
 def gnmi_set(env, delete_list, update_list, replace_list):
     """
-    Send a single GNMI SetRequest over gRPC. Replaces the previous
-    /usr/sbin/gnmi_set shell-out, which had a command-line length cap
-    that broke large config batches.
+    Send a single GNMI SetRequest over gRPC.
 
-    Args:
-        env: GNMIEnvironment
-        delete_list: list of gnmi-cli style path strings for delete ops
-        update_list: list of "<path>:$<file>" strings (file holds proto bytes)
-        replace_list: same shape as update_list, for replace ops
+    Each list element may be either:
+      - a gnmi-cli-style string (legacy path; for update/replace the
+        proto bytes are read from the ":$<file>" suffix, file is
+        deleted after the RPC succeeds), or
+      - a gnmi_pb2.Path (for delete) / (gnmi_pb2.Path, bytes) tuple
+        (for update/replace) -- avoids the temp-file round-trip and
+        the xpath re-parse, which together dominate the build phase
+        on large batches.
     """
     if not (delete_list or update_list or replace_list):
         return
@@ -150,30 +176,23 @@ def gnmi_set(env, delete_list, update_list, replace_list):
     with phase("build_setrequest"):
         req = gnmi_pb2.SetRequest()
         for d in delete_list:
-            p, _ = _parse_gnmi_cli_path(d)
-            req.delete.append(p)
-            logging.info("Deleting " + d)
+            req.delete.append(_coerce_delete(d))
         for u in update_list:
-            p, fp = _parse_gnmi_cli_path(u)
-            if fp is None:
-                logging.error("Update path missing :$<file>: %s", u)
+            item = _coerce_update(u)
+            if item is None:
                 continue
-            with phase("read_proto_file"):
-                payload = _read_file_bytes(fp)
+            p, payload = item
             upd = req.update.add()
             upd.path.CopyFrom(p)
             upd.val.proto_bytes = payload
         for r in replace_list:
-            p, fp = _parse_gnmi_cli_path(r)
-            if fp is None:
-                logging.error("Replace path missing :$<file>: %s", r)
+            item = _coerce_update(r)
+            if item is None:
                 continue
-            with phase("read_proto_file"):
-                payload = _read_file_bytes(fp)
+            p, payload = item
             rep = req.replace.add()
             rep.path.CopyFrom(p)
-            rep.val.any_val.value = payload
-            logging.info("Replacing " + r)
+            rep.val.proto_bytes = payload
 
     try:
         with phase("open_channel"):
@@ -190,9 +209,12 @@ def gnmi_set(env, delete_list, update_list, replace_list):
         logging.error("gNMI Set failed: %s", e)
         raise
 
-    with phase("cleanup_proto_files"):
-        cleanup_proto_files(update_list)
-        cleanup_proto_files(replace_list)
+    str_updates = [x for x in update_list if isinstance(x, str)]
+    str_replaces = [x for x in replace_list if isinstance(x, str)]
+    if str_updates or str_replaces:
+        with phase("cleanup_proto_files"):
+            cleanup_proto_files(str_updates)
+            cleanup_proto_files(str_replaces)
 
 
 def gnmi_get(env, path_list):
@@ -248,15 +270,28 @@ def gnmi_get(env, path_list):
                 print(payload)
 
 
+def _build_dpu_path(dpu_index, table_key_str):
+    """
+    Build a gnmi_pb2.Path for "/sonic-db:DPU_APPL_DB/dpu<N>/<TABLE>[key=<KEY>]"
+    from a "TABLE:KEY..." string (splitting on the first colon only).
+    """
+    table, _, key = table_key_str.partition(":")
+    return gnmi_pb2.Path(
+        origin="sonic-db",
+        elem=[
+            gnmi_pb2.PathElem(name="DPU_APPL_DB"),
+            gnmi_pb2.PathElem(name="dpu%d" % dpu_index),
+            gnmi_pb2.PathElem(name=table, key={"key": key}),
+        ],
+    )
+
+
 def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
 
     get_list = []
     delete_list = []
     update_list = []
     replace_list = []
-    update_cnt = 0
-    base_path = "/sonic-db:DPU_APPL_DB"
-    base_path = "%s/dpu%d" % (base_path, env.dpu_index)
     batch_cnt = 0
 
     for operation in res:
@@ -266,38 +301,22 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
                 if k == "OP":
                     continue
                 logging.debug("Config Json %s" % k)
-                update_cnt += 1
-                filename = "update%u" % update_cnt
                 if proto_utils.ENABLE_PROTO:
                     with phase("proto_serialize"):
-                        message = proto_utils.json_to_proto(k, v)
-                    with phase("write_proto_file"):
-                        with open(env.work_dir+filename, "wb") as file:
-                            file.write(message)
+                        payload = proto_utils.json_to_proto(k, v)
                 else:
                     with phase("json_serialize"):
-                        text = json.dumps(v)
-                    with phase("write_proto_file"):
-                        with open(env.work_dir+filename, "w") as file:
-                            file.write(text)
-                keys = k.split(":", 1)
-                k = keys[0] + "[key=" + keys[1] + "]"
-                if proto_utils.ENABLE_PROTO:
-                    path = "%s/%s:$%s" % (base_path, k, env.work_dir+filename)
-                else:
-                    path = "%s/%s:@%s" % (base_path, k, env.work_dir+filename)
+                        payload = json.dumps(v).encode("utf-8")
+                path_pb = _build_dpu_path(env.dpu_index, k)
                 if operation["OP"] == "REP":
-                    replace_list.append(path)
+                    replace_list.append((path_pb, payload))
                 else:
-                    update_list.append(path)
+                    update_list.append((path_pb, payload))
         elif operation["OP"] == "DEL":
             for k, v in operation.items():
                 if k == "OP":
                     continue
-                keys = k.split(":", 1)
-                k = keys[0] + "[key=" + keys[1] + "]"
-                path = "%s/%s" % (base_path, k)
-                delete_list.append(path)
+                delete_list.append(_build_dpu_path(env.dpu_index, k))
         elif operation["OP"] == "GET":
             for k, v in operation.items():
                 if k == "OP":
@@ -305,9 +324,8 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
                 if ":" not in k:
                     continue
                 keys = k.split(":", 1)
-                k = keys[0] + "[key=" + keys[1] + "]"
-                path = "%s/%s" % (base_path, k)
-                get_list.append(path)
+                k_xpath = keys[0] + "[key=" + keys[1] + "]"
+                get_list.append("/sonic-db:DPU_APPL_DB/dpu%d/%s" % (env.dpu_index, k_xpath))
         else:
             logging.error("Invalid operation %s" % operation["OP"])
             batch_cnt -= 1
@@ -321,7 +339,6 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs):
             if delete_list or update_list or replace_list:
                 gnmi_set(env, delete_list, update_list, replace_list)
             batch_cnt = 0
-            update_cnt = 0
             delete_list = []
             update_list = []
             replace_list = []
