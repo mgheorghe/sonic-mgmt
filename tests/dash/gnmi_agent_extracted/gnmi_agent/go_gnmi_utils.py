@@ -175,7 +175,7 @@ class GnmiSetSession:
                 sess.submit(delete_list, update_list, replace_list)
     """
 
-    def __init__(self, env, queue_depth=2):
+    def __init__(self, env, queue_depth=8):
         self.env = env
         self._channel = _open_channel(env)
         self._stub = gnmi_pb2_grpc.gNMIStub(self._channel)
