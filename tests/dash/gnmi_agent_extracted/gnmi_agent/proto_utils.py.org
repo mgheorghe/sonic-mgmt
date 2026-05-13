@@ -1,0 +1,766 @@
+import re
+import socket
+import ipaddress
+import uuid
+import base64
+
+from ipaddress import ip_address as IP
+
+from dash_api.appliance_pb2 import Appliance
+from dash_api.vnet_pb2 import Vnet
+from dash_api.eni_pb2 import Eni, State
+from dash_api.qos_pb2 import Qos
+from dash_api.route_pb2 import Route, VnetDirect
+from dash_api.route_rule_pb2 import RouteRule
+from dash_api.vnet_mapping_pb2 import VnetMapping
+from dash_api.route_type_pb2 import RoutingType, ActionType, RouteType, RouteTypeItem, EncapType
+from dash_api.types_pb2 import IpVersion, Range, ValueOrRange, IpPrefix, IpAddress
+from dash_api.acl_group_pb2 import AclGroup
+from dash_api.acl_rule_pb2 import AclRule, Action
+from dash_api.acl_in_pb2 import AclIn
+from dash_api.acl_out_pb2 import AclOut
+from dash_api.meter_policy_pb2 import MeterPolicy
+from dash_api.meter_rule_pb2 import MeterRule
+from dash_api.meter_pb2 import Meter
+from dash_api.eni_route_pb2 import EniRoute
+from dash_api.route_group_pb2 import RouteGroup
+from dash_api.tunnel_pb2 import Tunnel
+from dash_api.routing_appliance_pb2 import RoutingAppliance
+from dash_api.pa_validation_pb2 import PaValidation
+
+ENABLE_PROTO = True
+
+
+def get_routing_type_from_str(routing_type_str):
+    # Construct the full enum name dynamically
+    enum_name = f"ROUTING_TYPE_{routing_type_str.upper()}"
+    try:
+        # Use getattr to get the enum member
+        return getattr(RoutingType, enum_name)
+    except AttributeError:
+        raise ValueError(f"'{enum_name}' is not a valid routing type")
+
+'''enum ActionType {
+    ACTION_TYPE_UNSPECIFIED = 0;
+    ACTION_TYPE_MAPROUTING = 1;
+    ACTION_TYPE_DIRECT = 2;
+    ACTION_TYPE_STATICENCAP = 3;
+    ACTION_TYPE_APPLIANCE = 4;
+    ACTION_TYPE_4_to_6 = 5;
+    ACTION_TYPE_MAPDECAP = 6;
+    ACTION_TYPE_DECAP = 7;
+    ACTION_TYPE_DROP = 8;
+}
+'''
+
+def get_action_type_from_str(action_type_str):
+
+    # 4_to_6 uses small cap so cannot use dynamic naming
+    if action_type_str == "4_to_6":
+        return ActionType.ACTION_TYPE_4_to_6
+    else:
+        # Construct the full enum name dynamically
+        enum_name = f"ACTION_TYPE_{action_type_str.upper()}"
+        try:
+            # Use getattr to get the enum member
+            return getattr(ActionType, enum_name)
+        except AttributeError:
+            raise ValueError(f"'{enum_name}' is not a valid action type")
+
+'''
+enum EncapType {
+    ENCAP_TYPE_UNSPECIFIED = 0;
+    ENCAP_TYPE_VXLAN = 1;
+    ENCAP_TYPE_NVGRE = 2;
+}'''
+
+def get_encap_type_from_str(encap_type_str):
+    # Construct the full enum name dynamically
+    enum_name = f"ENCAP_TYPE_{encap_type_str.upper()}"
+    try:
+        # Use getattr to get the enum member
+        return getattr(EncapType, enum_name)
+    except AttributeError:
+        raise ValueError(f"'{enum_name}' is not a valid encap type")
+
+
+def appliance_from_json(json_obj):
+    pb = Appliance()
+    pb.sip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(json_obj["sip"])))
+    pb.vm_vni = int(json_obj["vm_vni"])
+    if 'local_region_id' in json_obj:
+        pb.local_region_id = int(json_obj["local_region_id"])
+    return pb
+
+
+def vnet_from_json(json_obj):
+    pb = Vnet()
+    pb.vni = int(json_obj["vni"])
+    pb.guid.value = bytes.fromhex(uuid.UUID(json_obj["guid"]).hex)
+    return pb
+
+'''
+message VnetMapping {
+    // reference to routing type
+    route_type.RoutingType action_type = 1 [deprecated = true]; // renamed as routing_type
+    // PA address for the CA
+    types.IpAddress underlay_ip = 2;
+    // Optional
+    // Inner dst mac
+    optional bytes mac_address = 3;
+    // Optional
+    // metering class-id
+    optional uint64 metering_class = 4 [deprecated = true];
+    // Optional
+    // override the metering class-id coming from the route table
+    optional bool override_meter = 5 [deprecated = true];
+    // Optional
+    // if true, use the destination VNET VNI for encap. If false or not specified, use source VNET's VNI
+    optional bool use_dst_vni = 6;
+    // Optional
+    optional bool use_pl_sip_eni = 7;
+    // Optional
+    // overlay src ip if routing_type is {privatelink}
+    optional types.IpAddress overlay_sip = 8 [deprecated = true]; // changed to overlay_sip_prefix
+    // Optional
+    // overlay dst ip if routing_type is {privatelink}
+    optional types.IpAddress overlay_dip = 9 [deprecated = true]; // changed to overlay_dip_prefix
+    // Optional
+    // ID of routing appliance if routing_type is {privatelinknsg}
+    optional uint32 routing_appliance_id = 10 [deprecated = true];
+    optional uint32 metering_class_or = 12;
+    optional types.IpPrefix overlay_sip_prefix = 13;
+    optional types.IpPrefix overlay_dip_prefix = 14;
+    optional string tunnel = 15;
+    route_type.RoutingType routing_type = 16;
+}
+
+// CA-PA mapping table for Vnet
+message VnetMappingKey {
+    string vnet = 1;
+    // IP address string. E.G. 10.2.0.6
+    string ip_address = 2;
+}'''
+def vnet_mapping_from_json(json_obj):
+    pb = VnetMapping()
+    if json_obj.get("action_type") is not None:
+        pb.action_type = get_routing_type_from_str(json_obj["action_type"])
+    pb.underlay_ip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(json_obj["underlay_ip"])))
+    if json_obj.get("mac_address") is not None:
+        pb.mac_address = bytes.fromhex(json_obj["mac_address"].replace(":", ""))
+    if json_obj.get("metering_class") is not None:
+        pb.metering_class = uint64(json_obj["metering_class"])
+    if json_obj.get("override_meter") is not None:
+        pb.override_meter = json_obj["override_meter"] == "true"
+    if json_obj.get("use_dst_vni") is not None:
+        pb.use_dst_vni = json_obj["use_dst_vni"] == "true"
+    if json_obj.get("use_pl_sip_eni") is not None:
+        pb.use_pl_sip_eni = json_obj["use_pl_sip_eni"] == "true"
+
+    if json_obj.get("routing_appliance_id") is not None:
+        pb.routing_appliance_id = int(json_obj["routing_appliance_id"])
+    if json_obj.get("metering_class_or") is not None:
+        pb.metering_class_or = int(json_obj["metering_class_or"] )
+
+    # these are IPv6 prefixes
+    if json_obj.get("overlay_sip_prefix") is not None:
+        addr_prefix = json_obj["overlay_sip_prefix"].split('/')
+        pb.overlay_sip_prefix.ip.ipv6 = ipaddress.IPv6Address(addr_prefix[0]).packed
+        pb.overlay_sip_prefix.mask.ipv6 = ipaddress.IPv6Address(addr_prefix[1]).packed
+    if json_obj.get("overlay_dip_prefix") is not None:
+        addr_prefix = json_obj["overlay_dip_prefix"].split('/')
+        pb.overlay_dip_prefix.ip.ipv6 = ipaddress.IPv6Address(addr_prefix[0]).packed
+        pb.overlay_dip_prefix.mask.ipv6 = ipaddress.IPv6Address(addr_prefix[1]).packed
+    if json_obj.get("tunnel") is not None:
+        pb.tunnel = json_obj["tunnel"]
+    if json_obj.get("routing_type") is not None:
+        pb.routing_type = get_routing_type_from_str(json_obj["routing_type"])
+
+    return pb
+
+
+def qos_from_json(json_obj):
+    pb = Qos()
+    pb.qos_id = json_obj["qos_id"]
+    pb.bw = int(json_obj["bw"])
+    pb.cps = int(json_obj["cps"])
+    pb.flows = int(json_obj["flows"])
+    return pb
+
+
+def eni_from_json(json_obj):
+    pb = Eni()
+    pb.eni_id = json_obj["eni_id"]
+    pb.mac_address = bytes.fromhex(json_obj["mac_address"].replace(":", ""))
+    pb.underlay_ip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(json_obj["underlay_ip"])))
+    pb.admin_state =  2 if json_obj["admin_state"] == "enabled" else 1
+    pb.vnet = json_obj["vnet"]
+    if json_obj.get("qos") is not None:
+        pb.qos = json_obj["qos"]
+    #Private Link encoding for IPv6 SIP transpositions
+    if json_obj.get("pl_sip_encoding") is not None:
+        addr_prefix = json_obj["pl_sip_encoding"].split('/')
+        pb.pl_sip_encoding.ip.ipv6 = ipaddress.IPv6Address(addr_prefix[0]).packed
+        pb.pl_sip_encoding.mask.ipv6 = ipaddress.IPv6Address(addr_prefix[1]).packed
+
+    #Underlay SIP (ST GW VIP) to be used for all private link transformation for this ENI, IPv4 address
+    if json_obj.get("pl_underlay_sip") is not None:
+        pb.pl_underlay_sip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(json_obj["pl_underlay_sip"])))
+    #IPv4 meter policy ID
+    if json_obj.get("v4_meter_policy_id") is not None:
+        pb.v4_meter_policy_id = json_obj["v4_meter_policy_id"]
+    #IPv6 meter policy ID
+    if json_obj.get("v6_meter_policy_id") is not None:
+        pb.v6_meter_policy_id = json_obj["v6_meter_policy_id"]
+    if json_obj.get("disable_fast_path_icmp_flow_redirection") is not None:
+        pb.disable_fast_path_icmp_flow_redirection = json_obj["disable_fast_path_icmp_flow_redirection"] == "true"
+
+    return pb
+
+
+'''
+message VnetDirect {
+    // destination vnet name if routing_type is {vnet, vnet_direct}, a vnet other than eni's vnet means vnet peering
+    string vnet = 1;
+    // overly_ip to lookup if routing_type is {vnet_direct}, use dst ip from packet if not specified
+    optional types.IpAddress overlay_ip = 2;
+}
+
+message ServiceTunnel {
+    // overlay ipv6 src ip if routing_type is {servicetunnel}
+    types.IpAddress overlay_sip = 1 [deprecated = true]; // replaced by overlay_sip_prefix
+    // overlay ipv6 dst ip if routing_type is {servicetunnel}
+    types.IpAddress overlay_dip = 2 [deprecated = true]; // replaced by overlay_dip_prefix
+    // underlay ipv4 src ip if routing_type is {servicetunnel}, this is the ST GW VIP (for ST traffic) or custom VIP
+    types.IpAddress underlay_sip = 3;
+    // underlay ipv4 dst ip to override if routing_type is {servicetunnel}, use dst ip from packet if not specified
+    types.IpAddress underlay_dip = 4;
+    types.IpAddress overlay_sip_prefix = 5;
+    types.IpAddress overlay_dip_prefix = 6;
+}
+
+message Route {
+    route_type.RoutingType action_type = 1 [deprecated = true]; // renamed as routing_type
+    oneof RoutingTypeData {
+        // destination vnet name if routing_type is vnet,, a vnet other than eni's vnet means vnet peering
+        string vnet = 2;
+        // destination vnet name if routing_type is vnet_direct,, a vnet other than eni's vnet means vnet peering
+        route.VnetDirect vnet_direct = 3;
+        // appliance id if routing_type is {appliance}
+        string appliance = 4;
+        // service tunnel if routing_type is {service_tunnel}
+        route.ServiceTunnel service_tunnel = 5;
+    }
+    // Metering policy lookup enable (optional), default = false
+    optional bool metering_policy_en = 6 [deprecated = true];
+    // Metering class-id, used if metering policy lookup is not enabled
+    optional uint64 metering_class = 7 [deprecated = true];
+    optional uint32 metering_class_or = 8;
+    optional uint32 metering_class_and = 9;
+    route_type.RoutingType routing_type = 10; // Must be one of {vnet, vnet_direct, direct, servicetunnel, drop}
+    // If VnetMapping for an IP in this prefix has routing_type {privatelink}, overrides pl_underlay_sip from ENI table if given
+    types.IpAddress underlay_sip = 11;
+}'''
+def route_from_json(json_obj):
+
+    pb = Route()
+    if json_obj.get("action_type") is not None:
+        pb.action_type = get_routing_type_from_str(json_obj["action_type"])
+    if json_obj.get("routing_type") is not None:
+        pb.routing_type = get_routing_type_from_str(json_obj["routing_type"])
+
+    if json_obj.get("vnet") is not None:
+        if pb.action_type != RoutingType.ROUTING_TYPE_VNET and pb.routing_type != RoutingType.ROUTING_TYPE_VNET:
+            raise Exception("Action or routing type needs to be vnet for this attribute")
+        pb.vnet = json_obj["vnet"]
+
+    if json_obj.get("vnet_direct") is not None:
+        if pb.action_type != RoutingType.ROUTING_TYPE_VNET_DIRECT and pb.routing_type != RoutingType.ROUTING_TYPE_VNET_DIRECT:
+            raise Exception("Action or routing type needs to be vnet_direct for this attribute")
+        pb_vnet_dir = json_obj["vnet_direct"]
+        pb.vnet_direct.vnet = pb_vnet_dir.get("vnet")
+        if pb_vnet_dir.get("overlay_ip") is not None:
+            if type(IP(pb_vnet_dir["overlay_ip"])) is ipaddress.IPv4Address:
+                pb.vnet_direct.overlay_ip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(pb_vnet_dir["overlay_ip"])))
+            elif type(IP(pb_vnet_dir["overlay_ip"])) is ipaddress.IPv6Address:
+                pb.vnet_direct.overlay_ip.ipv6 = ipaddress.IPv6Address(pb_vnet_dir["overlay_ip"]).packed
+
+    if json_obj.get("appliance") is not None:
+        if pb.action_type != RoutingType.ROUTING_TYPE_APPLIANCE and pb.routing_type != RoutingType.ROUTING_TYPE_APPLIANCE:
+            raise Exception("Action or routing type needs to be appliance for this attribute")
+        pb.appliance = json_obj["appliance"]
+
+    if json_obj.get("service_tunnel") is not None:
+        if pb.action_type != RoutingType.ROUTING_TYPE_SERVICETUNNEL and pb.routing_type != RoutingType.ROUTING_TYPE_SERVICETUNNEL:
+            raise Exception("Action or routing type needs to be service_tunnel for this attribute")
+
+        pb_serv_tunnel = json_obj["service_tunnel"]
+        if pb_serv_tunnel.get("overlay_sip") is not None:
+            if type(IP(pb_serv_tunnel["overlay_sip"])) is ipaddress.IPv4Address:
+                pb.service_tunnel.overlay_sip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(pb_serv_tunnel["overlay_sip"])))
+            elif type(IP(pb_serv_tunnel["overlay_sip"])) is ipaddress.IPv6Address:
+                pb.service_tunnel.overlay_sip.ipv6 = ipaddress.IPv6Address(pb_serv_tunnel["overlay_sip"]).packed
+
+        if pb_serv_tunnel.get("overlay_dip") is not None:
+            if type(IP(pb_serv_tunnel["overlay_dip"])) is ipaddress.IPv4Address:
+                pb.service_tunnel.overlay_dip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(pb_serv_tunnel["overlay_dip"])))
+            elif type(IP(pb_serv_tunnel["overlay_dip"])) is ipaddress.IPv6Address:
+                pb.service_tunnel.overlay_dip.ipv6 = ipaddress.IPv6Address(pb_serv_tunnel["overlay_dip"]).packed
+
+        if pb_serv_tunnel.get("underlay_sip") is not None:
+            if type(IP(pb_serv_tunnel["underlay_sip"])) is ipaddress.IPv4Address:
+                pb.service_tunnel.underlay_sip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(pb_serv_tunnel["underlay_sip"])))
+            elif type(IP(pb_serv_tunnel["underlay_sip"])) is ipaddress.IPv6Address:
+                pb.service_tunnel.underlay_sip.ipv6 = ipaddress.IPv6Address(pb_serv_tunnel["underlay_sip"]).packed
+
+        if pb_serv_tunnel.get("underlay_dip") is not None:
+            if type(IP(pb_serv_tunnel["underlay_dip"])) is ipaddress.IPv4Address:
+                pb.service_tunnel.underlay_dip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(pb_serv_tunnel["underlay_dip"])))
+            elif type(IP(pb_serv_tunnel["underlay_dip"])) is ipaddress.IPv6Address:
+                pb.service_tunnel.underlay_dip.ipv6 = ipaddress.IPv6Address(pb_serv_tunnel["underlay_dip"]).packed
+
+        if pb_serv_tunnel.get("overlay_sip_prefix") is not None:
+            if type(IP(pb_serv_tunnel["overlay_sip_prefix"])) is ipaddress.IPv4Address:
+                pb.service_tunnel.overlay_sip_prefix.ipv4 = socket.htonl(int(ipaddress.IPv4Address(pb_serv_tunnel["overlay_sip_prefix"])))
+            elif type(IP(pb_serv_tunnel["overlay_sip_prefix"])) is ipaddress.IPv6Address:
+                pb.service_tunnel.overlay_sip_prefix.ipv6 = ipaddress.IPv6Address(pb_serv_tunnel["overlay_sip_prefix"]).packed
+
+        if pb_serv_tunnel.get("overlay_dip_prefix") is not None:
+            if type(IP(pb_serv_tunnel["overlay_dip_prefix"])) is ipaddress.IPv4Address:
+                pb.service_tunnel.overlay_dip_prefix.ipv4 = socket.htonl(int(ipaddress.IPv4Address(pb_serv_tunnel["overlay_dip_prefix"])))
+            elif type(IP(pb_serv_tunnel["overlay_dip_prefix"])) is ipaddress.IPv6Address:
+                pb.service_tunnel.overlay_dip_prefix.ipv6 = ipaddress.IPv6Address(pb_serv_tunnel["overlay_dip_prefix"]).packed
+
+    if json_obj.get("metering_policy_en") is not None:
+        pb.metering_class = json_obj["metering_policy_en"] == "true"
+    if json_obj.get("metering_class") is not None:
+        pb.metering_class = uint64(json_obj["metering_class"])
+    if json_obj.get("metering_class_or") is not None:
+        pb.metering_class_or = int(json_obj["metering_class_or"])
+    if json_obj.get("metering_class_and") is not None:
+        pb.metering_class_and = int(json_obj["metering_class_and"])
+
+    if json_obj.get("underlay_sip") is not None:
+        if type(IP(json_obj["underlay_sip"])) is ipaddress.IPv4Address:
+            pb.underlay_sip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(json_obj["underlay_sip"])))
+        elif type(IP(json_obj["underlay_sip"])) is ipaddress.IPv6Address:
+            pb.underlay_sip.ipv6 = ipaddress.IPv6Address(json_obj["underlay_sip"]).packed
+
+    return pb
+
+
+'''
+message RouteRule {
+    // reference to routing type, action can be decap or drop
+    route_type.RoutingType action_type = 1 [deprecated = true]; // renamed as routing_type
+    // priority of the rule, lower the value, higher the priority
+    uint32 priority = 2;
+    // Optional
+    // protocol value of incoming packet to match; 0 (any)
+    optional uint32 protocol = 3;
+    // Optional
+    // mapped VNET for the key vni/pa
+    optional string vnet = 4;
+    // Optional
+    // perform PA validation in the mapping table belonging to vnet_name. Default is set to true
+    optional bool pa_validation = 5;
+    // Optional
+    // Metering class-id
+    optional uint64 metering_class = 6 [deprecated = true]; // replaced by metering_class_or and metering_class_and
+    // Optional
+    // optional region_id which the vni/prefix belongs to as a string for any vendor optimizations
+    optional string region = 7;
+    route_type.RoutingType routing_type = 8;
+    // Optional
+    // Metering class aggregate bits
+    optional uint32 metering_class_or = 9;
+    optional uint32 metering_class_and = 10;
+}
+
+// ENI Inbound route table with VNI and optional SRC PA prefix
+message RouteRuleKey {
+    string eni = 1;
+    uint32 vni = 2;
+    // IP prefix string with prefix length. E.G. 10.1.0.0/16
+    string prefix = 3;
+}; '''
+def route_rule_from_json(json_obj):
+    pb = RouteRule()
+    if json_obj.get("action_type") is not None:
+        pb.action_type = get_routing_type_from_str(json_obj["action_type"])
+    if json_obj.get("routing_type") is not None:
+        pb.routing_type = get_routing_type_from_str(json_obj["routing_type"])
+    pb.priority = int(json_obj["priority"])
+    if json_obj.get("vnet") is not None:
+        pb.vnet = json_obj["vnet"]
+    if json_obj.get("pa_validation") is not None:
+        pb.pa_validation = json_obj["pa_validation"] == "true"
+    if json_obj.get("metering_class") is not None:
+        pb.metering_class = uint64(json_obj["metering_class"])
+    if json_obj.get("routing_type") is not None:
+        pb.routing_type = get_routing_type_from_str(json_obj["routing_type"])
+    if json_obj.get("region") is not None:
+        pb.region = json_obj["region"]
+    if json_obj.get("metering_class_or") is not None:
+        pb.metering_class_or = int(json_obj["metering_class_or"])
+    if json_obj.get("metering_class_and") is not None:
+        pb.metering_class_and = int(json_obj["metering_class_and"])
+
+    return pb
+
+
+'''
+message RouteTypeItem {
+    string action_name = 1;
+    route_type.ActionType action_type = 2;
+    // Optional
+    // encap type depends on the action_type - {vxlan, nvgre}
+    optional route_type.EncapType encap_type = 3;
+    // Optional
+    // vni value to be used as the key for encapsulation. Applicable if encap_type is specified.
+    optional uint32 vni = 4;
+}
+message RouteType {
+    repeated RouteTypeItem items = 1;
+}'''
+def routing_type_from_json(json_obj):
+    pb = RouteType()
+    if isinstance(json_obj, list):
+        for item in json_obj:
+            pbi = RouteTypeItem()
+            pbi.action_name = item["action_name"]
+            pbi.action_type = get_action_type_from_str(item["action_type"])
+            if item.get("encap_type") is not None:
+                pbi.encap_type = get_encap_type_from_str(item.get("encap_type"))
+            if item.get("vni") is not None:
+                pbi.vni = int(item["vni"])
+            pb.items.append(pbi)
+    else:
+        pbi = RouteTypeItem()
+        pbi.action_name = json_obj["action_name"]
+        pbi.action_type = get_action_type_from_str(json_obj["action_type"])
+        if json_obj.get("encap_type") is not None:
+            if json_obj["encap_type"] == "vxlan":
+                pbi.encap_type = 1
+            elif json_obj["encap_type"] == "nvgre":
+                pbi.encap_type = 2
+            else:
+                pbi.encap_type = 0
+        if json_obj.get("vni") is not None:
+            pbi.vni = int(json_obj["vni"])
+        pb.items.append(pbi)
+    return pb
+
+
+def acl_group_from_json(json_obj):
+    pb = AclGroup()
+    pb.guid.value = bytes.fromhex(uuid.UUID(json_obj["guid"]).hex)
+    if json_obj.get("ip_version") == "ipv4":
+        pb.ip_version = IpVersion.IP_VERSION_IPV4
+    elif json_obj.get("ip_version") == "ipv6":
+        pb.ip_version = IpVersion.IP_VERSION_IPV6
+    else:
+        raise Exception("Unknown ip version %s" % json_obj["ip_version"])
+    return pb
+
+
+def acl_rule_from_json(json_obj):
+    pb = AclRule()
+    pb.priority = int(json_obj["priority"])
+    if json_obj.get("action") == "allow":
+        pb.action = Action.ACTION_PERMIT
+    elif json_obj.get("action") == "deny":
+        pb.action = Action.ACTION_DENY
+    else:
+        pb.action = Action.ACTION_UNSPECIFIED
+
+    pb.terminating = json_obj["terminating"] == "true"
+
+    if json_obj.get("protocol") is not None:
+        protocols = [i.strip() for i in json_obj["protocol"].split(',')]
+        for i in range(0, len(protocols)):
+            protocols[i] = int(protocols[i])
+        pb.protocol.extend(protocols)
+
+    if json_obj.get("src_tag") is not None:
+        src_tags = [i.strip() for i in json_obj["src_tag"].split(',')]
+        pb.src_tag.extend(src_tags)
+
+    if json_obj.get("dst_tag") is not None:
+        dst_tags = [i.strip() for i in json_obj["dst_tag"].split(',')]
+        pb.dst_tag.extend(dst_tags)
+
+    if json_obj.get("src_addr") is not None:
+        addr_list = [i.strip() for i in json_obj["src_addr"].split(',')]
+        for i in range(0, len(addr_list)):
+            src_addr_prefix = [i.strip() for i in addr_list[i].split("/")]
+            src_ip_prefix = IpPrefix()
+            src_ip_prefix.ip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(src_addr_prefix[0])))
+            if len(src_addr_prefix) == 1:
+                src_ip_prefix.mask.ipv4 = 32
+            else:
+                src_ip_prefix.mask.ipv4 = int(src_addr_prefix[1])
+            pb.src_addr.append(src_ip_prefix)
+
+    if json_obj.get("dst_addr") is not None:
+        addr_list = [i.strip() for i in json_obj["dst_addr"].split(',')]
+        for i in range(0, len(addr_list)):
+            dst_addr_prefix = [i.strip() for i in addr_list[i].split('/')]
+            dst_ip_prefix = IpPrefix()
+            dst_ip_prefix.ip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(dst_addr_prefix[0])))
+            if len(dst_addr_prefix) == 1:
+                dst_ip_prefix.mask.ipv4 = 32
+            else:
+                dst_ip_prefix.mask.ipv4 =  int(dst_addr_prefix[1])
+            pb.dst_addr.append(dst_ip_prefix)
+
+    if json_obj.get("src_port") is not None:
+        port_ranges = [i.strip() for i in json_obj["src_port"].split(',')]
+        for i in range(0, len(port_ranges)):
+            port_range_list = [i.strip() for i in port_ranges[i].split('-')]
+            val_or_range = ValueOrRange()
+            if len(port_range_list) == 1:
+                val_or_range.value = int(port_range_list[0])
+            else:
+                val_or_range.range.min = int(port_range_list[0])
+                val_or_range.range.max = int(port_range_list[1])
+            pb.src_port.append(val_or_range)
+
+    if json_obj.get("dst_port") is not None:
+        port_ranges = [i.strip() for i in json_obj["dst_port"].split(',')]
+        for i in range(0, len(port_ranges)):
+            port_range_list = [i.strip() for i in port_ranges[i].split('-')]
+            val_or_range = ValueOrRange()
+            if len(port_range_list) == 1:
+                val_or_range.value = int(port_range_list[0])
+            else:
+                val_or_range.range.min = int(port_range_list[0])
+                val_or_range.range.max = int(port_range_list[1])
+            pb.dst_port.append(val_or_range)
+
+    return pb
+
+def acl_in_from_json(json_obj):
+    pb = AclIn()
+    if json_obj.get("v4_acl_group_id") is not None:
+        pb.v4_acl_group_id =  json_obj.get("v4_acl_group_id")
+    if json_obj.get("v6_acl_group_id") is not None:
+        pb.v6_acl_group_id = json_obj.get("v6_acl_group_id")
+    return pb
+
+def acl_out_from_json(json_obj):
+    pb = AclOut()
+    if json_obj.get("v4_acl_group_id") is not None:
+        pb.v4_acl_group_id =  json_obj.get("v4_acl_group_id")
+    if json_obj.get("v6_acl_group_id") is not None:
+        pb.v6_acl_group_id = json_obj.get("v6_acl_group_id")
+    return pb
+
+def meter_policy_from_json(json_obj):
+    pb = MeterPolicy()
+    if json_obj["ip_version"] == "ipv4":
+        pb.ip_version = IpVersion.IP_VERSION_IPV4
+    elif json_obj["ip_version"] == "ipv6":
+        pb.ip_version = IpVersion.IP_VERSION_IPV6
+    else:
+        raise Exception("Unknown ip version %s" % json_obj["ip_version"])
+    return pb
+
+'''
+
+message Meter {
+    // Optional
+    optional string metadata = 1;
+    // Number of transmitted bytes (read-only)
+    uint64 tx_counter = 2;
+    // Number of received bytes (read-only)
+    uint64 rx_counter = 3;
+}'''
+def meter_from_json(json_obj):
+    pb = Meter()
+    if json_obj.get("metadata") is not None:
+        pb.metadata = json_obj.get("metadata")
+    pb.tx_counter = uint64(json_obj.get("tx_counter"))
+    pb.rx_counter = uint64(json_obj.get("rx_counter"))
+    return pb
+
+'''
+message MeterRule {
+    // priority of the rule: lower the value, higher the priority
+    uint32 priority = 1;
+    // ip prefix for matching
+    types.IpPrefix ip_prefix = 2;
+    uint64 metering_class = 3;
+}
+
+message MeterRuleKey {
+    string meter_policy_id = 1;
+    uint32 rule_num = 2;
+}'''
+def meter_rule_from_json(json_obj):
+    pb = MeterRule()
+    pb.priority = int(json_obj["priority"])
+    addr_prefix = json_obj["ip_prefix"].split('/')
+    pb.ip_prefix.ip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(addr_prefix[0])))
+    if len(addr_prefix) == 1:
+        pb.ip_prefix.mask.ipv4 = 32
+    else:
+        pb.ip_prefix.mask.ipv4 = int(addr_prefix[1])
+
+    pb.metering_class = int64(json_obj["metering_class"])
+    return pb
+
+def prefix_tag_from_json(json_obj):
+    pb = PrefixTag()
+    if json_obj["ip_version"] == "ipv4":
+        pb.ip_version = IpVersion.IP_VERSION_IPV4
+    elif json_obj["ip_version"] == "ipv6":
+        pb.ip_version = IpVersion.IP_VERSION_IPV6
+    else:
+        raise Exception("Unknown ip version %s" % json_obj["ip_version"])
+    # valid to have empty list of prefixes.
+    # If the prefix is empty, no packet will be assigned to this TAG.
+    addr_list = [i.strip() for i in json_obj["prefix_list"].split(',')]
+    for i in range(0, len(addr_list)):
+        addr_prefix = [i.strip() for i in addr_list[i].split("/")]
+        ip_prefix = IpPrefix()
+        ip_prefix.ip.ipv4 = socket.htonl(int(ipaddress.IPv4Address(addr_prefix[0])))
+        if len(addr_prefix) == 1:
+            ip_prefix.mask.ipv4 = 32
+        else:
+            ip_prefix.mask.ipv4 = int(addr_prefix[1])
+        pb.prefix_list.append(ip_prefix)
+    return pb
+
+def routing_appliance_from_json(json_obj):
+    pb = RoutingAppliance()
+    pb.appliance_guid.value = bytes.fromhex(uuid.UUID(json_obj["appliance_guid"]).hex)
+    addr_list = [i.strip() for i in json_obj["addresses"].split(',')]
+    for i in range(0, len(addr_list)):
+        ip_addr = IpAddress()
+        ip_addr.ipv4 = socket.htonl(int(ipaddress.IPv4Address(addr_list[i])))
+        pb.addresses.append(ip_addr)
+
+    if json_obj["encap_type"] == "vxlan":
+        pb.encap_type = 1
+    elif json_obj["encap_type"] == "nvgre":
+        pb.encap_type = 2
+    else:
+        pb.encap_type = 0
+
+    pb.vni = int(json_obj["vni"])
+    return pb
+
+def eni_route_from_json(json_obj):
+    pb =  EniRoute()
+    pb.group_id = json_obj.get("group_id")
+    return pb
+
+'''
+message RouteGroup {
+    optional string guid = 1;
+    string version = 2;
+}'''
+def route_group_from_json(json_obj):
+    pb =  RouteGroup()
+    if json_obj.get("guid") is not None:
+        pb.guid = json_obj.get("guid")
+    pb.version = json_obj.get("version")
+    return pb
+
+
+'''
+message Tunnel {
+    repeated types.IpAddress endpoints = 1;
+    route_type.EncapType encap_type = 2;
+    uint32 vni = 3;
+    optional uint32 metering_class_or = 4;
+}'''
+def tunnel_from_json(json_obj):
+    pb = Tunnel()
+    addr_list = [i.strip() for i in json_obj["endpoints"].split(',')]
+    for i in range(0, len(addr_list)):
+        ip_addr = IpAddress()
+        if type(IP(addr_list[i])) is ipaddress.IPv4Address:
+            ip_addr.ipv4 = socket.htonl(int(ipaddress.IPv4Address(addr_list[i])))
+        elif type(IP(addr_list[i])) is ipaddress.IPv6Address:
+            ip_addr.ipv6 = base64.b64encode(ipaddress.IPv6Address(addr_list[i]).packed)
+        pb.endpoints.append(ip_addr)
+    pb.encap_type = get_encap_type_from_str(json_obj["encap_type"])
+    pb.vni = int(json_obj["vni"])
+    if json_obj.get("metering_class_or") is not None:
+        pb.metering_class_or = int(json_obj["metering_class_or"])
+    return pb
+
+'''
+message RoutingAppliance {
+    types.Guid appliance_guid = 1;
+    repeated types.IpAddress addresses = 2;
+    route_type.EncapType encap_type = 3;
+    uint32 vni = 4;
+}'''
+def routing_appliance_from_json(json_obj):
+    pb = RoutingAppliance()
+    pb.appliance_guid.value = bytes.fromhex(uuid.UUID(json_obj["appliance_guid"]).hex)
+    addr_list = [i.strip() for i in json_obj["addresses"].split(',')]
+    for i in range(0, len(addr_list)):
+        ip_addr = IpAddress()
+        if type(IP(addr_list[i])) is ipaddress.IPv4Address:
+            ip_addr.ipv4 = socket.htonl(int(ipaddress.IPv4Address(addr_list[i])))
+        elif type(IP(addr_list[i])) is ipaddress.IPv6Address:
+            ip_addr.ipv6 = base64.b64encode(ipaddress.IPv6Address(addr_list[i]).packed)
+        else:
+            raise Exception("Invalid IP address %s" % addr_list[i])
+    pb.addresses.append(ip_addr)
+    pb.encap_type = get_encap_type_from_str(json_obj["encap_type"])
+    pb.vni = int(json_obj["vni"])
+    return pb
+
+
+handlers_map = {
+    "APPLIANCE": appliance_from_json,
+    "VNET": vnet_from_json,
+    "VNET_MAPPING": vnet_mapping_from_json,
+    "QOS": qos_from_json,
+    "ENI": eni_from_json,
+    "ROUTE": route_from_json,
+    "ROUTE_RULE": route_rule_from_json,
+    "ROUTING_TYPE": routing_type_from_json,
+    "ACL_GROUP": acl_group_from_json,
+    "ACL_RULE": acl_rule_from_json,
+    "ACL_IN": acl_in_from_json,
+    "ACL_OUT": acl_out_from_json,
+    "METER_POLICY": meter_policy_from_json,
+    "METER": meter_from_json,
+    "METER_RULE": meter_rule_from_json,
+    "PREFIX_TAG": prefix_tag_from_json,
+    "ROUTING_APPLIANCE": routing_appliance_from_json,
+    "ENI_ROUTE": eni_route_from_json,
+    "ROUTE_GROUP": route_group_from_json,
+    "TUNNEL": tunnel_from_json,
+    "ROUTING_APPLIANCE": routing_appliance_from_json,
+}
+
+
+def json_to_proto(key, json_obj):
+    table_name = re.search(r"DASH_(\w+)_TABLE", key).group(1)
+    if table_name in handlers_map:
+        pb = handlers_map[table_name](json_obj)
+    else:
+        raise Exception("Unknown table %s" % table_name)
+    return pb.SerializeToString()
+
+def tbl_name_to_type(tbl_name):
+    dash_name = re.search(r"DASH_(\w+)_TABLE", tbl_name).group(1)
+    # Split the string by underscores
+    words = dash_name.split('_')
+    # Capitalize the first character of each word
+    words = [word.capitalize() for word in words]
+    return ''.join(words)
+
+def from_pb(tbl_name, byte_array):
+    type_name = tbl_name_to_type(tbl_name)
+    obj_type = globals()[type_name]
+    obj = obj_type()
+    obj.ParseFromString(byte_array)
+    return obj

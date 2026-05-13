@@ -13,3 +13,5 @@ exclude =
     # Generated proto code
     tests/gnmi/protos/**/*.py
     tests/common/sai_validation/gnmi*.py
+    # Vendored from sonic-gnmi-agent:2026march13 image
+    tests/dash/gnmi_agent_extracted/**/*.py
