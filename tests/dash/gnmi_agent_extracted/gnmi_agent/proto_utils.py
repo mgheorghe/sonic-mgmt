@@ -3,7 +3,6 @@ import re
 import socket
 import uuid
 import importlib
-from ipaddress import ip_address
 
 from dash_api.appliance_pb2 import Appliance
 from dash_api.eni_pb2 import Eni, State, EniMode  # noqa: F401
@@ -56,13 +55,11 @@ PB_CLASS_MAP = {
 
 
 def parse_ip_address(ip_str):
-    ip_addr = ip_address(ip_str)
-    if ip_addr.version == 4:
-        encoded_val = socket.htonl(int(ip_addr))
-    else:
-        encoded_val = base64.b64encode(ip_addr.packed)
-
-    return {f"ipv{ip_addr.version}": encoded_val}
+    if ":" in ip_str:
+        packed = socket.inet_pton(socket.AF_INET6, ip_str)
+        return {"ipv6": base64.b64encode(packed)}
+    packed = socket.inet_pton(socket.AF_INET, ip_str)
+    return {"ipv4": int.from_bytes(packed, "little")}
 
 
 def parse_byte_field(orig_val):
@@ -245,11 +242,10 @@ def prefix_to_ipv6(prefix_length):
 def parse_ip_prefix(ip_prefix_str):
     ip_addr_str, mask = ip_prefix_str.split("/")
     if mask.isdigit():
-        ip_addr = ip_address(ip_addr_str)
-        if ip_addr.version == 4:
-            mask_str = prefix_to_ipv4(mask)
-        else:
+        if ":" in ip_addr_str:
             mask_str = prefix_to_ipv6(mask)
+        else:
+            mask_str = prefix_to_ipv4(mask)
     else:
         mask_str = mask
     return {"ip": parse_ip_address(ip_addr_str), "mask": parse_ip_address(mask_str)}
