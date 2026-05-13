@@ -87,12 +87,125 @@ def parse_value_or_range(orig):
         return {"value": val}
 
 
+# ---------------------------------------------------------------------------
+# Fast-path helpers for high-volume tables (VNET_MAPPING, ROUTE).
+#
+# These bypass ParseDict + per-field descriptor walks by writing proto fields
+# directly. Falls back to the generic path for any other table.
+# ---------------------------------------------------------------------------
+
+# Cached enum string -> int lookups (get_enum_type_from_str has regex work).
+_ENUM_VALUE_CACHE = {}
+
+
+def _enum_val(enum_type_name, enum_name_str):
+    cache_key = (enum_type_name, enum_name_str)
+    v = _ENUM_VALUE_CACHE.get(cache_key)
+    if v is None:
+        v = get_enum_type_from_str(enum_type_name, enum_name_str)
+        _ENUM_VALUE_CACHE[cache_key] = v
+    return v
+
+
+def _fill_ip(msg, s):
+    """Populate an IpAddress proto sub-message in-place."""
+    if ":" in s:
+        msg.ipv6 = socket.inet_pton(socket.AF_INET6, s)
+    else:
+        msg.ipv4 = int.from_bytes(socket.inet_pton(socket.AF_INET, s), "little")
+
+
+def _fill_prefix(msg, s):
+    """Populate an IpPrefix proto sub-message in-place. Accepts /N or /<literal-mask>."""
+    ip_str, mask = s.split("/", 1)
+    _fill_ip(msg.ip, ip_str)
+    if mask.isdigit():
+        mask_str = prefix_to_ipv6(mask) if ":" in ip_str else prefix_to_ipv4(mask)
+    else:
+        mask_str = mask
+    _fill_ip(msg.mask, mask_str)
+
+
+# Route proto uses either "routing_type" or "action_type" depending on schema
+# version. Detect once at module load and route both input keys to it.
+_ROUTE_FIELDS = Route.DESCRIPTOR.fields_by_name
+if "routing_type" in _ROUTE_FIELDS:
+    _ROUTE_ENUM_FIELD = "routing_type"
+elif "action_type" in _ROUTE_FIELDS:
+    _ROUTE_ENUM_FIELD = "action_type"
+else:
+    _ROUTE_ENUM_FIELD = None
+_ROUTE_ENUM_TYPE_NAME = (
+    _ROUTE_FIELDS[_ROUTE_ENUM_FIELD].enum_type.name if _ROUTE_ENUM_FIELD else None
+)
+
+
+def _build_vnet_mapping_fast(d):
+    """Hand-coded VnetMapping builder. Handles privatelink and vnet_encap shapes."""
+    pb = VnetMapping()
+    rt = d.get("routing_type")
+    if rt is not None:
+        pb.routing_type = rt if isinstance(rt, int) else _enum_val("RoutingType", rt)
+    ip = d.get("underlay_ip")
+    if ip is not None:
+        _fill_ip(pb.underlay_ip, ip)
+    sip = d.get("overlay_sip_prefix")
+    if sip is not None:
+        _fill_prefix(pb.overlay_sip_prefix, sip)
+    dip = d.get("overlay_dip_prefix")
+    if dip is not None:
+        _fill_prefix(pb.overlay_dip_prefix, dip)
+    mac = d.get("mac_address")
+    if mac is not None:
+        pb.mac_address = bytes.fromhex(mac.replace(":", ""))
+    udv = d.get("use_dst_vni")
+    if udv is not None:
+        pb.use_dst_vni = udv is True or udv in ("true", "True", "TRUE")
+    vni = d.get("vni")
+    if vni is not None:
+        pb.vni = int(vni)
+    return pb
+
+
+def _build_route_fast(d):
+    """Hand-coded Route builder. Accepts both 'routing_type' and 'action_type' keys."""
+    pb = Route()
+    enum_val = d.get("routing_type")
+    if enum_val is None:
+        enum_val = d.get("action_type")
+    if enum_val is not None and _ROUTE_ENUM_FIELD is not None:
+        if isinstance(enum_val, int):
+            setattr(pb, _ROUTE_ENUM_FIELD, enum_val)
+        else:
+            setattr(pb, _ROUTE_ENUM_FIELD, _enum_val(_ROUTE_ENUM_TYPE_NAME, enum_val))
+    vnet = d.get("vnet")
+    if vnet is not None:
+        pb.vnet = vnet
+    overlay_ip = d.get("overlay_ip")
+    if overlay_ip is not None:
+        _fill_ip(pb.overlay_ip, overlay_ip)
+    destination = d.get("destination")
+    if destination is not None:
+        _fill_prefix(pb.destination, destination)
+    priority = d.get("priority")
+    if priority is not None:
+        pb.priority = int(priority)
+    return pb
+
+
 def parse_dash_proto(key: str, proto_dict: dict):
     """
     Custom parser for DASH configs to allow writing configs
     in a more human-readable format
     """
     table_name = _DASH_TABLE_RE.search(key).group(1)
+
+    # Fast paths for high-volume tables -- bypass ParseDict entirely.
+    if table_name == "VNET_MAPPING":
+        return _build_vnet_mapping_fast(proto_dict)
+    if table_name == "ROUTE":
+        return _build_route_fast(proto_dict)
+
     message = PB_CLASS_MAP[table_name]()
     field_map = message.DESCRIPTOR.fields_by_name
 
