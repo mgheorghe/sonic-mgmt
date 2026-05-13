@@ -179,6 +179,9 @@ class GnmiSetSession:
         self.env = env
         self._channel = _open_channel(env)
         self._stub = gnmi_pb2_grpc.gNMIStub(self._channel)
+        # Lift /sonic-db:DPU_APPL_DB/dpu<N> into SetRequest.prefix once per
+        # session so it doesn't have to be repeated on every per-update path.
+        self._prefix = _build_dpu_prefix(env.dpu_index)
         self._queue = queue.Queue(maxsize=queue_depth)
         self._exc = None
         self._thread = threading.Thread(target=self._sender_loop, daemon=True)
@@ -198,6 +201,7 @@ class GnmiSetSession:
         self._raise_if_failed()
         with phase("build_setrequest"):
             req = gnmi_pb2.SetRequest()
+            req.prefix.CopyFrom(self._prefix)
             for d in delete_list:
                 req.delete.append(_coerce_delete(d))
             for u in update_list:
@@ -271,7 +275,7 @@ def _coerce_update(entry):
         return p, _read_file_bytes(fp)
 
 
-def gnmi_set(env, delete_list, update_list, replace_list):
+def gnmi_set(env, delete_list, update_list, replace_list, prefix=None):
     """
     Send a single GNMI SetRequest over gRPC.
 
@@ -283,12 +287,18 @@ def gnmi_set(env, delete_list, update_list, replace_list):
         (for update/replace) -- avoids the temp-file round-trip and
         the xpath re-parse, which together dominate the build phase
         on large batches.
+
+    If `prefix` is given (gnmi_pb2.Path), it is written into
+    SetRequest.prefix and the per-update paths should contain only the
+    portion of the xpath that follows the prefix.
     """
     if not (delete_list or update_list or replace_list):
         return
 
     with phase("build_setrequest"):
         req = gnmi_pb2.SetRequest()
+        if prefix is not None:
+            req.prefix.CopyFrom(prefix)
         for d in delete_list:
             req.delete.append(_coerce_delete(d))
         for u in update_list:
@@ -384,19 +394,30 @@ def gnmi_get(env, path_list):
                 print(payload)
 
 
-def _build_dpu_path(dpu_index, table_key_str):
+def _build_dpu_prefix(dpu_index):
     """
-    Build a gnmi_pb2.Path for "/sonic-db:DPU_APPL_DB/dpu<N>/<TABLE>[key=<KEY>]"
-    from a "TABLE:KEY..." string (splitting on the first colon only).
+    Path elements common to every DPU_APPL_DB write -- lifted into
+    SetRequest.prefix once per request so we don't resend the
+    "/sonic-db:DPU_APPL_DB/dpu<N>" path 64k times.
     """
-    table, _, key = table_key_str.partition(":")
     return gnmi_pb2.Path(
         origin="sonic-db",
         elem=[
             gnmi_pb2.PathElem(name="DPU_APPL_DB"),
             gnmi_pb2.PathElem(name="dpu%d" % dpu_index),
-            gnmi_pb2.PathElem(name=table, key={"key": key}),
         ],
+    )
+
+
+def _build_table_key_path(table_key_str):
+    """
+    Per-update path tail: <TABLE>[key=<KEY>]. The server concatenates
+    SetRequest.prefix + this to recover the full
+    /sonic-db:DPU_APPL_DB/dpu<N>/<TABLE>[key=<KEY>] xpath.
+    """
+    table, _, key = table_key_str.partition(":")
+    return gnmi_pb2.Path(
+        elem=[gnmi_pb2.PathElem(name=table, key={"key": key})],
     )
 
 
@@ -408,11 +429,13 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=N
     sender thread); otherwise we fall back to the synchronous gnmi_set
     call (kept for direct callers).
     """
+    prefix = _build_dpu_prefix(env.dpu_index)
+
     def _flush_set(delete_list, update_list, replace_list):
         if session is not None:
             session.submit(delete_list, update_list, replace_list)
         else:
-            gnmi_set(env, delete_list, update_list, replace_list)
+            gnmi_set(env, delete_list, update_list, replace_list, prefix=prefix)
 
     get_list = []
     delete_list = []
@@ -433,7 +456,7 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=N
                 else:
                     with phase("json_serialize"):
                         payload = json.dumps(v).encode("utf-8")
-                path_pb = _build_dpu_path(env.dpu_index, k)
+                path_pb = _build_table_key_path(k)
                 if operation["OP"] == "REP":
                     replace_list.append((path_pb, payload))
                 else:
@@ -442,7 +465,7 @@ def process_template_chunk(res, env, dest_path, batch_val, sleep_secs, session=N
             for k, v in operation.items():
                 if k == "OP":
                     continue
-                delete_list.append(_build_dpu_path(env.dpu_index, k))
+                delete_list.append(_build_table_key_path(k))
         elif operation["OP"] == "GET":
             for k, v in operation.items():
                 if k == "OP":
