@@ -1,0 +1,2 @@
+# /var/log tarballs over the 500 KB pre-commit cap stay local-only.
+nvidia_npu_varlog.tgz
