@@ -9,6 +9,7 @@ set -o pipefail
 NPU_IP=10.36.77.120
 DPU_IDX=0
 SSH_PORT=5021
+GNMI_PORT=50051   # Cisco MtFuji gnmi-native listens here, not :50052 (Nvidia uses :50052)
 
 CTR=eni_load_cisco_dpu0
 docker rm -f $CTR 2>/dev/null
@@ -25,7 +26,7 @@ push_one() {
   local label="$1"; local f="$2"
   local t0=$(date +%s.%N)
   docker exec $CTR gnmi_client.py --batch_val 1000 --no-proto \
-    -i $DPU_IDX -n 8 -t ${NPU_IP}:50052 update -f /dpu/$f 2>&1 \
+    -i $DPU_IDX -n 8 -t ${NPU_IP}:${GNMI_PORT} update -f /dpu/$f 2>&1 \
     | grep -E 'json_load|proto_serialize|proto_file_write|gnmi_set_subprocess|proto_cleanup|TOTAL accounted|apply_gnmi_file total wall|exec_action total' \
     | tail -10
   local t1=$(date +%s.%N)
