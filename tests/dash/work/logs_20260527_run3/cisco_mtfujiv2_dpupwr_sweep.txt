@@ -1,0 +1,99 @@
+Debian GNU/Linux 13 \n \l
+
+dpupwr module: /opt/cisco/bin/dpupwr.py
+
+=== DPU0 (sled=0, slot=0) ===
+Power on DPU0 for 20 seconds
+Power cycle DPU0 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:03.0/pci_bus/0000:1a/rescan: write 1
+DPU0 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:03.0/pci_bus/0000:1a/rescan: write 1
+DPU0 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+
+=== DPU1 (sled=0, slot=1) ===
+Power on DPU1 for 20 seconds
+Power cycle DPU1 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:02.0/pci_bus/0000:16/rescan: write 1
+DPU1 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:02.0/pci_bus/0000:16/rescan: write 1
+DPU1 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+
+=== DPU2 (sled=1, slot=0) ===
+Power on DPU2 for 20 seconds
+Power cycle DPU2 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:05.0/pci_bus/0000:22/rescan: write 1
+DPU2 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:05.0/pci_bus/0000:22/rescan: write 1
+DPU2 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+
+=== DPU3 (sled=1, slot=1) ===
+Power on DPU3 for 20 seconds
+Power cycle DPU3 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:04.0/pci_bus/0000:1e/rescan: write 1
+DPU3 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:15:04.0/pci_bus/0000:1e/rescan: write 1
+DPU3 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+
+=== DPU4 (sled=2, slot=0) ===
+Power on DPU4 for 20 seconds
+Power cycle DPU4 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:03.0/pci_bus/0000:8d/rescan: write 1
+DPU4 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:03.0/pci_bus/0000:8d/rescan: write 1
+DPU4 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+
+=== DPU5 (sled=2, slot=1) ===
+Power on DPU5 for 20 seconds
+Power cycle DPU5 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:02.0/pci_bus/0000:89/rescan: write 1
+DPU5 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:02.0/pci_bus/0000:89/rescan: write 1
+DPU5 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+
+=== DPU6 (sled=3, slot=0) ===
+Power on DPU6 for 20 seconds
+Power cycle DPU6 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:05.0/pci_bus/0000:95/rescan: write 1
+DPU6 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:05.0/pci_bus/0000:95/rescan: write 1
+DPU6 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+
+=== DPU7 (sled=3, slot=1) ===
+Power on DPU7 for 20 seconds
+Power cycle DPU7 and wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:04.0/pci_bus/0000:91/rescan: write 1
+DPU7 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds
+Rescan PCI (30 seconds)
+/sys/bus/pci/devices/0000:88:04.0/pci_bus/0000:91/rescan: write 1
+DPU7 not enumerated on PCIe, power cycle with .5-second delay
+Wait 10 seconds

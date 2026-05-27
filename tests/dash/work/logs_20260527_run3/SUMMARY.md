@@ -32,7 +32,9 @@ Rescan PCI (30 seconds)
 DPU0 not enumerated on PCIe, power cycle with .5-second delay
 ```
 
-Sweeping all 8 DPUs gives the same outcome on every slot — Cisco MtFujiv2 needs out-of-band/BMC intervention to wake up its DPUs. So Cisco numbers in the table above are from **MtFuji @ 10.36.77.120**, the working chassis.
+Sweeping all 8 DPUs gives the same outcome on every slot — full per-DPU output in `cisco_mtfujiv2_dpupwr_sweep.txt`. The PCIe root bridges are visible (slots `0000:15:*` for sled 0/1 and `0000:88:*` for sled 2/3) but no DPU device shows up after the rescan on any slot. So Cisco MtFujiv2 needs out-of-band/BMC intervention to wake up its DPUs.
+
+Cisco numbers in the table above are from **MtFuji @ 10.36.77.120**, the working chassis.
 
 ## Files in this directory
 
