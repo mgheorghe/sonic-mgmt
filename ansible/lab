@@ -338,6 +338,9 @@ sonic_keysight_dpu:
     keysight-nss01-dpu0:
       ansible_host: 10.36.78.150    # NPU IP — DPU reached via NAT port-forward
       ansible_ssh_port: 5021        # NPU NAT-forwards :5021 → DPU0 :22
+    keysight-nss01-dpu1:
+      ansible_host: 10.36.78.150    # NPU IP — DPU reached via NAT port-forward
+      ansible_ssh_port: 5022        # NPU NAT-forwards :5022 → DPU1 :22
 
 # Cisco DPUs (up to 8: dpu0..dpu7)
 sonic_cisco_dpu:
