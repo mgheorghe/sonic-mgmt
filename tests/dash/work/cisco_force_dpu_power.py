@@ -14,10 +14,14 @@ raises when trying to power the DPU.
 """
 
 import logging
+import sys
 import time
 
 logging.basicConfig(level=logging.INFO,
                     format="%(asctime)s %(levelname)s %(message)s")
+
+# dpupwr lives under /opt/cisco/bin on the Cisco platform image
+sys.path.insert(0, "/opt/cisco/bin")
 
 try:
     import dpupwr
