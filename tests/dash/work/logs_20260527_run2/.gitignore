@@ -1,0 +1,5 @@
+# /var/log tarballs and pytest stdout exceed pre-commit's 500 KB limit.
+# They are not committed; they live on the local Windows checkout only.
+nvidia_npu_varlog.tgz
+cisco_npu_varlog.tgz
+nvidia_pytest_stdout.log
