@@ -1,0 +1,12 @@
+2026-05-28 17:38:07,604 - INFO - Command executed successfully
+phase breakdown (sorted by total time):
+  module_imports       1 x  total    0.208s  avg 0.2082s
+  rpc_set              1 x  total    0.013s  avg 0.0131s
+  proto_serialize      5 x  total    0.001s  avg 0.0001s
+  json_load            1 x  total    0.000s  avg 0.0001s
+  build_setrequest     1 x  total    0.000s  avg 0.0001s
+proto fast-path hits: {'vnet_mapping': 0, 'route': 2, 'generic': 3}
+per-RPC samples (n=1): bytes min=493 avg=493 max=493 total=493  secs min=0.0131 avg=0.0131 max=0.0131
+  sorted by bytes (bytes, secs, KiB/s):
+         493  0.0131        37
+elapsed: 0.234s

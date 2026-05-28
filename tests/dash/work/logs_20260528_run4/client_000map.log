@@ -1,0 +1,54 @@
+2026-05-28 17:38:08,729 - INFO - Command executed successfully
+2026-05-28 17:38:09,166 - INFO - Command executed successfully
+2026-05-28 17:38:09,619 - INFO - Command executed successfully
+2026-05-28 17:38:10,066 - INFO - Command executed successfully
+2026-05-28 17:38:10,516 - INFO - Command executed successfully
+2026-05-28 17:38:10,946 - INFO - Command executed successfully
+2026-05-28 17:38:11,399 - INFO - Command executed successfully
+2026-05-28 17:38:11,843 - INFO - Command executed successfully
+2026-05-28 17:38:12,269 - INFO - Command executed successfully
+2026-05-28 17:38:12,701 - INFO - Command executed successfully
+2026-05-28 17:38:13,134 - INFO - Command executed successfully
+2026-05-28 17:38:13,570 - INFO - Command executed successfully
+2026-05-28 17:38:14,004 - INFO - Command executed successfully
+2026-05-28 17:38:14,439 - INFO - Command executed successfully
+2026-05-28 17:38:14,890 - INFO - Command executed successfully
+2026-05-28 17:38:15,328 - INFO - Command executed successfully
+2026-05-28 17:38:15,784 - INFO - Command executed successfully
+2026-05-28 17:38:16,206 - INFO - Command executed successfully
+2026-05-28 17:38:16,630 - INFO - Command executed successfully
+2026-05-28 17:38:17,054 - INFO - Command executed successfully
+2026-05-28 17:38:17,506 - INFO - Command executed successfully
+2026-05-28 17:38:17,649 - INFO - Command executed successfully
+phase breakdown (sorted by total time):
+  rpc_set             22 x  total    9.366s  avg 0.4257s
+  proto_serialize  64001 x  total    1.744s  avg 0.0000s
+  build_setrequest    22 x  total    0.366s  avg 0.0166s
+  module_imports       1 x  total    0.209s  avg 0.2093s
+  json_load            1 x  total    0.189s  avg 0.1889s
+proto fast-path hits: {'vnet_mapping': 64000, 'route': 0, 'generic': 1}
+per-RPC samples (n=22): bytes min=159691 avg=462788 max=478741 total=10181337  secs min=0.1422 avg=0.4257 max=0.4782
+  sorted by bytes (bytes, secs, KiB/s):
+      159691  0.1422      1097
+      474435  0.4782       969
+      474445  0.4520      1025
+      474461  0.4488      1033
+      475744  0.4277      1086
+      475760  0.4445      1045
+      475770  0.4347      1069
+      476277  0.4520      1029
+      477480  0.4234      1101
+      477490  0.4195      1111
+      477490  0.4253      1096
+      477690  0.4364      1069
+      477768  0.4317      1081
+      478069  0.4331      1078
+      478152  0.4322      1080
+      478453  0.4344      1076
+      478536  0.4496      1039
+      478715  0.4550      1027
+      478717  0.4297      1088
+      478725  0.4229      1105
+      478728  0.4421      1058
+      478741  0.4505      1038
+elapsed: 10.002s
