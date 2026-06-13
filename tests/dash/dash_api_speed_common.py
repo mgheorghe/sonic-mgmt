@@ -419,6 +419,42 @@ def _fetch_gnmi_certs_from_npu(duthost, env, paths, dest_dir):
     return fetched
 
 
+_TRANSIENT_GNMI_MARKERS = ("unavailable", "socket closed", "failed to connect",
+                           "error reading server preface", "connection reset")
+
+
+def _gnmi_server_ready(localhost, ip, port):
+    """True if the gNMI server is accepting connections (plaintext Capabilities).
+
+    A PermissionDenied/Unauthenticated reply still means the server is *up* — only
+    transport-level failures (Socket closed / UNAVAILABLE) mean it's not ready
+    (gnmi-native bounces when its certs are regenerated)."""
+    probe = (
+        "import grpc; from pygnmi.spec.v080 import gnmi_pb2, gnmi_pb2_grpc as g; "  # noqa: E702
+        f"g.gNMIStub(grpc.insecure_channel('{ip}:{port}'))."  # noqa: E231
+        "Capabilities(gnmi_pb2.CapabilityRequest(), timeout=6)"
+    )
+    out = localhost.shell("python3 -c %s" % shlex.quote(probe), module_ignore_errors=True)
+    if out.get("rc", 1) == 0:
+        return True
+    err = (out.get("stderr", "") or "").lower()
+    return not any(m in err for m in _TRANSIENT_GNMI_MARKERS)
+
+
+def _wait_gnmi_ready(localhost, ip, port, timeout=120, interval=5):
+    """Block until the gNMI server is ready (or timeout). Returns True if ready."""
+    deadline = time.time() + timeout
+    while time.time() < deadline:
+        if _gnmi_server_ready(localhost, ip, port):
+            logger.info("gNMI server %s:%s is ready", ip, port)
+            return True
+        logger.info("gNMI server %s:%s not ready (likely restarting) — waiting %ds ...",
+                    ip, port, interval)
+        time.sleep(interval)
+    logger.warning("gNMI server %s:%s still not ready after %ds — proceeding anyway", ip, port, timeout)
+    return False
+
+
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
                        creds, mem_timeline=None, push_events=None, on_file_done=None):
     """Push each JSON to the DPU via the native (plaintext) gNMI client.
@@ -449,6 +485,10 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
     logger.info("gNMI push via native client %s -> %s:%s (dpu %d, plaintext)",
                 extracted_dir, ip, port, dpu_index)
 
+    # gnmi-native can bounce when its certs are regenerated at testbed setup —
+    # wait for it to be accepting connections before we start timing.
+    _wait_gnmi_ready(localhost, ip, port)
+
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
     logger.info("DPU_APPL_DB DBSIZE before push: %s", db_before.get("stdout", "").strip())
 
@@ -477,6 +517,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
 
         t_start = time.time()
         out = localhost.shell(cmd, module_ignore_errors=True)
+        # Retry once on a transient transport error (gnmi-native mid-restart).
+        if out.get("rc", -1) != 0 and any(
+                m in (out.get("stderr", "") or "").lower() for m in _TRANSIENT_GNMI_MARKERS):
+            logger.warning("  [%d/%d] %s: transient gNMI error — waiting for server and retrying",
+                           idx, len(files), filename)
+            _wait_gnmi_ready(localhost, ip, port)
+            out = localhost.shell(cmd, module_ignore_errors=True)
         t_end = time.time()
         elapsed = t_end - t_start
         timings[filename] = elapsed
