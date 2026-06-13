@@ -6,31 +6,28 @@ traffic running across the whole push so we can measure how fast each ENI
 *actually* starts forwarding in hardware — and compare that against how fast
 gRPC reported the config as pushed.
 
-How it works
-------------
-* A **known-good IxNetwork config** (``bg.ixncfg``) and the matching **UHD
-  config** (``smartswitch-nvidia.http``) live in the sibling directory
-  ``test_dash_api_speed_pl_with_traffic/``. The UHD (Keysight "connect" fabric)
-  bridges IxNetwork VLAN traffic ↔ DUT VXLAN/NVGRE: IxNetwork sends VLAN-tagged
-  frames, the DPU encaps/decaps them, and they loop back VLAN-tagged.
-* ``bg.ixncfg`` holds 16 raw traffic items — ``DPU<N>-Out`` (VXLAN/outbound) and
-  ``DPU<N>-In`` (NVGRE/inbound) for DPU 0..7. Each TI has **32 flows, one per
-  ENI**, on a unique VLAN: outbound flow ``i`` (ENI ``i``) uses VLAN
-  ``VLAN_OUT_BASE + eni_global`` where ``eni_global = dpu_index*32 + i``. That is
-  exactly the per-ENI gNMI file index, so flow ↔ ENI maps 1:1.
-* This test loads ``bg.ixncfg``, **enables only the target DPU's ``-Out`` TI**
-  (32 flows = 32 ENIs), tracks per-VLAN, and starts continuous traffic *before*
-  any ENI is programmed — so every flow starts at ~100% loss.
-* While traffic runs, all ENIs are programmed via gNMI. As each ENI lands in
-  hardware its flow starts passing; the IxNetwork **"First TimeStamp"** per-flow
-  statistic records when the first packet of that VLAN came back.
-* ``Δ(first_ts[i+1] − first_ts[i])`` is the hardware per-ENI bring-up time
-  (traffic-observed); we compare it against ``Δ(grpc_complete[i+1] −
-  grpc_complete[i])`` (gNMI-observed) and print a table.
-* By the time the full config is pushed, loss should have dropped to ~0.
+Topology
+--------
+IxNetwork ──VLAN──> UHD ──(VXLAN/NVGRE encap)──> SmartSwitch DPU ──> loop back
+──VLAN──> IxNetwork. The UHD ("connect" fabric, ``10.36.78.39``) bridges each
+VLAN to the DPU's VXLAN/NVGRE. One unique VLAN per ENI: outbound flow for global
+ENI index ``g`` uses VLAN ``VLAN_OUT_BASE + g`` (== the gNMI per-ENI file index),
+so flow ↔ ENI maps 1:1.
 
-The IxNetwork ScriptGen text dump of ``bg.ixncfg`` is checked in beside it as
-``bg.scriptgen.tcl`` (see the ``ixnetwork-scriptgen`` skill for how it was made).
+Instead of loading a saved .ixncfg, this test **builds the IxNetwork config live
+via RestPy** (``dash_traffic_ixn_build.build_outbound_config``) using the exact
+arithmetic from ``configs/dash_api_speed_pl/render.py``.
+
+Flow
+----
+1. Build the target DPU's outbound traffic (32 ENI flows, tracked by VLAN).
+2. Start continuous traffic *before* programming → ~100% loss baseline.
+3. Push all ENIs via gNMI while traffic runs. As each ENI lands in hardware its
+   flow starts passing; the IxNetwork per-flow "First TimeStamp" records when.
+4. ``Δ(first_ts[i+1]-first_ts[i])`` = hardware per-ENI bring-up time; compare vs
+   ``Δ(grpc_complete[i+1]-grpc_complete[i])`` and print a table.
+5. Collect IxNetwork flow stats, switch ``show interface counters`` (duthost +
+   dpuhost), and UHD per-port metrics around the push.
 
 Run (from inside the sonic-mgmt container, like the gRPC-only speed test)::
 
@@ -38,6 +35,9 @@ Run (from inside the sonic-mgmt container, like the gRPC-only speed test)::
         --testbed=keysight-nss01 --testbed_file=../ansible/testbed.yaml \
         --inventory=../ansible/lab --host-pattern=keysight-nss01 \
         --dpu_index=0 --dpu-pattern=keysight-nss01-dpu0 --cache-clear -v
+
+Prereq: the UHD must be loaded with the matching smartswitch config so the
+chassis links come up (see test_dash_api_speed_pl_with_traffic/smartswitch-nvidia.http).
 """
 import fnmatch
 import importlib.util
@@ -50,6 +50,7 @@ import tempfile
 import time
 
 import pytest
+import dash_uhd_stats
 from dash_api_speed_common import (
     _collect_memory,
     _collect_redis_memory,
@@ -59,10 +60,10 @@ from dash_api_speed_common import (
     npu_pre_config,
     parse_file_index,
 )
+from dash_traffic_ixn_build import build_outbound_config, VLAN_OUT_BASE
 
 try:
     from ixnetwork_restpy import SessionAssistant
-    from ixnetwork_restpy.files import Files
 except ImportError as e:  # pragma: no cover - import guard
     raise pytest.skip.Exception(
         "Test requires ixnetwork_restpy: " + repr(e), allow_module_level=True
@@ -84,53 +85,43 @@ pytestmark = [
 ]
 
 # How many ENIs to push per DPU. "ALL" = every rendered file.
-# Int N = apl + eni/map files with index 000..(N-1).
 _ENI_COUNT = "ALL"
 
 # ════════════════════════════════════════════════════════════════════════════
-#  IXIA CONFIG  —  EDIT FOR YOUR TESTBED
+#  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
 # ════════════════════════════════════════════════════════════════════════════
-# Classic IxNetwork API server (Windows, REST port 11009). Verified: 10.36.78.95
-# runs IxNetwork 26.1 and loads bg.ixncfg. The bg.ixncfg ports live on chassis
-# 10.36.77.138 (cards 7/8) — that chassis must be up/linked for a real run.
+# IxNetwork API server (chassis/ports + per-flow arithmetic live in
+# dash_traffic_ixn_build.py's CONFIG block).
 IXIA_API_SERVER_IP = "10.36.78.95"
 IXIA_API_SERVER_PORT = 11009
-IXIA_API_USER = None          # classic Windows API server needs no creds; set if yours does
+IXIA_API_USER = None
 IXIA_API_PASSWORD = None
 
-# Known-good saved IxNetwork config (per-DPU raw traffic items, per-ENI VLANs).
-IXNCFG_PATH = os.path.join(
-    os.path.dirname(os.path.abspath(__file__)),
-    "test_dash_api_speed_pl_with_traffic", "bg.ixncfg",
-)
-
-# Per-DPU outbound (VXLAN) traffic item name, and the VLAN base.
-# Outbound flow for global ENI index e uses VLAN = VLAN_OUT_BASE + e.
-TRAFFIC_ITEM_TEMPLATE = "DPU{dpu}-Out"
-VLAN_OUT_BASE = 1001
+# UHD "connect" fabric — per-port encap/decap counters.
+UHD_IP = "10.36.78.39"
+# UHD physical port names to sample (Port 1..4 = Nvidia DPU ports).
+UHD_PORT_NAMES = ["Port 1", "Port 2", "Port 3", "Port 4"]
 
 # Baseline (pre-program) loss check.
-BASELINE_SETTLE_S = 5                  # let counters accumulate before checking
-BASELINE_MIN_LOSS_PCT = 99.0           # expect ~100% loss with no ENIs
+BASELINE_SETTLE_S = 5
+BASELINE_MIN_LOSS_PCT = 99.0
 
 # Post-push settle: poll until aggregate loss stops improving (or threshold).
 SETTLE_POLL_INTERVAL_S = 3
 SETTLE_TIMEOUT_S = 90
-SETTLE_LOSS_PCT = 1.0                  # consider "converged" below this loss
-SETTLE_STABLE_POLLS = 3                # ...or once loss is flat this many polls
+SETTLE_LOSS_PCT = 1.0
+SETTLE_STABLE_POLLS = 3
 # ════════════════════════════════════════════════════════════════════════════
 
 
 # ─────────────────────────── IxNetwork / RestPy helpers ────────────────────
 def _ix_connect():
-    """Open a RestPy session and return (SessionAssistant, IxNetwork). No ClearConfig."""
+    """Open a RestPy session (ClearConfig — we build fresh). Returns (sa, ixnetwork)."""
     logger.info("IxNetwork: connecting to API server %s:%s",
                 IXIA_API_SERVER_IP, IXIA_API_SERVER_PORT)
     kwargs = dict(
-        IpAddress=IXIA_API_SERVER_IP,
-        RestPort=IXIA_API_SERVER_PORT,
-        SessionName="dash-api-speed-traffic",
-        ClearConfig=False,
+        IpAddress=IXIA_API_SERVER_IP, RestPort=IXIA_API_SERVER_PORT,
+        SessionName="dash-api-speed-traffic", ClearConfig=True,
         LogLevel=SessionAssistant.LOGLEVEL_INFO,
     )
     if IXIA_API_USER:
@@ -139,72 +130,6 @@ def _ix_connect():
         kwargs["Password"] = IXIA_API_PASSWORD
     sa = SessionAssistant(**kwargs)
     return sa, sa.Ixnetwork
-
-
-def _ix_load_config(ixnetwork, path):
-    """Upload + load a local .ixncfg onto the API server."""
-    assert os.path.isfile(path), f"IxNetwork config not found: {path}"
-    logger.info("IxNetwork: loading config %s", path)
-    ixnetwork.LoadConfig(Files(path, local_file=True))
-    tis = ixnetwork.Traffic.TrafficItem.find()
-    logger.info("IxNetwork: loaded %d vports, %d traffic items",
-                len(ixnetwork.Vport.find()), len(tis))
-
-
-def _ix_select_traffic_item(ixnetwork, ti_name):
-    """Enable only *ti_name*, disable all other TIs, track it by VLAN id. Returns the TI."""
-    target = None
-    for ti in ixnetwork.Traffic.TrafficItem.find():
-        if ti.Name == ti_name:
-            target = ti
-            ti.Enabled = True
-        else:
-            ti.Enabled = False
-    assert target is not None, (
-        "Traffic item '%s' is missing from the loaded config. Available: %s"
-        % (ti_name, [t.Name for t in ixnetwork.Traffic.TrafficItem.find()])
-    )
-    # Track per-VLAN so the Flow Statistics view has one row per ENI VLAN.
-    tracking = target.Tracking.find()
-    tracking.TrackBy = ["trackingenabled0", "vlanVlanId0"]
-    logger.info("IxNetwork: selected TI '%s' (%d flows), tracking by VLAN id",
-                ti_name, len(target.ConfigElement.find()))
-    return target
-
-
-def _ix_connect_ports(ixnetwork):
-    """Best-effort (re)assign the config's saved chassis ports so links come up."""
-    locs, hrefs = [], []
-    for vp in ixnetwork.Vport.find():
-        at = (vp.AssignedTo or "").strip()
-        parts = at.split(":")
-        if len(parts) != 3:
-            continue
-        ip, card, port = parts
-        locs.append({"Arg1": ip, "Arg2": int(card), "Arg3": int(port)})
-        hrefs.append(vp.href)
-    if not locs:
-        logger.warning("IxNetwork: no assigned ports found in config")
-        return
-    try:
-        logger.info("IxNetwork: (re)assigning %d ports ...", len(locs))
-        ixnetwork.AssignPorts(locs, [], hrefs, True)
-    except Exception:
-        logger.exception("IxNetwork: AssignPorts failed (chassis down?) — continuing")
-    states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
-    down = [n for n, s in states.items() if s != "up"]
-    logger.info("IxNetwork: port states: %s", states)
-    if down:
-        logger.warning("IxNetwork: %d port(s) not up: %s", len(down), down)
-
-
-def _ix_generate_apply(ixnetwork):
-    """Generate enabled traffic items and apply to hardware."""
-    enabled = [t for t in ixnetwork.Traffic.TrafficItem.find() if t.Enabled]
-    for ti in enabled:
-        ti.Generate()
-    ixnetwork.Traffic.Apply()
-    logger.info("IxNetwork: generated+applied %d traffic item(s)", len(enabled))
 
 
 def _ix_start_traffic(ixnetwork):
@@ -229,7 +154,6 @@ def _parse_ixn_timestamp(ts):
         h, m, s = (int(x) for x in hms.split(":"))
         base = h * 3600 + m * 60 + s
         if frac:
-            # frac is dot-separated groups: ms.us.ns — collapse to a fractional second.
             digits = frac.replace(".", "")
             base += int(digits) / (10 ** len(digits))
         return float(base)
@@ -238,11 +162,7 @@ def _parse_ixn_timestamp(ts):
 
 
 def _read_flow_stats(ixnetwork, vlan_base):
-    """Per-ENI flow stats from the Flow Statistics view, keyed by global ENI index.
-
-    Returns {eni_global: {"vlan": int, "tx": int, "rx": int, "loss_pct": float,
-    "first_ts": float|None}}. ENI index = tracked VLAN id − vlan_base.
-    """
+    """Per-ENI flow stats from the Flow Statistics view, keyed by global ENI index."""
     views = ixnetwork.Statistics.View.find(Caption="Flow Statistics")
     if len(views) == 0:
         return {}
@@ -275,8 +195,7 @@ def _read_flow_stats(ixnetwork, vlan_base):
             return 0.0
 
     result = {}
-    total_pages = data.TotalPages or 1
-    for page in range(1, total_pages + 1):
+    for page in range(1, (data.TotalPages or 1) + 1):
         if data.CurrentPage != page:
             data.CurrentPage = page
         for raw in data.PageValues:
@@ -286,8 +205,7 @@ def _read_flow_stats(ixnetwork, vlan_base):
             vlan = _i(cells[ci_vlan])
             if vlan <= 0:
                 continue
-            eni = vlan - vlan_base
-            result[eni] = {
+            result[vlan - vlan_base] = {
                 "vlan": vlan,
                 "tx": _i(cells[ci_tx]) if ci_tx is not None else 0,
                 "rx": _i(cells[ci_rx]) if ci_rx is not None else 0,
@@ -298,7 +216,6 @@ def _read_flow_stats(ixnetwork, vlan_base):
 
 
 def _aggregate_loss_pct(stats):
-    """Overall loss % across all flows from raw tx/rx totals."""
     tx = sum(s["tx"] for s in stats.values())
     rx = sum(s["rx"] for s in stats.values())
     if tx == 0:
@@ -306,15 +223,48 @@ def _aggregate_loss_pct(stats):
     return max(0.0, 100.0 * (tx - rx) / tx)
 
 
+# ───────────────────────────── switch counters (duthost) ───────────────────
+def _collect_switch_counters(host, label):
+    """Snapshot 'show interface counters' as {iface: row-dict}."""
+    try:
+        rows = host.show_and_parse("show interface counters")
+    except Exception:
+        logger.exception("  switch counters (%s) collection failed", label)
+        return {}
+    out = {}
+    for r in rows:
+        iface = r.get("iface") or r.get("interface") or r.get("port") or ""
+        if iface:
+            out[iface] = r
+    return out
+
+
+def _log_switch_delta(before, after, label):
+    """Log non-zero rx_ok/tx_ok deltas between two counter snapshots."""
+    def _i(x):
+        try:
+            return int(str(x).replace(",", ""))
+        except (ValueError, TypeError):
+            return 0
+    logger.info("  switch interface counters delta — %s:", label)
+    logger.info("    %-18s  %12s  %12s  %10s  %10s", "iface", "rx_ok Δ", "tx_ok Δ", "rx_err", "tx_err")
+    any_row = False
+    for iface in sorted(after):
+        a = after[iface]
+        b = before.get(iface, {})
+        rxd = _i(a.get("rx_ok")) - _i(b.get("rx_ok"))
+        txd = _i(a.get("tx_ok")) - _i(b.get("tx_ok"))
+        if rxd or txd:
+            any_row = True
+            logger.info("    %-18s  %12d  %12d  %10s  %10s",
+                        iface, rxd, txd, a.get("rx_err", "-"), a.get("tx_err", "-"))
+    if not any_row:
+        logger.info("    (no interfaces with rx/tx delta)")
+
+
 # ───────────────────────── results / correlation table ─────────────────────
 def _print_traffic_vs_grpc(eni_indices, push_events, flow_stats):
-    """Compare per-ENI gNMI push-complete deltas vs traffic first-seen deltas.
-
-    eni_indices and flow_stats are keyed by global ENI index (= gNMI file index
-    = VLAN − VLAN_OUT_BASE).
-    """
-    # gRPC "programmed" instant per ENI = when its map file finished pushing
-    # (falls back to the eni file if no map file was pushed).
+    """Compare per-ENI gNMI push-complete deltas vs traffic first-seen deltas."""
     grpc_ts = {}
     for ev in push_events.values():
         if ev["kind"] in ("map", "eni") and ev["idx"] is not None:
@@ -324,14 +274,10 @@ def _print_traffic_vs_grpc(eni_indices, push_events, flow_stats):
 
     rows = []
     for idx in eni_indices:
-        g = grpc_ts.get(idx)
         st = flow_stats.get(idx, {})
         rows.append({
-            "idx": idx,
-            "grpc_ts": g,
-            "traffic_ts": st.get("first_ts"),
-            "rx": st.get("rx", 0),
-            "loss": st.get("loss_pct", 100.0),
+            "idx": idx, "grpc_ts": grpc_ts.get(idx), "traffic_ts": st.get("first_ts"),
+            "rx": st.get("rx", 0), "loss": st.get("loss_pct", 100.0),
         })
 
     grpc_vals = [r["grpc_ts"] for r in rows if r["grpc_ts"] is not None]
@@ -424,9 +370,8 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         logger.info("_ENI_COUNT=%s: pushing %d/%d rendered files", _ENI_COUNT, len(filtered), len(files))
         files = filtered
 
-    # Global ENI indices we will program (one outbound flow / one VLAN each).
-    # The rendered filename index IS the global ENI index, and the IxNetwork
-    # outbound VLAN for it is VLAN_OUT_BASE + index.
+    # Global ENI indices we will program. The rendered filename index IS the
+    # global ENI index, and the IxNetwork outbound VLAN is VLAN_OUT_BASE + index.
     eni_indices = sorted({
         idx for f in files
         for idx, kind in [parse_file_index(f)]
@@ -450,21 +395,26 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     dpu_pre_config(dpuhost)
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
 
-    # ── IxNetwork: load known-good config, select target DPU's -Out TI ──────
-    ti_name = TRAFFIC_ITEM_TEMPLATE.format(dpu=dpuhost.dpu_index)
+    # ── IxNetwork: build the target DPU's outbound traffic live (no .ixncfg) ─
     session, ixnetwork = _ix_connect()
     timings = {}
     mem_timeline = []
     push_events = {}
     flow_stats = {}
+    sw_before = {}
+    sw_after = {}
     total_start = time.time()
     traffic_started = False
 
     try:
-        _ix_load_config(ixnetwork, IXNCFG_PATH)
-        _ix_select_traffic_item(ixnetwork, ti_name)
-        _ix_connect_ports(ixnetwork)
-        _ix_generate_apply(ixnetwork)
+        build_outbound_config(ixnetwork, dpuhost.dpu_index)
+        states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
+        logger.info("IxNetwork port states: %s", states)
+
+        # Baseline counter snapshots before traffic/programming.
+        dash_uhd_stats.clear_metrics(UHD_IP)
+        sw_before = _collect_switch_counters(duthost, "baseline-NPU")
+        uhd_before = dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="baseline")
 
         _ix_start_traffic(ixnetwork)
         traffic_started = True
@@ -476,6 +426,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         baseline_loss = _aggregate_loss_pct(baseline_stats)
         logger.info("Baseline aggregate loss: %.2f%% across %d flows (expected >= %.1f%%)",
                     baseline_loss, len(baseline_stats), BASELINE_MIN_LOSS_PCT)
+        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="after traffic start", prev=uhd_before)
         if baseline_loss < BASELINE_MIN_LOSS_PCT:
             logger.warning("Baseline loss %.2f%% below %.1f%% — some flows already forwarding "
                            "(stale config?). Continuing, but per-ENI deltas may be skewed.",
@@ -483,7 +434,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
 
         # ── Push all ENIs via gNMI while traffic runs ───────────────────────
         def _log_progress(filename, idx, kind, t0, t1):
-            if kind == "map":  # map file is the last write that activates an ENI
+            if kind == "map":
                 logger.info("    gNMI: ENI %s programmed (%.2fs)", idx, t1 - t0)
 
         logger.info("Programming %d config files via gNMI (traffic running) ...", len(files))
@@ -514,10 +465,13 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
             else:
                 stable = 0
             last_loss = loss
+
+        # Post-run counter snapshots.
+        sw_after = _collect_switch_counters(duthost, "after-NPU")
+        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="after settle", prev=uhd_before)
     finally:
         if traffic_started:
             _ix_stop_traffic(ixnetwork)
-        # Leave the loaded config in place; just drop our restpy session handle.
         try:
             session.Session.remove()
         except Exception:
@@ -534,14 +488,16 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         except Exception:
             logger.exception("Failed to collect/print post-test memory results")
 
-    # ── Correlation table: gNMI push vs. traffic bring-up ───────────────────
+    # ── Switch + correlation reporting ──────────────────────────────────────
+    if sw_before and sw_after:
+        _log_switch_delta(sw_before, sw_after, "NPU (push window)")
     n_forwarding = _print_traffic_vs_grpc(eni_indices, push_events, flow_stats)
 
     # ── Assertions ──────────────────────────────────────────────────────────
     final_loss = _aggregate_loss_pct(flow_stats)
     assert n_forwarding >= 1, (
         "No flow ever started forwarding — no ENI brought up traffic. "
-        "Check IxNetwork wiring / chassis links / UHD encap / VLAN↔ENI mapping."
+        "Check UHD config (smartswitch loaded?), chassis links, VLAN↔ENI mapping."
     )
     logger.info("Flows forwarding: %d / %d, final aggregate loss %.2f%%",
                 n_forwarding, len(eni_indices), final_loss)
