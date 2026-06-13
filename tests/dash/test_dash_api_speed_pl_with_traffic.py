@@ -347,10 +347,19 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     dpu_midplane_ip = "169.254.200.%d" % (dpuhost.dpu_index + 1)
     logger.info("Pre-flight: assuming %s is up at %s (no automated check)", dpu_name, dpu_midplane_ip)
 
-    # ── Render configs (identical to the gRPC-only speed test) ──────────────
+    # ── Render configs ──────────────────────────────────────────────────────
+    # ENIs per DPU depends on platform: Nvidia DPU holds 64, Cisco 32. render's
+    # enis_per_dpu = ENI_COUNT // DPUS (DEFAULTS 256/8 = 32). Keep ENI_COUNT=256
+    # (so per-ENI route count = 500 stays matched to the UHD/bg.ixncfg dataplane)
+    # and set DPUS=4 -> 64 ENIs/DPU for Nvidia, DPUS=8 -> 32 for Cisco.
+    hwsku = duthost.facts.get("hwsku", "")
+    params = dict(render.DEFAULTS)
+    params["DPUS"] = 8 if "Cisco" in hwsku else 4
+    enis_per_dpu = params["ENI_COUNT"] // params["DPUS"]
     render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
-    logger.info("Rendering DASH configs into %s", render_output_dir)
-    render.generate(dict(render.DEFAULTS), render_output_dir, prefix="pl_100")
+    logger.info("Rendering DASH configs (hwsku=%s, DPUS=%d -> %d ENIs/DPU = %d files) into %s",
+                hwsku, params["DPUS"], enis_per_dpu, 1 + 2 * enis_per_dpu, render_output_dir)
+    render.generate(params, render_output_dir, prefix="pl_100")
 
     config_dir = os.path.join(render_output_dir, f"dpu{dpuhost.dpu_index}")
     assert os.path.isdir(config_dir), f"Config directory not found after render: {config_dir}"
@@ -382,8 +391,6 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
                 len(eni_indices), eni_indices[0], eni_indices[-1],
                 VLAN_OUT_BASE + eni_indices[0], VLAN_OUT_BASE + eni_indices[-1], len(files))
 
-    hwsku = duthost.facts.get("hwsku", "")
-    logger.info("NPU hwsku: %s", hwsku)
     if "Cisco" in hwsku:
         dpu_dataplane_ip = "18.%d.202.1" % dpuhost.dpu_index
     else:
