@@ -70,6 +70,13 @@ UDP_SRC_PORT = 10000
 UDP_DST_PORT = 10000
 FRAME_SIZE = 128
 PER_FLOW_RATE_FPS = 1000
+
+# Layer-1 settings — must match the UHD ixnetwork-facing ports (manual_RS @ 100G).
+# Verified against bg.ixncfg: novusHundredGigLan / speed100g / autoneg off / IEEE
+# defaults (RS-FEC) -> all 16 chassis ports link up against the configured UHD.
+L1_SPEED = "speed100g"
+L1_AUTONEG = False
+L1_IEEE_DEFAULTS = True
 # ════════════════════════════════════════════════════════════════════════════
 
 
@@ -123,16 +130,46 @@ def _connect():
 
 
 def _set_field(stack, field_id_substr, *, single=None, start=None, step=None, count=None):
-    """Set a raw-traffic field as a singleValue or a counter."""
+    """Set a raw-traffic field as a singleValue or an increment (per-ENI counter).
+
+    Raw-traffic varying fields use ValueType='increment' (NOT 'counter', which is
+    silently ignored and leaves the field at its singleValue default).
+    """
     for f in stack.Field.find():
         if field_id_substr in f.FieldTypeId:
             if single is not None:
                 f.update(ValueType="singleValue", SingleValue=str(single), Auto=False)
             else:
-                f.update(ValueType="counter", StartValue=str(start),
+                f.update(ValueType="increment", StartValue=str(start),
                          StepValue=str(step), CountValue=int(count), Auto=False)
             return f
     raise AssertionError(f"field '{field_id_substr}' not on stack {stack.StackTypeId}")
+
+
+def _configure_l1(vport):
+    """Set the vport's L1 (speed/FEC/autoneg) to match the UHD ixnetwork ports.
+
+    Must run after AssignPorts (the L1 sub-type is only known once the port type
+    is resolved). Tolerant of card types that lack a given attribute.
+    """
+    l1 = vport.L1Config
+    ct = l1.CurrentType
+    if not ct:
+        logger.warning("L1: vport %s has no resolved type yet; skipping L1 config", vport.Name)
+        return
+    obj = getattr(l1, ct[0].upper() + ct[1:], None)
+    if obj is None:
+        logger.warning("L1: no L1 node for type %s; skipping", ct)
+        return
+    for attr, val in (("Speed", L1_SPEED),
+                      ("EnableAutoNegotiation", L1_AUTONEG),
+                      ("IeeeL1Defaults", L1_IEEE_DEFAULTS)):
+        if hasattr(obj, attr):
+            try:
+                setattr(obj, attr, val)
+            except Exception:
+                logger.exception("L1: failed to set %s=%s on %s", attr, val, ct)
+    logger.info("L1: %s -> type=%s speed=%s autoneg=%s", vport.Name, ct, L1_SPEED, L1_AUTONEG)
 
 
 def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU):
@@ -147,6 +184,7 @@ def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU):
         [{"Arg1": IXIA_CHASSIS_IP, "Arg2": TX_PORT_CARD, "Arg3": TX_PORT_PORT}],
         [], [vport.href], True,
     )
+    _configure_l1(vport)
 
     # 2. one raw traffic item, eth/vlan/ipv4/udp stack.
     ti = ixnetwork.Traffic.TrafficItem.add(
