@@ -85,7 +85,9 @@ pytestmark = [
 ]
 
 # How many ENIs to push per DPU. "ALL" = every rendered file.
-_ENI_COUNT = "ALL"
+# NOTE: kept small (not "ALL") because this NPU's gnmi-native flaps between
+# --noTLS and TLS every ~7 min; a short push fits inside one --noTLS window.
+_ENI_COUNT = 8
 
 # ════════════════════════════════════════════════════════════════════════════
 #  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
@@ -407,7 +409,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     traffic_started = False
 
     try:
-        build_outbound_config(ixnetwork, dpuhost.dpu_index)
+        build_outbound_config(ixnetwork, dpuhost.dpu_index, enis_per_dpu=len(eni_indices))
         states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
         logger.info("IxNetwork port states: %s", states)
 

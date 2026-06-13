@@ -424,25 +424,27 @@ _TRANSIENT_GNMI_MARKERS = ("unavailable", "socket closed", "failed to connect",
 
 
 def _gnmi_server_ready(localhost, ip, port):
-    """True if the gNMI server is accepting connections (plaintext Capabilities).
+    """True only if a *plaintext* gNMI Capabilities succeeds (server in --noTLS mode).
 
-    A PermissionDenied/Unauthenticated reply still means the server is *up* — only
-    transport-level failures (Socket closed / UNAVAILABLE) mean it's not ready
-    (gnmi-native bounces when its certs are regenerated)."""
+    This NPU's gnmi-native flaps between --noTLS and TLS/mTLS every few minutes
+    (CA_cert_downloader regenerates certs and restarts it). The native plaintext
+    push only works in the --noTLS window, so we gate on a real plaintext success
+    (rc == 0) rather than mere reachability — a TLS window drops the plaintext
+    connection (Socket closed) and is treated as not-ready."""
     probe = (
         "import grpc; from pygnmi.spec.v080 import gnmi_pb2, gnmi_pb2_grpc as g; "  # noqa: E702
         f"g.gNMIStub(grpc.insecure_channel('{ip}:{port}'))."  # noqa: E231
         "Capabilities(gnmi_pb2.CapabilityRequest(), timeout=6)"
     )
     out = localhost.shell("python3 -c %s" % shlex.quote(probe), module_ignore_errors=True)
-    if out.get("rc", 1) == 0:
-        return True
-    err = (out.get("stderr", "") or "").lower()
-    return not any(m in err for m in _TRANSIENT_GNMI_MARKERS)
+    return out.get("rc", 1) == 0
 
 
-def _wait_gnmi_ready(localhost, ip, port, timeout=120, interval=5):
-    """Block until the gNMI server is ready (or timeout). Returns True if ready."""
+def _wait_gnmi_ready(localhost, ip, port, timeout=600, interval=5):
+    """Block until the gNMI server is in a plaintext (--noTLS) window (or timeout).
+
+    Timeout exceeds the observed ~7-min flap period so we can wait out a TLS
+    window for the next --noTLS one. Returns True if ready."""
     deadline = time.time() + timeout
     while time.time() < deadline:
         if _gnmi_server_ready(localhost, ip, port):
