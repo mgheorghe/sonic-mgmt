@@ -27,6 +27,13 @@ _GNMI_AGENT_IMAGE = "sonic-gnmi-agent:2026march13"
 
 _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 
+# Native gNMI push (works against the NPU's `telemetry --noTLS` plaintext server).
+# The extracted client opens a grpc.insecure_channel and sends user/pass as
+# metadata; the docker gnmi_set CLI cannot (it TLS-handshakes / refuses creds
+# over plaintext, silently no-ops, leaving DPU_APPL_DB empty).
+_GNMI_EXTRACTED_SUBDIR = "gnmi_agent_extracted"
+_BATCH_VAL = 3000  # pl_100 sweet spot (see reference_dash_perf_facts)
+
 _NPU_STATIC_ARP = [
     ("220.0.1.2", "80:09:02:02:00:01"),
     ("220.0.2.2", "80:09:02:02:00:02"),
@@ -414,15 +421,20 @@ def _fetch_gnmi_certs_from_npu(duthost, env, paths, dest_dir):
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
                        creds, mem_timeline=None, push_events=None, on_file_done=None):
-    """Push each JSON via a long-lived sonic-gnmi-agent container (config_dir mounted at /dpu).
+    """Push each JSON to the DPU via the native (plaintext) gNMI client.
 
-    Optional instrumentation for the traffic test:
-      * ``push_events`` — if a dict is supplied, records per-file
-        ``{filename: {"idx": N, "kind": "eni"|"map"|"apl", "start": t0,
-        "end": t1}}`` with wall-clock timestamps (time.time()).
-      * ``on_file_done`` — if callable, invoked as
-        ``on_file_done(filename, idx, kind, t_start, t_end)`` right after each
-        file's push completes (lets the caller snapshot live traffic state).
+    Uses ``tests/dash/gnmi_agent_extracted/gnmi_client.py``, which opens a
+    ``grpc.insecure_channel`` and sends username/password as gRPC *metadata* —
+    the only path that works against the NPU's ``telemetry --noTLS`` server.
+    (The docker ``gnmi_set`` CLI always does a TLS handshake / refuses creds over
+    plaintext, so it silently no-ops and leaves DPU_APPL_DB empty.)
+
+    ``config_facts`` is kept for signature compatibility (TLS detection is no
+    longer needed). Optional instrumentation for the traffic test:
+      * ``push_events`` — per-file ``{filename: {"idx", "kind", "start", "end"}}``
+        with wall-clock timestamps.
+      * ``on_file_done`` — ``on_file_done(filename, idx, kind, t_start, t_end)``
+        called right after each file's push (lets the caller snapshot traffic).
     """
     if mem_timeline is None:
         mem_timeline = []
@@ -430,176 +442,25 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
     dpu_index = dpuhost.dpu_index
     ip = duthost.mgmt_ip
     port = env.gnmi_port
+    extracted_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), _GNMI_EXTRACTED_SUBDIR)
+    gnmi_user = shlex.quote(creds["sonicadmin_user"])
+    gnmi_pass = shlex.quote(creds["sonicadmin_password"])
 
-    # Translate container path → host path for docker bind mount.
-    host_config_dir = _container_path_to_host(config_dir)
-    logger.info("config_dir (container): %s", config_dir)
-    logger.info("config_dir (host):      %s", host_config_dir)
+    logger.info("gNMI push via native client %s -> %s:%s (dpu %d, plaintext)",
+                extracted_dir, ip, port, dpu_index)
 
-    # Mode + cert paths come from the NPU's loaded CONFIG_DB (module fixture),
-    # so we don't re-query the switch or assume /etc/sonic/telemetry/.
-    server = _inspect_gnmi_server(config_facts)
-    server_mode = server["mode"]
-
-    cert_mount_opt = ""
-    # gnmi_set flag semantics (from `gnmi_set -help`):
-    #   -notls     → plain TCP, no TLS at all  (matches server --noTLS)
-    #   -insecure  → TLS handshake, skip server verification (still needs client cert
-    #                if the server requires one)
-    #   -cert/-key/-ca → present client material for mTLS
-    tls_flags = " -notls"
-    if server_mode in ("tls", "mtls"):
-        # Stage whatever certs the server lists (CA is enough for tls-only; mtls
-        # still needs a client cert+key from somewhere — flagged below if absent).
-        cert_stage_dir = os.path.join(os.path.dirname(config_dir), ".gnmi_certs")
-        localhost.shell(f"mkdir -p {cert_stage_dir}", module_ignore_errors=True)
-        fetched = _fetch_gnmi_certs_from_npu(duthost, env, server["paths"], cert_stage_dir)
-        host_cert_dir = _container_path_to_host(cert_stage_dir) if fetched else ""
-        if fetched:
-            logger.info("cert_stage_dir (container): %s", cert_stage_dir)
-            logger.info("cert_stage_dir (host):      %s", host_cert_dir)
-            cert_mount_opt = (
-                f" --mount src={host_cert_dir},target=/certs,type=bind,readonly"  # noqa: E231
-            )
-        parts = []
-        # Server verification: use CA if available, else skip with -insecure.
-        if "ca_crt" in fetched:
-            parts.append(f" -ca /certs/{fetched['ca_crt']}")
-        else:
-            parts.append(" -insecure")
-        # Match hostname verification against the server cert's SAN. Server certs
-        # in sonic-mgmt testbeds include the mgmt IP as an IP SAN, so passing the
-        # mgmt IP as target_name satisfies Go's TLS hostname check against either
-        # a DNS or IP SAN. gnmi_set defaults to "hostname.com" which never matches.
-        parts.append(f" -target_name {ip}")
-        # mTLS additionally requires the client to present its own cert.
-        if server_mode == "mtls":
-            if "client_crt" in fetched and "client_key" in fetched:
-                parts.append(f" -cert /certs/{fetched['client_crt']}")
-                parts.append(f" -key /certs/{fetched['client_key']}")
-            else:
-                logger.warning("mTLS server but no client cert/key available — "
-                               "push will likely be rejected")
-        tls_flags = "".join(parts)
-
-    # Mount the repo's go_gnmi_utils.py over the one baked into the container image
-    # (the image's copy hardcodes -insecure, which doesn't work with an mTLS server).
-    # The patched copy honors GNMI_CA / GNMI_CLIENT_CERT / GNMI_CLIENT_KEY / GNMI_TARGET_NAME.
-    repo_go_utils = os.path.abspath(os.path.join(
-        os.path.dirname(__file__), "..", "..", "gnmi", "gnmi_agent", "go_gnmi_utils.py"
-    ))
-    go_utils_host = _container_path_to_host(repo_go_utils)
-    go_utils_mount = (
-        f" --mount src={go_utils_host},"  # noqa: E231
-        f"target=/usr/lib/python3/dist-packages/gnmi_agent/go_gnmi_utils.py,type=bind,readonly"  # noqa: E231
-    )
-
-    # Export TLS material via env vars so the patched go_gnmi_utils.py can wire
-    # up gnmi_set / gnmi_get with the right flags.
-    env_opts = ""
-    if server_mode in ("tls", "mtls") and cert_mount_opt:
-        env_opts += f" -e GNMI_TARGET_NAME={ip}"
-        if "ca_crt" in fetched:
-            env_opts += f" -e GNMI_CA=/certs/{fetched['ca_crt']}"
-        if server_mode == "mtls" and "client_crt" in fetched and "client_key" in fetched:
-            env_opts += f" -e GNMI_CLIENT_CERT=/certs/{fetched['client_crt']}"
-            env_opts += f" -e GNMI_CLIENT_KEY=/certs/{fetched['client_key']}"
-
-    # Snapshot DPU_APPL_DB key count before pushing
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
     logger.info("DPU_APPL_DB DBSIZE before push: %s", db_before.get("stdout", "").strip())
-
-    # Start a persistent container (reuse if already running).
-    localhost.shell(f"docker rm -f {_GNMI_CONTAINER_NAME}", module_ignore_errors=True)
-    start_out = localhost.shell(
-        f"docker run -d --name {_GNMI_CONTAINER_NAME} --network host"
-        f" --shm-size=256m"
-        f"{env_opts}"
-        f" --mount src={host_config_dir},target=/dpu,type=bind,readonly"  # noqa: E231
-        f"{cert_mount_opt}"
-        f"{go_utils_mount}"
-        f" {_GNMI_AGENT_IMAGE} -c 'sleep infinity'",
-        module_ignore_errors=True,
-    )
-    if start_out.get("rc", 1) != 0:
-        pytest.fail("Could not start %s: %s" % (_GNMI_CONTAINER_NAME, start_out.get("stderr", "")))
-    logger.info("Started persistent container %s", _GNMI_CONTAINER_NAME)
-
-    # Dump what the gnmi-agent container sees at /certs — lets us catch a stale
-    # or mismatched CA before the pre-check fails with an opaque x509 error.
-    if server_mode in ("tls", "mtls") and cert_mount_opt:
-        probe = (
-            "ls -la /certs/ 2>&1; "  # noqa: E702
-            "for f in /certs/*; do "  # noqa: E702
-            "echo ---$f---; "  # noqa: E702
-            "md5sum \"$f\" 2>/dev/null; "  # noqa: E702
-            "openssl x509 -in \"$f\" -noout -subject -issuer 2>/dev/null || true; "  # noqa: E702
-            "done; "  # noqa: E702
-            "echo ---chain-verify---; "  # noqa: E702
-            "openssl verify -CAfile /certs/ca.cer /certs/server.cer 2>&1 || true; "  # noqa: E702
-            "openssl verify -CAfile /certs/ca.cer /certs/client.crt 2>&1 || true; "  # noqa: E702
-            "echo ---live-server-cert---; "  # noqa: E702
-            f"echo | openssl s_client -connect {ip}:{port} -showcerts -servername {ip} "  # noqa: E231,E702
-            "2>/dev/null | openssl x509 -noout -subject -issuer -fingerprint -sha256 2>&1 || true"
-        )
-        cert_ls = localhost.shell(
-            f"docker exec {_GNMI_CONTAINER_NAME} sh -c {shlex.quote(probe)}",
-            module_ignore_errors=True,
-        )
-        logger.info("Cert staging snapshot:\n%s", cert_ls.get("stdout", "") or cert_ls.get("stderr", ""))
 
     # Pre-count operations for all files (outside the timed loop).
     file_info = []
     all_tables = set()
     for filename in files:
-        local_path = os.path.join(config_dir, filename)
-        op_count, tables = _count_json_operations(local_path)
+        op_count, tables = _count_json_operations(os.path.join(config_dir, filename))
         file_info.append((filename, op_count, tables))
         all_tables.update(tables.keys())
 
-    # ── Pre-check: verify gNMI server is reachable before pushing files ──
-    logger.info("Pre-check: verifying gNMI connectivity to %s:%s (tls=%s)",
-                ip, port, tls_flags.strip())
-    gnmi_user = shlex.quote(creds["sonicadmin_user"])
-    gnmi_pass = shlex.quote(creds["sonicadmin_password"])
-    check_cmd = (
-        f"docker exec {_GNMI_CONTAINER_NAME}"
-        f" /usr/sbin/gnmi_set -target_addr {ip}:{port}"  # noqa: E231
-        f"{tls_flags}"
-        f" -username {gnmi_user} -password {gnmi_pass}"
-    )
-    check_out = localhost.shell(check_cmd, module_ignore_errors=True)
-    # An empty setRequest always fails on the server side ("Translib write is
-    # disabled" / "Unimplemented"), so rc != 0 is expected. What we're actually
-    # checking is whether the TLS+auth handshake completed — i.e. the server
-    # replied at all. Connection-level failures (port closed, bad cert, bad
-    # creds) must still abort.
-    stderr = check_out.get("stderr", "") or ""
-    stdout = check_out.get("stdout", "") or ""
-    rc = check_out.get("rc", -1)
-    logger.info("Pre-check result: rc=%s", rc)
-    if stdout:
-        logger.info("Pre-check stdout: %s", stdout[:1000])
-    if stderr:
-        logger.info("Pre-check stderr: %s", stderr[:1000])
-    unreachable_markers = (
-        "connection refused",
-        "no route to host",
-        "handshake failed",
-        "x509:",
-        "transport: Error while dialing",
-        "authentication failed",
-        "PermissionDenied",
-    )
-    if any(m.lower() in stderr.lower() for m in unreachable_markers):
-        pytest.fail(
-            f"gNMI server unreachable at {ip}:{port} — aborting.\n"  # noqa: E231
-            f"stderr: {stderr[:500]}"
-        )
-    logger.info("Pre-check: gNMI server reachable (server replied past TLS/auth)")
-
     push_errors = []
-
     for idx, (filename, op_count, tables) in enumerate(file_info, start=1):
         table_summary = ", ".join(
             "{0}:{1}S/{2}D".format(t, tables[t]['SET'], tables[t]['DEL'])
@@ -607,10 +468,11 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         )
         logger.info("  [%d/%d] pushing %s (%d ops: %s) ...", idx, len(files), filename, op_count, table_summary)
 
+        cfg_path = os.path.join(config_dir, filename)
         cmd = (
-            f"docker exec {_GNMI_CONTAINER_NAME}"
-            f" gnmi_client.py --batch_val 10000 --no-proto -i {dpu_index}"
-            f" -n 8 -t {ip}:{port} update -f /dpu/{filename}"  # noqa: E231
+            f"cd {extracted_dir} && PYTHONPATH=. python3 gnmi_client.py"
+            f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {dpu_index} -n 8"  # noqa: E231
+            f" -u {gnmi_user} -p {gnmi_pass} update -f {cfg_path}"
         )
 
         t_start = time.time()
@@ -619,12 +481,9 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         elapsed = t_end - t_start
         timings[filename] = elapsed
 
-        # Record per-file push event (wall-clock) for traffic correlation.
         eni_idx, kind = parse_file_index(filename)
         if push_events is not None:
-            push_events[filename] = {
-                "idx": eni_idx, "kind": kind, "start": t_start, "end": t_end,
-            }
+            push_events[filename] = {"idx": eni_idx, "kind": kind, "start": t_start, "end": t_end}
         if on_file_done is not None:
             try:
                 on_file_done(filename, eni_idx, kind, t_start, t_end)
@@ -632,24 +491,21 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
                 logger.exception("  on_file_done callback failed (non-fatal)")
 
         rc = out.get("rc", -1)
-        stderr = out.get("stderr", "")
-
-        # Only log errors and summary — skip per-line stderr for speed.
+        stderr = out.get("stderr", "") or ""
+        stdout = out.get("stdout", "") or ""
         failed = False
-        failure_reason = ""
-
+        reason = ""
         if rc != 0:
             failed = True
-            failure_reason = f"exit code {rc}"
-        elif "Set failed" in stderr or "GRPC error" in stderr or "Error" in stderr:
+            reason = f"exit code {rc}"
+        elif "Traceback" in stderr or "RpcError" in stderr or "Set failed" in stderr:
             failed = True
-            failure_reason = "error string in output"
+            reason = "error string in output"
 
         if failed:
-            logger.error("  [%d/%d] FAILED %s after %.2fs — %s\n  stderr (tail): %s",
-                         idx, len(files), filename, elapsed, failure_reason, stderr[-3000:])
-            push_errors.append(f"{filename}: {failure_reason}")
-            # Fail fast — if the first file fails, no point continuing
+            logger.error("  [%d/%d] FAILED %s after %.2fs — %s\n  output (tail): %s",
+                         idx, len(files), filename, elapsed, reason, (stderr or stdout)[-3000:])
+            push_errors.append(f"{filename}: {reason}")
             if idx == 1:
                 logger.error("First file failed — aborting remaining files")
                 break
@@ -669,23 +525,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
                 "dpu_free": dpu_mem.get("_system_free", 0),
                 "dpu_available": dpu_mem.get("_system_available", 0),
             })
-            logger.info(
-                "  [%d/%d] mem: NPU free=%dM avail=%dM | DPU free=%dM avail=%dM",
-                idx, len(files),
-                npu_mem.get("_system_free", 0), npu_mem.get("_system_available", 0),
-                dpu_mem.get("_system_free", 0), dpu_mem.get("_system_available", 0),
-            )
         except Exception:
             logger.debug("  [%d/%d] mem snapshot failed (non-fatal)", idx, len(files))
-
-    # Stop the persistent container.
-    localhost.shell(f"docker rm -f {_GNMI_CONTAINER_NAME}", module_ignore_errors=True)
 
     # Batch verification: check DPU_APPL_DB once for all tables.
     for table in sorted(all_tables):
         _verify_dpu_appl_db(dpuhost, "%s:*" % table, label="after all files")
 
-    # Final DB size check
     db_after = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
     logger.info("DPU_APPL_DB DBSIZE after push: %s (was: %s)",
                 db_after.get("stdout", "").strip(), db_before.get("stdout", "").strip())
