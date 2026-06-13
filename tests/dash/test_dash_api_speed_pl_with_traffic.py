@@ -102,8 +102,9 @@ UHD_IP = "10.36.78.39"
 # UHD physical port names to sample (Port 1..4 = Nvidia DPU ports).
 UHD_PORT_NAMES = ["Port 1", "Port 2", "Port 3", "Port 4"]
 
-# Baseline (pre-program) loss check.
-BASELINE_SETTLE_S = 5
+# Baseline (pre-program) loss check. >=15s so the Flow Statistics view has
+# populated all per-VLAN rows before the snapshot (it takes ~10s to appear).
+BASELINE_SETTLE_S = 15
 BASELINE_MIN_LOSS_PCT = 99.0
 
 # Post-push settle: poll until aggregate loss stops improving (or threshold).
