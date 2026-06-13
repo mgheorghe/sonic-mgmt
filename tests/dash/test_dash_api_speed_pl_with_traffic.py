@@ -85,9 +85,7 @@ pytestmark = [
 ]
 
 # How many ENIs to push per DPU. "ALL" = every rendered file.
-# NOTE: kept small (not "ALL") because this NPU's gnmi-native flaps between
-# --noTLS and TLS every ~7 min; a short push fits inside one --noTLS window.
-_ENI_COUNT = 8
+_ENI_COUNT = "ALL"
 
 # ════════════════════════════════════════════════════════════════════════════
 #  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
