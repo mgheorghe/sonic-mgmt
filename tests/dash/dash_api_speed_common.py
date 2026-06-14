@@ -423,31 +423,100 @@ _TRANSIENT_GNMI_MARKERS = ("unavailable", "socket closed", "failed to connect",
                            "error reading server preface", "connection reset")
 
 
-def _gnmi_server_ready(localhost, ip, port):
-    """True only if a *plaintext* gNMI Capabilities succeeds (server in --noTLS mode).
+def _detect_server_tls(duthost, env):
+    """Inspect the *running* telemetry process on the NPU to decide client TLS mode.
 
-    This NPU's gnmi-native flaps between --noTLS and TLS/mTLS every few minutes
-    (CA_cert_downloader regenerates certs and restarts it). The native plaintext
-    push only works in the --noTLS window, so we gate on a real plaintext success
-    (rc == 0) rather than mere reachability — a TLS window drops the plaintext
-    connection (Socket closed) and is treated as not-ready."""
-    probe = (
-        "import grpc; from pygnmi.spec.v080 import gnmi_pb2, gnmi_pb2_grpc as g; "  # noqa: E702
-        f"g.gNMIStub(grpc.insecure_channel('{ip}:{port}'))."  # noqa: E231
-        "Capabilities(gnmi_pb2.CapabilityRequest(), timeout=6)"
+    Returns 'notls' (plaintext), 'tls' (server cert only, no client cert) or
+    'mtls' (server requires a client cert). The running process flags are
+    authoritative: CONFIG_DB ``GNMI|certs`` is frequently empty even when the
+    server is launched with ``--server_crt/--server_key/--ca_crt`` on the
+    command line, so detection off CONFIG_DB alone misreads the mode."""
+    out = duthost.shell(
+        "docker exec %s bash -c \"ps -eo args | grep -- '--port %d' | grep -v grep\""  # noqa: E501
+        % (env.gnmi_container, env.gnmi_port),
+        module_ignore_errors=True,
     )
+    line = (out.get("stdout", "") or "").strip()
+    logger.info("NPU gNMI server cmdline: %s", line or "(not found)")
+    low = line.lower()
+    if not line or "--notls" in low or "-notls" in low:
+        return "notls"
+    if "allow_no_client_auth" in low:
+        return "tls"
+    if "ca_crt" in low:
+        return "mtls"
+    return "tls"
+
+
+def _stage_npu_certs(duthost, env, dest_dir):
+    """Copy CA + server cert/key off the NPU gnmi container to the controller.
+
+    ``docker cp`` each file out of the ``gnmi`` container, then ``fetch`` it to
+    ``dest_dir`` on the Ansible controller — the same host that runs the native
+    gNMI client via ``localhost.shell``. Returns ``{'ca','cert','key'}`` of local
+    paths, or ``None`` if any file can't be staged.
+
+    The server cert is reused as the *client* cert: it is signed by the same CA
+    and carries no EKU restriction, so it satisfies the server's ``client_auth``
+    check. Its SAN includes the NPU mgmt IP, so connecting by IP needs no
+    ``GNMI_TARGET_NAME`` override."""
+    files = {"ca": env.gnmi_ca_cert, "cert": env.gnmi_server_cert, "key": env.gnmi_server_key}
+    local = {}
+    for tag, name in files.items():
+        src = env.gnmi_cert_path + name
+        cp = duthost.shell("docker cp %s:%s /tmp/%s" % (env.gnmi_container, src, name),  # noqa: E231
+                           module_ignore_errors=True)
+        if cp.get("rc", 1) != 0:
+            logger.warning("  docker cp %s failed: %s", src, (cp.get("stderr", "") or "").strip()[:200])
+            return None
+        try:
+            duthost.fetch(src="/tmp/%s" % name, dest="%s/%s" % (dest_dir, name), flat=True)
+        except Exception as e:
+            logger.warning("  fetch %s failed: %s", name, e)
+            return None
+        local[tag] = os.path.join(dest_dir, name)
+        logger.info("  Staged NPU cert %s -> %s", name, local[tag])
+    return local
+
+
+def _gnmi_server_ready(localhost, ip, port, tls_paths=None):
+    """True only if a gNMI Capabilities RPC succeeds.
+
+    When ``tls_paths`` is given the probe negotiates TLS/mTLS with the NPU's
+    own certs (reused as client certs); otherwise it uses a plaintext
+    (``--noTLS``) insecure channel. We gate on a real RPC success (rc == 0)
+    rather than mere TCP reachability, so a transport mismatch (plaintext probe
+    vs. TLS server, or vice-versa) is correctly treated as not-ready."""
+    if tls_paths:
+        # Plain str + .format (not an f-string): keeps pycodestyle from
+        # tokenizing the commas/semicolons of the embedded python under 3.12.
+        probe = (
+            "import grpc; from pygnmi.spec.v080 import gnmi_pb2, gnmi_pb2_grpc as g; "  # noqa: E702
+            "creds=grpc.ssl_channel_credentials("
+            "root_certificates=open({ca!r},'rb').read(),"
+            "private_key=open({key!r},'rb').read(),"
+            "certificate_chain=open({cert!r},'rb').read()); "
+            "ch=grpc.secure_channel('{ip}:{port}',creds); "
+            "g.gNMIStub(ch).Capabilities(gnmi_pb2.CapabilityRequest(), timeout=6)"
+        ).format(ca=tls_paths["ca"], key=tls_paths["key"], cert=tls_paths["cert"], ip=ip, port=port)
+    else:
+        probe = (
+            "import grpc; from pygnmi.spec.v080 import gnmi_pb2, gnmi_pb2_grpc as g; "  # noqa: E702
+            f"g.gNMIStub(grpc.insecure_channel('{ip}:{port}'))."  # noqa: E231
+            "Capabilities(gnmi_pb2.CapabilityRequest(), timeout=6)"
+        )
     out = localhost.shell("python3 -c %s" % shlex.quote(probe), module_ignore_errors=True)
     return out.get("rc", 1) == 0
 
 
-def _wait_gnmi_ready(localhost, ip, port, timeout=600, interval=5):
-    """Block until the gNMI server is in a plaintext (--noTLS) window (or timeout).
+def _wait_gnmi_ready(localhost, ip, port, timeout=600, interval=5, tls_paths=None):
+    """Block until the gNMI server answers a Capabilities RPC (or timeout).
 
-    Timeout exceeds the observed ~7-min flap period so we can wait out a TLS
-    window for the next --noTLS one. Returns True if ready."""
+    Probes over TLS when ``tls_paths`` is given, else plaintext. Returns True if
+    ready. Timeout is generous to ride out a server restart at testbed setup."""
     deadline = time.time() + timeout
     while time.time() < deadline:
-        if _gnmi_server_ready(localhost, ip, port):
+        if _gnmi_server_ready(localhost, ip, port, tls_paths=tls_paths):
             logger.info("gNMI server %s:%s is ready", ip, port)
             return True
         logger.info("gNMI server %s:%s not ready (likely restarting) — waiting %ds ...",
@@ -459,16 +528,20 @@ def _wait_gnmi_ready(localhost, ip, port, timeout=600, interval=5):
 
 def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
                        creds, mem_timeline=None, push_events=None, on_file_done=None):
-    """Push each JSON to the DPU via the native (plaintext) gNMI client.
+    """Push each JSON to the DPU via the native gNMI client.
 
-    Uses ``tests/dash/gnmi_agent_extracted/gnmi_client.py``, which opens a
-    ``grpc.insecure_channel`` and sends username/password as gRPC *metadata* —
-    the only path that works against the NPU's ``telemetry --noTLS`` server.
-    (The docker ``gnmi_set`` CLI always does a TLS handshake / refuses creds over
-    plaintext, so it silently no-ops and leaves DPU_APPL_DB empty.)
+    Uses ``tests/dash/gnmi_agent_extracted/gnmi_client.py``, which sends
+    username/password as gRPC *metadata* over a channel matched to the NPU
+    server's transport. The transport is auto-detected at runtime
+    (:func:`_detect_server_tls`):
+      * ``notls`` — plaintext ``grpc.insecure_channel`` (server in ``--noTLS``).
+      * ``tls`` / ``mtls`` — the server's own CA + cert/key are copied off the
+        ``gnmi`` container and reused as client certs (the server cert is
+        CA-signed with no EKU restriction and its SAN covers the NPU IP), then
+        passed to the client via the ``GNMI_CA`` / ``GNMI_CLIENT_CERT`` /
+        ``GNMI_CLIENT_KEY`` env vars that ``go_gnmi_utils._open_channel`` reads.
 
-    ``config_facts`` is kept for signature compatibility (TLS detection is no
-    longer needed). Optional instrumentation for the traffic test:
+    Optional instrumentation for the traffic test:
       * ``push_events`` — per-file ``{filename: {"idx", "kind", "start", "end"}}``
         with wall-clock timestamps.
       * ``on_file_done`` — ``on_file_done(filename, idx, kind, t_start, t_end)``
@@ -484,12 +557,32 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
     gnmi_user = shlex.quote(creds["sonicadmin_user"])
     gnmi_pass = shlex.quote(creds["sonicadmin_password"])
 
-    logger.info("gNMI push via native client %s -> %s:%s (dpu %d, plaintext)",
-                extracted_dir, ip, port, dpu_index)
+    # Match the client transport to the NPU server's (it may run plaintext or
+    # TLS/mTLS depending on testbed state). For TLS, reuse the NPU's own certs.
+    mode = _detect_server_tls(duthost, env)
+    tls_prefix = ""
+    tls_paths = None
+    if mode in ("tls", "mtls"):
+        cert_dir = os.path.join(os.path.dirname(config_dir.rstrip("/\\")), "gnmi_certs")
+        os.makedirs(cert_dir, exist_ok=True)
+        tls_paths = _stage_npu_certs(duthost, env, cert_dir)
+        if tls_paths:
+            tls_prefix = "GNMI_CA=%s " % shlex.quote(tls_paths["ca"])
+            if mode == "mtls":
+                tls_prefix += "GNMI_CLIENT_CERT=%s GNMI_CLIENT_KEY=%s " % (
+                    shlex.quote(tls_paths["cert"]), shlex.quote(tls_paths["key"]))
+            logger.info("gNMI push via native client %s -> %s:%s (dpu %d, %s)",
+                        extracted_dir, ip, port, dpu_index, mode.upper())
+        else:
+            logger.warning("Server is %s but staging NPU certs failed — "
+                           "falling back to plaintext (push will likely fail)", mode.upper())
+    else:
+        logger.info("gNMI push via native client %s -> %s:%s (dpu %d, plaintext)",
+                    extracted_dir, ip, port, dpu_index)
 
-    # gnmi-native can bounce when its certs are regenerated at testbed setup —
+    # The server can bounce when its certs are regenerated at testbed setup —
     # wait for it to be accepting connections before we start timing.
-    _wait_gnmi_ready(localhost, ip, port)
+    _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
 
     db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
     logger.info("DPU_APPL_DB DBSIZE before push: %s", db_before.get("stdout", "").strip())
@@ -512,21 +605,21 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
 
         cfg_path = os.path.join(config_dir, filename)
         cmd = (
-            f"cd {extracted_dir} && PYTHONPATH=. python3 gnmi_client.py"
+            f"cd {extracted_dir} && {tls_prefix}PYTHONPATH=. python3 gnmi_client.py"
             f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {dpu_index} -n 8"  # noqa: E231
             f" -u {gnmi_user} -p {gnmi_pass} update -f {cfg_path}"
         )
 
-        # This NPU's gnmi-native oscillates noTLS<->TLS (the plaintext push only
-        # works in a noTLS window). Ride the windows: gate each file on a noTLS
-        # window and retry across flips rather than aborting.
+        # The server can bounce (cert regen / restart) and briefly drop the
+        # connection. Gate each file on a ready server and retry transient
+        # transport errors rather than aborting.
         eni_idx, kind = parse_file_index(filename)
         t_start = time.time()
         rc, stderr, stdout = -1, "", ""
         max_attempts = 8
         for attempt in range(1, max_attempts + 1):
-            if not _gnmi_server_ready(localhost, ip, port):
-                _wait_gnmi_ready(localhost, ip, port)
+            if not _gnmi_server_ready(localhost, ip, port, tls_paths=tls_paths):
+                _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
             out = localhost.shell(cmd, module_ignore_errors=True)
             rc = out.get("rc", -1)
             stderr = out.get("stderr", "") or ""
@@ -534,10 +627,10 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             transient = rc != 0 and any(m in stderr.lower() for m in _TRANSIENT_GNMI_MARKERS)
             if rc == 0 or not transient:
                 break
-            logger.warning("  [%d/%d] %s: transient gNMI error (attempt %d/%d) — server flipped to "
-                           "TLS; waiting for the next noTLS window", idx, len(files), filename,
+            logger.warning("  [%d/%d] %s: transient gNMI error (attempt %d/%d) — server bounced; "
+                           "waiting for it to come back", idx, len(files), filename,
                            attempt, max_attempts)
-            _wait_gnmi_ready(localhost, ip, port)
+            _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
         t_end = time.time()
         elapsed = t_end - t_start
         timings[filename] = elapsed
