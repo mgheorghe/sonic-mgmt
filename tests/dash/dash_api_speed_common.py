@@ -517,20 +517,31 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             f" -u {gnmi_user} -p {gnmi_pass} update -f {cfg_path}"
         )
 
+        # This NPU's gnmi-native oscillates noTLS<->TLS (the plaintext push only
+        # works in a noTLS window). Ride the windows: gate each file on a noTLS
+        # window and retry across flips rather than aborting.
+        eni_idx, kind = parse_file_index(filename)
         t_start = time.time()
-        out = localhost.shell(cmd, module_ignore_errors=True)
-        # Retry once on a transient transport error (gnmi-native mid-restart).
-        if out.get("rc", -1) != 0 and any(
-                m in (out.get("stderr", "") or "").lower() for m in _TRANSIENT_GNMI_MARKERS):
-            logger.warning("  [%d/%d] %s: transient gNMI error — waiting for server and retrying",
-                           idx, len(files), filename)
-            _wait_gnmi_ready(localhost, ip, port)
+        rc, stderr, stdout = -1, "", ""
+        max_attempts = 8
+        for attempt in range(1, max_attempts + 1):
+            if not _gnmi_server_ready(localhost, ip, port):
+                _wait_gnmi_ready(localhost, ip, port)
             out = localhost.shell(cmd, module_ignore_errors=True)
+            rc = out.get("rc", -1)
+            stderr = out.get("stderr", "") or ""
+            stdout = out.get("stdout", "") or ""
+            transient = rc != 0 and any(m in stderr.lower() for m in _TRANSIENT_GNMI_MARKERS)
+            if rc == 0 or not transient:
+                break
+            logger.warning("  [%d/%d] %s: transient gNMI error (attempt %d/%d) — server flipped to "
+                           "TLS; waiting for the next noTLS window", idx, len(files), filename,
+                           attempt, max_attempts)
+            _wait_gnmi_ready(localhost, ip, port)
         t_end = time.time()
         elapsed = t_end - t_start
         timings[filename] = elapsed
 
-        eni_idx, kind = parse_file_index(filename)
         if push_events is not None:
             push_events[filename] = {"idx": eni_idx, "kind": kind, "start": t_start, "end": t_end}
         if on_file_done is not None:
@@ -539,9 +550,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             except Exception:
                 logger.exception("  on_file_done callback failed (non-fatal)")
 
-        rc = out.get("rc", -1)
-        stderr = out.get("stderr", "") or ""
-        stdout = out.get("stdout", "") or ""
         failed = False
         reason = ""
         if rc != 0:
@@ -555,9 +563,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             logger.error("  [%d/%d] FAILED %s after %.2fs — %s\n  output (tail): %s",
                          idx, len(files), filename, elapsed, reason, (stderr or stdout)[-3000:])
             push_errors.append(f"{filename}: {reason}")
-            if idx == 1:
-                logger.error("First file failed — aborting remaining files")
-                break
         else:
             logger.info("  [%d/%d] done    %-40s  %.2fs  rc=%d", idx, len(files), filename, elapsed, rc)
 
