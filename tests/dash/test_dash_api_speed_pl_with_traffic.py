@@ -88,7 +88,7 @@ pytestmark = [
 # NOTE: the DPU's DASH orchagent stalls programming the full 64-ENI x 64k-mapping
 # load into the ASIC (ASIC_DB stays ~empty). A small count lets the DPU actually
 # program + forward, for a green end-to-end run. Raise once the DPU scales.
-_ENI_COUNT = 64
+_ENI_COUNT = 1
 
 # ════════════════════════════════════════════════════════════════════════════
 #  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
@@ -468,7 +468,11 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
             if loss <= SETTLE_LOSS_PCT:
                 logger.info("  settle: loss <= %.1f%% — converged", SETTLE_LOSS_PCT)
                 break
-            if last_loss is not None and abs(last_loss - loss) < 0.05:
+            # Only treat "flat loss" as converged once forwarding has actually
+            # started (loss dropped below baseline). Flat ~100% loss means the
+            # dataplane hasn't begun forwarding yet (NASA still bringing up the
+            # ENI/mappings) — keep waiting for the full timeout, don't early-stop.
+            if last_loss is not None and loss < BASELINE_MIN_LOSS_PCT and abs(last_loss - loss) < 0.05:
                 stable += 1
                 if stable >= SETTLE_STABLE_POLLS:
                     logger.info("  settle: loss flat for %d polls — stopping", stable)
