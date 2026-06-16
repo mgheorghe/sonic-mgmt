@@ -346,8 +346,11 @@ def generate(params, output_dir, prefix='pl_100'):
                 'mac_address':      mac_str(eni_mac_l),
                 'underlay_ip':      filt_ipv4(eni_pal),
                 'pl_underlay_sip':  dpu_loopback,
-                'pl_sip_encoding':  f'::{vni_lehex(r_vni)}:64:ff71:0:0'  # noqa: E231
-                                    f'/::ffff:ffff:ffff:0:0',  # noqa: E231,E131
+                # Bluefield/NASA requires the encoding hi-group set (fd40 / mask fffe);
+                # a zeroed hi-group is rejected by NASA -> ENI silently dropped (no retry
+                # since sonic-swss#4566). Mirrors sonic-mgmt#23765 PL_SIP_ALTERNATE.
+                'pl_sip_encoding':  f'fd40::{vni_lehex(r_vni)}:64:ff71:0:0'  # noqa: E231
+                                    f'/fffe:0:0:ffff:ffff:ffff::',  # noqa: E231,E131
                 'vm_vni':           dpu_vm_vni,
                 'route_group_guid': guid(f'route-group-{eni}'),
                 'routes':           routes,
