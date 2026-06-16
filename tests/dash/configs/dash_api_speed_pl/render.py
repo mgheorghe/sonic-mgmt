@@ -365,8 +365,17 @@ def generate(params, output_dir, prefix='pl_100'):
                 'r_vni_id':           r_vni,
                 'vtep_remote':        filt_ipv4(eni_par),
                 'eni_hex':            eni_hex,
-                'overlay_sip_prefix': f'fd41:100:{eni_hex}:0:0::0'  # noqa: E231
-                                      f'/ffff:ffff:ffff:ffff:ffff:ffff::',  # noqa: E231,E131
+                # Bluefield/NASA: the CA2PA OVERLAY_SIP_MASK must lie within bits
+                # 80-112 (syncd SDN sdn_eni.c:1742 "CA2PA overlay SIP mask has bits
+                # set outside allowed range"). The baseline /96 mask
+                # (ffff:ffff:ffff:ffff:ffff:ffff::) spans bits 0-95 and is rejected
+                # SAI_STATUS_INVALID_PARAMETER, so every OUTBOUND_CA_TO_PA insert
+                # fails and PL traffic never forwards. Use the PL_OVERLAY_SIP_ALTERNATE
+                # mask (1:ffff:ffff:: == bits 80-112) from sonic-mgmt#23765; the
+                # per-ENI eni_hex stays in H2, which the mask covers. Cisco accepts the
+                # wide mask, hence the baseline keeps it for non-Bluefield.
+                'overlay_sip_prefix': f'1:100:{eni_hex}::'  # noqa: E231
+                                      f'/1:ffff:ffff::',  # noqa: E231,E131
                 'ip_r_start':         eni_ip_r,
                 'nsg_count':          p['ACL_NSG_COUNT'] * 2,
                 'acl_rules_nsg':      p['ACL_RULES_NSG'],
