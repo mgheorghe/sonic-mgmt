@@ -9,8 +9,9 @@ matches field-for-field):
 
     flow i (global ENI index g = dpu_index*32 + i):
         vlan   = VLAN_OUT_BASE + g
-        eth.src = MAC_L_START                       (constant, VM side)
-        eth.dst = MAC_R_START + g*MAC_STEP_ENI       (counter)
+        eth.dst = MAC_L_START + g*MAC_STEP_ENI       (== ENI mac_address; NASA
+                                                      matches outbound ENI on inner dst)
+        eth.src = MAC_R_START + g*MAC_STEP_ENI       (VM's own MAC; not matched)
         ipv4.src = IP_L_START                        (constant)
         ipv4.dst = IP_R_START + g*IP_STEP_ENI         (counter)
         udp 10000/10000, 128B fixed, continuous 1000 fps
@@ -205,11 +206,18 @@ def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU):
 
     # 3. per-ENI counters (global offset folds dpu_index into the start values).
     g0 = dpu_index * enis_per_dpu
+    mac_l0 = _mac_to_int(MAC_L_START) + g0 * _mac_to_int(MAC_STEP_ENI)
     mac_r0 = _mac_to_int(MAC_R_START) + g0 * _mac_to_int(MAC_STEP_ENI)
     ip_r0 = _ip_to_int(IP_R_START) + g0 * _ip_to_int(IP_STEP_ENI)
 
-    _set_field(eth, "ethernet.header.sourceAddress", single=MAC_L_START)
+    # NASA matches the OUTBOUND ENI on the inner DESTINATION MAC, which must equal
+    # the ENI's programmed mac_address (render.py: MAC_L_START + g*MAC_STEP_ENI).
+    # The inner SOURCE MAC is the VM's own MAC and is not used for ENI lookup.
+    # (Previously src=MAC_L const / dst=MAC_R -> inner dst never matched the ENI mac
+    # -> ENI_MISS for every flow even though VIP/direction were correct.)
     _set_field(eth, "ethernet.header.destinationAddress",
+               start=_int_to_mac(mac_l0), step=MAC_STEP_ENI, count=enis_per_dpu)
+    _set_field(eth, "ethernet.header.sourceAddress",
                start=_int_to_mac(mac_r0), step=MAC_STEP_ENI, count=enis_per_dpu)
     _set_field(vlan, "vlanTag.vlanID",
                start=VLAN_OUT_BASE + g0, step=1, count=enis_per_dpu)
