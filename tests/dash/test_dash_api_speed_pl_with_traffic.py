@@ -88,7 +88,7 @@ pytestmark = [
 # NOTE: the DPU's DASH orchagent stalls programming the full 64-ENI x 64k-mapping
 # load into the ASIC (ASIC_DB stays ~empty). A small count lets the DPU actually
 # program + forward, for a green end-to-end run. Raise once the DPU scales.
-_ENI_COUNT = 8
+_ENI_COUNT = 64
 
 # ════════════════════════════════════════════════════════════════════════════
 #  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
@@ -403,7 +403,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     mem_before = {"NPU": _collect_memory(duthost), "DPU": _collect_memory(dpuhost)}
     redis_before = _collect_redis_memory(dpuhost)
 
-    dpu_pre_config(dpuhost)
+    dpu_pre_config(dpuhost, dpu_dataplane_ip)
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
 
     # ── IxNetwork: build the target DPU's outbound traffic live (no .ixncfg) ─

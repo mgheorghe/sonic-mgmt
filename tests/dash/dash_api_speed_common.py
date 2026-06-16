@@ -34,6 +34,11 @@ _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 _GNMI_EXTRACTED_SUBDIR = "gnmi_agent_extracted"
 _BATCH_VAL = 3000  # pl_100 sweet spot (see reference_dash_perf_facts)
 
+# TEMP experiment: push apl+eni files (create VNET/ENI) first, barrier until the
+# VNETs are programmed into ASIC_DB, then push map files (mappings). Works around
+# the DPU orchagent issuing OUTBOUND_CA_TO_PA mappings before their VNET exists.
+_PHASED_PUSH = False
+
 _NPU_STATIC_ARP = [
     ("220.0.1.2", "80:09:02:02:00:01"),
     ("220.0.2.2", "80:09:02:02:00:02"),
@@ -276,16 +281,48 @@ def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
         logger.info("  %s", line)
 
 
-def dpu_pre_config(dpuhost):
-    """Prepare DPU for DASH push: add+verify Loopback0 IP, log routes/ifaces."""
-    loopback_ip = "221.0.0.%d/32" % (dpuhost.dpu_index + 1)
+def dpu_pre_config(dpuhost, dpu_dataplane_ip):
+    """Prepare DPU dataplane before pushing DASH config (mirrors private-link-nvidia/dpu.py).
+
+    Always done, in this order, before any JSON is loaded:
+      1. Ethernet0 = <dataplane_ip>/31
+      2. Default route OFF the midplane (169.254.200.254 DHCP route) and ONTO the
+         dataplane nexthop (the even /31 peer) via SONiC `config route add`. The
+         midplane default is a kernel/DHCP route (not in CONFIG_DB) so it must be
+         removed with `ip route del` — the only linux command here, as in dpu.py.
+      3. Loopback0 = 221.0.0.<idx+1>/32  (+ verify)
+      4. Loopback1 = 221.0.<idx+1>.<idx+1>/32
+    """
+    idx = dpuhost.dpu_index
+    eth0_cidr = "%s/31" % dpu_dataplane_ip
+    octs = dpu_dataplane_ip.split(".")
+    nexthop = ".".join(octs[:3] + [str(int(octs[3]) - 1)])  # .57 -> .56 (NPU side)
+    midplane_gw = "169.254.200.254"
+    loopback0 = "221.0.0.%d/32" % (idx + 1)
+    loopback1 = "221.0.%d.%d/32" % (idx + 1, idx + 1)
+
+    logger.info("DPU: adding Ethernet0 IP %s (if not present)", eth0_cidr)
+    dpuhost.shell("sudo config interface ip add Ethernet0 %s" % eth0_cidr, module_ignore_errors=True)
+
+    # Default route: swap from midplane to dataplane nexthop (only if not already selected).
+    route_out = dpuhost.shell("show ip route", module_ignore_errors=True).get("stdout", "")
+    if "S>*0.0.0.0/0" not in route_out:
+        logger.info("DPU: removing midplane default (via %s) and adding dataplane default (nexthop %s)",
+                    midplane_gw, nexthop)
+        dpuhost.shell("sudo ip route del 0.0.0.0/0 via %s" % midplane_gw, module_ignore_errors=True)
+        dpuhost.shell("sudo config route add prefix 0.0.0.0/0 nexthop %s" % nexthop, module_ignore_errors=True)
+    else:
+        logger.info("DPU: dataplane default route already selected, leaving as-is")
+
     logger.info("DPU: creating Loopback0 interface (if not present)")
     dpuhost.shell("sudo config loopback add Loopback0", module_ignore_errors=True)
-    logger.info("DPU: adding Loopback0 IP %s", loopback_ip)
-    dpuhost.shell("sudo config interface ip add Loopback0 %s" % loopback_ip, module_ignore_errors=True)
+    logger.info("DPU: adding Loopback0 IP %s", loopback0)
+    dpuhost.shell("sudo config interface ip add Loopback0 %s" % loopback0, module_ignore_errors=True)
+    logger.info("DPU: adding Loopback1 IP %s", loopback1)
+    dpuhost.shell("sudo config interface ip add Loopback1 %s" % loopback1, module_ignore_errors=True)
     iface_out = dpuhost.shell("show ip interfaces")
-    assert "221.0.0.%d" % (dpuhost.dpu_index + 1) in iface_out.get("stdout", ""), \
-        "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback_ip
+    assert "221.0.0.%d" % (idx + 1) in iface_out.get("stdout", ""), \
+        "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback0
 
     logger.info("DPU: show ip route")
     dpu_route = dpuhost.shell("show ip route", module_ignore_errors=True)
@@ -595,8 +632,36 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         file_info.append((filename, op_count, tables))
         all_tables.update(tables.keys())
 
+    # TEMP phased-push: order apl/eni before map, barrier on ASIC_DB in between.
+    if _PHASED_PUSH:
+        file_info.sort(key=lambda fi: (
+            {None: 0, "apl": 0, "eni": 1, "map": 2}.get(parse_file_index(fi[0])[1], 1),
+            parse_file_index(fi[0])[0] if parse_file_index(fi[0])[0] is not None else -1))
+        logger.info("PHASED push: %d files ordered apl/eni -> (ASIC barrier) -> map", len(file_info))
+    _expected_vnets = sum(1 for fi in file_info if parse_file_index(fi[0])[1] == "eni")
+    _barrier_done = not _PHASED_PUSH
+
+    def _asic_count(obj_type):
+        o = dpuhost.shell("sonic-db-cli ASIC_DB KEYS 'ASIC_STATE:SAI_OBJECT_TYPE_%s:*' | wc -l" % obj_type,
+                          module_ignore_errors=True)
+        try:
+            return int((o.get("stdout", "") or "0").strip() or 0)
+        except ValueError:
+            return 0
+
     push_errors = []
     for idx, (filename, op_count, tables) in enumerate(file_info, start=1):
+        if not _barrier_done and parse_file_index(filename)[1] == "map":
+            logger.info("  PHASED BARRIER: all eni files pushed; polling ASIC_DB for %d VNETs ...", _expected_vnets)
+            _bdl = time.time() + 600
+            while time.time() < _bdl:
+                vn, en = _asic_count("VNET"), _asic_count("ENI")
+                logger.info("  PHASED BARRIER: ASIC_DB VNET=%d ENI=%d (expect %d)", vn, en, _expected_vnets)
+                if vn >= _expected_vnets:
+                    break
+                time.sleep(5)
+            logger.info("  PHASED BARRIER: done — pushing mappings now")
+            _barrier_done = True
         table_summary = ", ".join(
             "{0}:{1}S/{2}D".format(t, tables[t]['SET'], tables[t]['DEL'])
             for t in sorted(tables)

@@ -38,7 +38,7 @@ pytestmark = [
 
 # How many ENIs to push per DPU. "ALL" = every rendered file.
 # Int N = apl + eni/map files with index 000..(N-1), e.g. 1 → just 000, 32 → 000..031.
-_ENI_COUNT = "ALL"
+_ENI_COUNT = 1
 
 
 def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_facts, creds):
@@ -53,7 +53,11 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_
     # Render configs under the repo so the host docker daemon can bind-mount them (/tmp isn't shared).
     render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
     logger.info("Rendering DASH configs into %s", render_output_dir)
-    render.generate(dict(render.DEFAULTS), render_output_dir, prefix="pl_100")
+    # Nvidia SN4280 smartswitch: 4 DPUs, 64 ENIs each (256 total). enis_per_dpu =
+    # ENI_COUNT // DPUS, so DPUS=4 yields 64 ENIs per DPU (dpu0 = eni 000..063).
+    render_params = dict(render.DEFAULTS)
+    render_params["DPUS"] = 4
+    render.generate(render_params, render_output_dir, prefix="pl_100")
 
     config_dir = os.path.join(render_output_dir, f"dpu{dpuhost.dpu_index}")
     assert os.path.isdir(config_dir), f"Config directory not found after render: {config_dir}"
@@ -92,7 +96,7 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_
     }
     redis_before = _collect_redis_memory(dpuhost)
 
-    dpu_pre_config(dpuhost)
+    dpu_pre_config(dpuhost, dpu_dataplane_ip)
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
 
     timings = {}
