@@ -324,6 +324,30 @@ def dpu_pre_config(dpuhost, dpu_dataplane_ip):
     assert "221.0.0.%d" % (idx + 1) in iface_out.get("stdout", ""), \
         "Loopback0 IP %s was not found in 'show ip interfaces' after config" % loopback0
 
+    # VXLAN UDP dport MUST match the traffic generator (UHD/IxNetwork encaps to 4789).
+    # A fresh DPU defaults to 65330, which NASA does not recognize -> all VXLAN traffic
+    # falls through to the kernel and never reaches the DASH VIP pipeline (100% loss,
+    # VIP_MISS never even has a chance). Pin SWITCH_TABLE:switch vxlan_port to 4789.
+    # swssconfig is known not to always take on the first apply, so verify + retry.
+    vxlan_port_cfg = [{"SWITCH_TABLE:switch": {"vxlan_port": "4789"}, "OP": "SET"}]
+    dpuhost.copy(content=json.dumps(vxlan_port_cfg, indent=4),
+                 dest="/tmp/vxlan_port_config.json", verbose=False)
+    for attempt in range(3):
+        logger.info("DPU: setting VXLAN UDP dport to 4789 (attempt %d)", attempt + 1)
+        dpuhost.shell("docker cp /tmp/vxlan_port_config.json swss:/vxlan_port_config.json",
+                      module_ignore_errors=True)
+        dpuhost.shell("docker exec swss sh -c 'swssconfig /vxlan_port_config.json'",
+                      module_ignore_errors=True)
+        time.sleep(3)
+        vxp = dpuhost.shell("redis-cli -n 0 hget SWITCH_TABLE:switch vxlan_port",
+                            module_ignore_errors=True).get("stdout", "").strip()
+        logger.info("DPU: SWITCH_TABLE:switch vxlan_port now = %s", vxp)
+        if vxp == "4789":
+            break
+    else:
+        logger.warning("DPU: vxlan_port did not settle to 4789 (got %s) -- traffic may not "
+                       "be recognized by NASA", vxp)
+
     logger.info("DPU: show ip route")
     dpu_route = dpuhost.shell("show ip route", module_ignore_errors=True)
     for line in dpu_route.get("stdout", "").splitlines():
