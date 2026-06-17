@@ -61,11 +61,11 @@ ENIS_PER_DPU = 32
 VLAN_OUT_BASE = 1001      # outbound VLAN = VLAN_OUT_BASE + global_eni_index
 # Inbound (service->VM). The UHD bridges VLANs 1..32 on the "s" ports to NVGRE
 # toward the DPU (VLAN 1001.. on the "c" ports are the outbound VXLAN). The
-# inbound source is a separate IxNetwork port (VTEP_01); the outbound port maps
-# VTEP_09 == card7:port5, so the contiguous VTEP block puts VTEP_01 at card6:port5.
+# inbound source is IxNetwork port VTEP_01 = chassis 10.36.77.138 card7 port1
+# (from bg.scriptgen.tcl -location list; VTEP_09 == 7;5 confirms the order).
 VLAN_IN_BASE = 1          # inbound VLAN = VLAN_IN_BASE + global_eni_index
-RX_PORT_CARD = 6          # IxNetwork port wired to the UHD inbound ("s") port
-RX_PORT_PORT = 5
+RX_PORT_CARD = 7          # IxNetwork port (VTEP_01) wired to the UHD inbound ("s") port
+RX_PORT_PORT = 1
 
 # Per-flow packet template — matches render.py DEFAULTS / bg.ixncfg exactly.
 MAC_L_START = "00:1a:c5:00:00:01"     # eth.src (constant, VM side)
