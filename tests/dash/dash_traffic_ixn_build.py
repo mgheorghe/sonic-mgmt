@@ -77,7 +77,11 @@ IP_STEP_ENI = "0.64.0.0"
 UDP_SRC_PORT = 10000
 UDP_DST_PORT = 10000
 FRAME_SIZE = 128
-PER_FLOW_RATE_FPS = 1000
+# Gentle trickle. The DPU/NASA dataplane handles ~20 Mpps; 200 fps is ~100,000x
+# below that, so a packet drop here cannot be rate/overflow induced. (A line-rate
+# blast would also be invisible to the per-direction counts since the burst is a
+# fixed frame count, not continuous — but keeping it slow removes all doubt.)
+PER_FLOW_RATE_FPS = 200
 # Fixed (non-continuous) burst sizes so per-run counts are deterministic and the
 # direction that fails is obvious from the raw count. OUTBOUND = 9999, INBOUND =
 # 7777 (inbound builder lands in Phase 4; the constant is ready for it).

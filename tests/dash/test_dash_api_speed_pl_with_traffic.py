@@ -124,6 +124,7 @@ PORT_UP_TIMEOUT_S = 90       # wait for IxNetwork<->UHD L1 link-up after AssignP
 POST_PROGRAM_SETTLE_S = 30   # ASIC bring-up time before the measurement burst
 BURST_TIMEOUT_S = 120        # max wait for a fixed burst to finish sending
 BURST_STATS_SETTLE_S = 8     # let Flow Statistics catch up after a burst
+NASA_RECHECK_SETTLE_S = 5    # re-read NASA after this to prove counters are stable
 SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the measurement burst
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -753,6 +754,17 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         sw_after = _collect_switch_counters(duthost, "measure-after-NPU")
         dpu_after = _collect_switch_counters(dpuhost, "measure-after-DPU")
         nasa_after = _collect_nasa_stats(dpuhost, "measure-after-NASA")
+        # Are NASA counters still trickling in, or already complete? Re-read after a
+        # short settle and log any movement. STABLE => the "17777 RX vs 254 NASA"
+        # gap is NOT stats latency (NASA has no 'processed' counter, only drops).
+        time.sleep(NASA_RECHECK_SETTLE_S)
+        nasa_after2 = _collect_nasa_stats(dpuhost, "measure-after-NASA+settle")
+        _nasa_moving = {k: nasa_after2.get(k, 0) - nasa_after.get(k, 0)
+                        for k in set(nasa_after) | set(nasa_after2)
+                        if nasa_after2.get(k, 0) != nasa_after.get(k, 0)}
+        logger.info("NASA counters +%ds after burst: %s", NASA_RECHECK_SETTLE_S,
+                    _nasa_moving or "STABLE (no change — counters were already complete)")
+        nasa_after = nasa_after2
         uhd_last = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
         dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="measurement", prev=uhd_before)
         flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
