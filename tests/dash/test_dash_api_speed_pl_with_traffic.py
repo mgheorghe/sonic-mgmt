@@ -270,26 +270,61 @@ def _log_switch_delta(before, after, label):
 # Diagram input: per-hop RX/TX DELTAS over one traffic run. Consumed by
 # c:\tmp\make_dash_chain_chart.py (mirror to tests/dash/dash_perhop_delta.json).
 _PERHOP_DELTA_JSON = os.path.join(os.path.dirname(__file__), "dash_perhop_delta.json")
+# Full raw-stats companion for the diagram (IxN/UHD/NPU/DPU/NASA), one per run.
+_RUN_DETAILS_TXT = os.path.join(os.path.dirname(__file__), "dash_perhop_details.txt")
+
+# NASA exposes its port/global stats via the syncd CLI fed over stdin.
+_NASA_STATS_CMD = ("printf 'port_stats_dump stats_mode READ\\nquit\\n' | "
+                   "docker exec -i syncd python /usr/sbin/cli/nasa_cli.py -u 2>&1")
+_NASA_STAT_RE = re.compile(r"(SAI_PORT_STAT_\w+):\s*(\d+)")
 
 
-def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
-                            flow_stats, duration_s, out_path=_PERHOP_DELTA_JSON):
-    """Write per-hop RX/TX deltas (after-before) for the traffic-path diagram.
+def _collect_nasa_stats(dpuhost, label):
+    """Return {counter_name: int} for ALL NASA port/global stats (not just drops)."""
+    try:
+        out = dpuhost.shell(_NASA_STATS_CMD, module_ignore_errors=True).get("stdout", "")
+    except Exception:
+        logger.exception("  NASA stats (%s) collection failed", label)
+        return {}
+    stats = {}
+    for line in out.splitlines():
+        m = _NASA_STAT_RE.search(line)
+        if m:
+            stats[m.group(1)] = int(m.group(2))
+    if not stats:
+        logger.warning("  NASA stats (%s): no counters parsed (syncd/nasa_cli reachable?)", label)
+    return stats
 
-    Raw 'show interface counters' are cumulative since boot and polluted by
-    LLDP/ARP/control traffic — the per-run DELTA is the only honest signal.
-    NPU Ethernet0 = UHD side, Ethernet224 = DPU side; DPU0 Ethernet0 = NPU side.
+
+def _i(x):
+    try:
+        return int(str(x).replace(",", ""))
+    except (ValueError, TypeError):
+        return 0
+
+
+def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after, flow_stats,
+                            duration_s, nasa_before=None, nasa_after=None,
+                            out_path=_PERHOP_DELTA_JSON):
+    """Write per-hop RX/TX deltas (after-before) + NASA counter deltas for the diagram.
+
+    Raw 'show interface counters' / NASA stats are cumulative since boot and
+    polluted by control traffic + earlier debug runs — the per-run DELTA is the
+    only honest signal. NPU Ethernet0 = UHD side, Ethernet224 = DPU side;
+    DPU0 Ethernet0 = NPU side.
     """
-    def _i(x):
-        try:
-            return int(str(x).replace(",", ""))
-        except (ValueError, TypeError):
-            return 0
-
     def _delta(before, after, iface):
         a, b = after.get(iface, {}), before.get(iface, {})
         return {"rx": _i(a.get("rx_ok")) - _i(b.get("rx_ok")),
                 "tx": _i(a.get("tx_ok")) - _i(b.get("tx_ok"))}
+
+    nasa_before = nasa_before or {}
+    nasa_after = nasa_after or {}
+    nasa_delta = {k: nasa_after.get(k, 0) - nasa_before.get(k, 0)
+                  for k in set(nasa_before) | set(nasa_after)}
+    # Dominant DROP stage over the run: largest positive *_DROP_PACKETS delta.
+    drops = {k: v for k, v in nasa_delta.items() if "DROP_PACKETS" in k and v > 0}
+    dom_drop, dom_drop_n = (max(drops.items(), key=lambda kv: kv[1]) if drops else (None, 0))
 
     payload = {
         "captured_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
@@ -299,9 +334,13 @@ def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
         "dpu": {"Ethernet0": _delta(dpu_before, dpu_after, "Ethernet0")},
         "ixia": {"tx": sum(s.get("tx", 0) for s in flow_stats.values()),
                  "rx": sum(s.get("rx", 0) for s in flow_stats.values())},
+        "nasa_delta": nasa_delta,
+        "dominant_drop": {"counter": dom_drop, "packets": dom_drop_n},
     }
     # Single-line copy in the log so the deltas survive even if file sync is manual.
     logger.info("PERHOP_DELTA_JSON=%s", json.dumps(payload, separators=(",", ":")))
+    if dom_drop:
+        logger.info("  NASA dominant drop this run: %s = %d", dom_drop, dom_drop_n)
     try:
         with open(out_path, "w") as f:
             json.dump(payload, f, indent=2)
@@ -309,6 +348,87 @@ def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
     except OSError:
         logger.exception("  failed to write per-hop delta JSON to %s", out_path)
     return payload
+
+
+def _fmt_counter_table(before, after, keys, b_label="before", a_label="after"):
+    """Format a before/after/delta table for arbitrary {name: int(-ish)} dicts."""
+    lines = ["    %-52s %16s %16s %16s" % ("counter", b_label, a_label, "delta")]
+    for k in keys:
+        b, a = _i(before.get(k, 0)), _i(after.get(k, 0))
+        lines.append("    %-52s %16d %16d %16d" % (k, b, a, a - b))
+    return "\n".join(lines)
+
+
+def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
+                       nasa_before, nasa_after, uhd_stats, flow_stats,
+                       out_path=_RUN_DETAILS_TXT):
+    """Drop EVERY raw stat behind the run's diagram into one companion text file:
+    IxN HW/flow stats, UHD per-port, NPU + DPU interface counters, NASA dump."""
+    sec = []
+    sec.append("DASH traffic-path run details — %s (duration %ss)"
+               % (payload.get("captured_utc"), payload.get("duration_s")))
+    dd = payload.get("dominant_drop", {})
+    sec.append("dominant NASA drop this run: %s = %s"
+               % (dd.get("counter"), dd.get("packets")))
+    sec.append("")
+
+    sec.append("== IxNetwork flow stats (per-ENI) ==")
+    sec.append("    %-8s %14s %14s %10s" % ("eni", "tx", "rx", "loss%"))
+    tot_tx = tot_rx = 0
+    for g in sorted(flow_stats):
+        s = flow_stats[g]
+        tot_tx += s.get("tx", 0)
+        tot_rx += s.get("rx", 0)
+        sec.append("    %-8s %14d %14d %10.3f"
+                   % (g, s.get("tx", 0), s.get("rx", 0), s.get("loss_pct", 0.0)))
+    agg = 100.0 * (tot_tx - tot_rx) / tot_tx if tot_tx else 0.0
+    sec.append("    TOTAL    tx=%d rx=%d  aggregate loss=%.3f%%" % (tot_tx, tot_rx, agg))
+    sec.append("")
+
+    sec.append("== UHD per-port metrics ==")
+    for port in sorted(uhd_stats or {}):
+        sec.append("    %s:" % port)
+        for k in sorted(uhd_stats[port]):
+            sec.append("        %-28s %s" % (k, uhd_stats[port][k]))
+    if not uhd_stats:
+        sec.append("    (no UHD metrics)")
+    sec.append("")
+
+    sec.append("== NPU interface counters (before / after / delta) ==")
+    sec.append(_fmt_counter_table(
+        {k: sw_before.get(k, {}).get("rx_ok") for k in ("Ethernet0", "Ethernet224")},
+        {k: sw_after.get(k, {}).get("rx_ok") for k in ("Ethernet0", "Ethernet224")},
+        ["Ethernet0", "Ethernet224"], "rx_before", "rx_after"))
+    sec.append(_fmt_counter_table(
+        {k: sw_before.get(k, {}).get("tx_ok") for k in ("Ethernet0", "Ethernet224")},
+        {k: sw_after.get(k, {}).get("tx_ok") for k in ("Ethernet0", "Ethernet224")},
+        ["Ethernet0", "Ethernet224"], "tx_before", "tx_after"))
+    sec.append("")
+
+    sec.append("== DPU0 interface counters (before / after / delta) ==")
+    sec.append(_fmt_counter_table(
+        {"Ethernet0": dpu_before.get("Ethernet0", {}).get("rx_ok")},
+        {"Ethernet0": dpu_after.get("Ethernet0", {}).get("rx_ok")},
+        ["Ethernet0"], "rx_before", "rx_after"))
+    sec.append(_fmt_counter_table(
+        {"Ethernet0": dpu_before.get("Ethernet0", {}).get("tx_ok")},
+        {"Ethernet0": dpu_after.get("Ethernet0", {}).get("tx_ok")},
+        ["Ethernet0"], "tx_before", "tx_after"))
+    sec.append("")
+
+    sec.append("== NASA port_stats_dump (ALL counters, before / after / delta) ==")
+    nkeys = sorted(set(nasa_before or {}) | set(nasa_after or {}))
+    sec.append(_fmt_counter_table(nasa_before or {}, nasa_after or {}, nkeys))
+    sec.append("")
+
+    text = "\n".join(sec)
+    try:
+        with open(out_path, "w") as f:
+            f.write(text + "\n")
+        logger.info("  wrote run details: %s", out_path)
+    except OSError:
+        logger.exception("  failed to write run details to %s", out_path)
+    return text
 
 
 # ───────────────────────── results / correlation table ─────────────────────
@@ -461,6 +581,9 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     sw_after = {}
     dpu_before = {}
     dpu_after = {}
+    nasa_before = {}
+    nasa_after = {}
+    uhd_last = {}
     traffic_t0 = None
     traffic_dur = 0.0
     total_start = time.time()
@@ -475,6 +598,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         dash_uhd_stats.clear_metrics(UHD_IP)
         sw_before = _collect_switch_counters(duthost, "baseline-NPU")
         dpu_before = _collect_switch_counters(dpuhost, "baseline-DPU")
+        nasa_before = _collect_nasa_stats(dpuhost, "baseline-NASA")
         uhd_before = dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="baseline")
 
         _ix_start_traffic(ixnetwork)
@@ -535,9 +659,11 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         # Post-run counter snapshots (same active-traffic window for NPU + DPU).
         sw_after = _collect_switch_counters(duthost, "after-NPU")
         dpu_after = _collect_switch_counters(dpuhost, "after-DPU")
+        nasa_after = _collect_nasa_stats(dpuhost, "after-NASA")
         if traffic_t0 is not None:
             traffic_dur = time.time() - traffic_t0
         dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="after settle", prev=uhd_before)
+        uhd_last = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
     finally:
         if traffic_started:
             _ix_stop_traffic(ixnetwork)
@@ -562,12 +688,16 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         _log_switch_delta(sw_before, sw_after, "NPU (push window)")
     if dpu_before and dpu_after:
         _log_switch_delta(dpu_before, dpu_after, "DPU0 (push window)")
-    # Emit the per-hop DELTA JSON the traffic-path diagram consumes.
+    # Emit the per-hop DELTA JSON (incl. NASA deltas + dominant drop) and the full
+    # raw-stats details file the diagram is built from.
     try:
-        _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
-                                flow_stats, traffic_dur)
+        payload = _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
+                                          flow_stats, traffic_dur,
+                                          nasa_before=nasa_before, nasa_after=nasa_after)
+        _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
+                           nasa_before, nasa_after, uhd_last, flow_stats)
     except Exception:
-        logger.exception("Failed to emit per-hop delta JSON")
+        logger.exception("Failed to emit per-hop delta JSON / run details")
     n_forwarding = _print_traffic_vs_grpc(eni_indices, push_events, flow_stats)
 
     # ── Assertions ──────────────────────────────────────────────────────────
