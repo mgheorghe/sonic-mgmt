@@ -119,6 +119,7 @@ BASELINE_MIN_LOSS_PCT = 99.0
 
 # Fixed-burst model: after programming, let the DPU settle, then send one fixed
 # burst and measure the deltas around exactly that burst.
+PORT_UP_TIMEOUT_S = 90       # wait for IxNetwork<->UHD L1 link-up after AssignPorts
 POST_PROGRAM_SETTLE_S = 30   # ASIC bring-up time before the measurement burst
 BURST_TIMEOUT_S = 120        # max wait for a fixed burst to finish sending
 BURST_STATS_SETTLE_S = 8     # let Flow Statistics catch up after a burst
@@ -154,6 +155,24 @@ def _ix_stop_traffic(ixnetwork):
         ixnetwork.Traffic.StopStatelessTrafficBlocking()
     except Exception:
         logger.exception("IxNetwork: stop traffic failed (non-fatal)")
+
+
+def _ix_wait_ports_up(ixnetwork, timeout=PORT_UP_TIMEOUT_S):
+    """Poll until all vports report link 'up'. AssignPorts (with ClearConfig) makes
+    the IxNetwork<->UHD L1 re-negotiate (100G/RS-FEC), which takes ~10-30s; starting
+    traffic before link-up fails with 'Start traffic failed'."""
+    deadline = time.time() + timeout
+    states = {}
+    while time.time() < deadline:
+        states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
+        if states and all(s == "up" for s in states.values()):
+            logger.info("IxNetwork: all ports up: %s", states)
+            return True
+        logger.info("IxNetwork: waiting for ports up: %s", states)
+        time.sleep(5)
+    logger.warning("IxNetwork: ports NOT all up after %ds: %s — traffic start may fail",
+                   timeout, states)
+    return False
 
 
 def _ix_run_fixed_burst(ixnetwork, label, timeout=BURST_TIMEOUT_S):
@@ -679,6 +698,8 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         build_inbound_config(ixnetwork, dpuhost.dpu_index, enis_per_dpu=len(eni_indices))
         states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
         logger.info("IxNetwork port states: %s", states)
+        # L1 re-negotiates after AssignPorts; wait for link-up before any burst.
+        _ix_wait_ports_up(ixnetwork)
 
         # ── Baseline burst (no ENIs programmed) → expect ~100% loss ──────────
         dash_uhd_stats.clear_metrics(UHD_IP)
