@@ -54,6 +54,10 @@ DEFAULTS = {
     'IP_STEP_ENI':        '0.64.0.0',
     'IP_STEP_NSG':        '0.2.0.0',
     'TOTAL_OUTBOUND_ROUTES': 128000,
+    # Minimal mode: emit exactly ONE VNet mapping (at IP_R_START) and ONE outbound
+    # route (IP_R_START/32) per ENI instead of the full 64k-mapping / ~500-route
+    # private-link scale. For isolating dataplane forwarding of a single flow.
+    'MINIMAL_SINGLE_ENTRY': False,
 }
 
 
@@ -165,6 +169,11 @@ def compute_outbound_routes(ip_r_start_eni, eni_index, params, total_outbound_ro
     and optionally overlay_ip (str) for vnet_direct entries.
     """
     p = params
+    if p.get('MINIMAL_SINGLE_ENTRY'):
+        # Exactly one outbound route: the destination /32 (IP_R_START), routed via
+        # the VNet so it resolves through the single VNet mapping below.
+        yield {'ip': filt_ipv4(ip_r_start_eni), 'mask': 32, 'routing_type': 'vnet'}
+        return
     num_nsg_groups = p['ACL_NSG_COUNT'] * 2
     ips_per_nsg = p['ACL_RULES_NSG'] * p['IP_PER_ACL_RULE']
     ip_step_nsg = ip2int(p['IP_STEP_NSG'])
@@ -377,8 +386,10 @@ def generate(params, output_dir, prefix='pl_100'):
                 'overlay_sip_prefix': f'1:100:{eni_hex}::'  # noqa: E231
                                       f'/1:ffff:ffff::',  # noqa: E231,E131
                 'ip_r_start':         eni_ip_r,
-                'nsg_count':          p['ACL_NSG_COUNT'] * 2,
-                'acl_rules_nsg':      p['ACL_RULES_NSG'],
+                # Minimal mode: 1 nsg x range(0,2,2)=1 iteration -> exactly ONE
+                # mapping, at ip_r_start (== IP_R_START, e.g. 1.4.0.1).
+                'nsg_count':          1 if p.get('MINIMAL_SINGLE_ENTRY') else p['ACL_NSG_COUNT'] * 2,
+                'acl_rules_nsg':      2 if p.get('MINIMAL_SINGLE_ENTRY') else p['ACL_RULES_NSG'],
                 'ip_step_nsg':        IP_NSG,
             }))
 

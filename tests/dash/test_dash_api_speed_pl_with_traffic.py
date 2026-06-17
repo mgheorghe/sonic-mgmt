@@ -575,6 +575,9 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     hwsku = duthost.facts.get("hwsku", "")
     params = dict(render.DEFAULTS)
     params["DPUS"] = 8 if "Cisco" in hwsku else 4
+    # Minimal config: exactly ONE VNet mapping (1.4.0.1) + ONE outbound route per
+    # ENI (instead of 64k mappings / ~500 routes) to isolate single-flow forwarding.
+    params["MINIMAL_SINGLE_ENTRY"] = True
     enis_per_dpu = params["ENI_COUNT"] // params["DPUS"]
     render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
     logger.info("Rendering DASH configs (hwsku=%s, DPUS=%d -> %d ENIs/DPU = %d files) into %s",
