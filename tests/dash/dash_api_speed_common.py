@@ -348,6 +348,21 @@ def dpu_pre_config(dpuhost, dpu_dataplane_ip):
         logger.warning("DPU: vxlan_port did not settle to 4789 (got %s) -- traffic may not "
                        "be recognized by NASA", vxp)
 
+    # Underlay PA RETURN routes (outbound forwarding path). After the DASH CA2PA stage
+    # the outbound packet is re-encapped to the remote PA (PAR 221.2.0.0/.., and the
+    # VM-side PAL 221.1.0.0/..) and must egress via the DATAPLANE nexthop so it reaches
+    # the NPU -> UHD -> IxNetwork. On a fresh DPU the only default is the DHCP midplane
+    # route (0.0.0.0/0 via 169.254.200.254 dev eth0-midplane); the midplane is a mgmt
+    # interface NASA cannot forward on, so the return is black-holed -> 100% loss even
+    # though VIP/direction/ENI/CA2PA are all correct. The default-route swap above is
+    # repeatedly reclaimed by the midplane DHCP client, so pin the PA supernets to the
+    # dataplane nexthop explicitly (a more-specific route beats the DHCP default and
+    # survives lease renewals).
+    for pa_supernet in ("221.1.0.0/16", "221.2.0.0/16", "221.4.0.0/16"):
+        logger.info("DPU: adding underlay PA return route %s -> %s", pa_supernet, nexthop)
+        dpuhost.shell("sudo config route add prefix %s nexthop %s" % (pa_supernet, nexthop),
+                      module_ignore_errors=True)
+
     logger.info("DPU: show ip route")
     dpu_route = dpuhost.shell("show ip route", module_ignore_errors=True)
     for line in dpu_route.get("stdout", "").splitlines():
