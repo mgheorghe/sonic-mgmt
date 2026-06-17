@@ -362,7 +362,8 @@ def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after, flow_sta
 
     Raw 'show interface counters' / NASA stats are cumulative since boot and
     polluted by control traffic + earlier debug runs — the per-run DELTA is the
-    only honest signal. NPU Ethernet0 = UHD side, Ethernet224 = DPU side;
+    only honest signal. NPU Ethernet0 = UHD side / port1 / outbound-VXLAN-221.1,
+    Ethernet8 = UHD side / port2 / inbound-NVGRE-221.2, Ethernet224 = DPU side;
     DPU0 Ethernet0 = NPU side.
     """
     def _delta(before, after, iface):
@@ -382,6 +383,7 @@ def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after, flow_sta
         "captured_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
         "duration_s": int(duration_s),
         "npu": {"Ethernet0": _delta(sw_before, sw_after, "Ethernet0"),
+                "Ethernet8": _delta(sw_before, sw_after, "Ethernet8"),
                 "Ethernet224": _delta(sw_before, sw_after, "Ethernet224")},
         "dpu": {"Ethernet0": _delta(dpu_before, dpu_after, "Ethernet0")},
         "ixia": {"tx": sum(s.get("tx", 0) for s in flow_stats.values()),
@@ -493,14 +495,15 @@ def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
     sec.append("")
 
     sec.append("== NPU interface counters (before / after / delta) ==")
+    _npu_ifaces = ("Ethernet0", "Ethernet8", "Ethernet224")
     sec.append(_fmt_counter_table(
-        {k: sw_before.get(k, {}).get("rx_ok") for k in ("Ethernet0", "Ethernet224")},
-        {k: sw_after.get(k, {}).get("rx_ok") for k in ("Ethernet0", "Ethernet224")},
-        ["Ethernet0", "Ethernet224"], "rx_before", "rx_after"))
+        {k: sw_before.get(k, {}).get("rx_ok") for k in _npu_ifaces},
+        {k: sw_after.get(k, {}).get("rx_ok") for k in _npu_ifaces},
+        list(_npu_ifaces), "rx_before", "rx_after"))
     sec.append(_fmt_counter_table(
-        {k: sw_before.get(k, {}).get("tx_ok") for k in ("Ethernet0", "Ethernet224")},
-        {k: sw_after.get(k, {}).get("tx_ok") for k in ("Ethernet0", "Ethernet224")},
-        ["Ethernet0", "Ethernet224"], "tx_before", "tx_after"))
+        {k: sw_before.get(k, {}).get("tx_ok") for k in _npu_ifaces},
+        {k: sw_after.get(k, {}).get("tx_ok") for k in _npu_ifaces},
+        list(_npu_ifaces), "tx_before", "tx_after"))
     sec.append("")
 
     sec.append("== DPU0 interface counters (before / after / delta) ==")

@@ -46,6 +46,25 @@ _NPU_STATIC_ARP = [
     ("220.0.4.2", "80:09:02:02:00:04"),
 ]
 
+# Per-port PA return routes — keep the two traffic directions separable on the
+# two NPU<->UHD links so per-interface counters trace each direction cleanly:
+#   port1 = Ethernet0 (220.0.1.x) = outbound / VXLAN / 221.1.0.0 (vni 1000)
+#   port2 = Ethernet8 (220.0.2.x) = inbound  / NVGRE / 221.2.0.0 (vsid 100)
+# The optimized UHD config (smartswitch-nvidia-optimized.http) bridges
+# dpu_port_1<->Ethernet0 (221.1) and dpu_port_2<->Ethernet8 (221.2). Without
+# this split both supernets resolve via Ethernet0 and the diagram can't tell the
+# directions apart.  (nexthop must have a matching _NPU_STATIC_ARP entry.)
+_NPU_RETURN_ROUTES = [
+    ("221.1.0.0/16", "220.0.1.2"),   # outbound -> port1 / Ethernet0
+    ("221.2.0.0/16", "220.0.2.2"),   # inbound  -> port2 / Ethernet8
+]
+# Stale more-specifics from earlier single-/split-port attempts; a /26 beats the
+# /16 above, so remove any that point the wrong direction before adding the /16s.
+_NPU_STALE_ROUTES = [
+    ("221.1.0.0/26", "220.0.1.2"), ("221.1.0.64/26", "220.0.2.2"),
+    ("221.2.0.0/26", "220.0.1.2"), ("221.2.0.64/26", "220.0.2.2"),
+]
+
 # Filename pattern: pl_100.dpu0.001eni.json -> index 001, kind "eni".
 _FILE_INDEX_RE = re.compile(r"\.(\d{3})(apl|eni|map)\.json$")
 
@@ -258,6 +277,25 @@ def npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip):
                 f"Failed to add permanent ARP entry for {ip} after 3 attempts. "
                 f"'ip neigh show {ip}': {verify.get('stdout', '')}"
             )
+
+    # Per-port PA return routes: drop stale wrong-way more-specifics, then install
+    # the /16 split so 221.1 -> port1/Ethernet0 and 221.2 -> port2/Ethernet8.
+    logger.info("NPU: removing stale PA more-specific routes")
+    for prefix, nexthop in _NPU_STALE_ROUTES:
+        duthost.shell("sudo config route del prefix %s nexthop %s" % (prefix, nexthop),
+                      module_ignore_errors=True)
+    logger.info("NPU: installing per-port PA return routes (221.1->Eth0, 221.2->Eth8)")
+    for prefix, nexthop in _NPU_RETURN_ROUTES:
+        duthost.shell("sudo config route add prefix %s nexthop %s" % (prefix, nexthop),
+                      module_ignore_errors=True)
+    for probe, want in (("221.1.0.1", "220.0.1.2"), ("221.2.0.1", "220.0.2.2")):
+        rg = duthost.shell("ip route get %s" % probe, module_ignore_errors=True).get("stdout", "")
+        rg1 = rg.splitlines()[0] if rg.strip() else "(no route)"
+        if want in rg:
+            logger.info("  NPU: PA %s routes via %s (correct port): %s", probe, want, rg1)
+        else:
+            logger.warning("  NPU: PA %s NOT via %s -> direction not isolated on its port: %s",
+                           probe, want, rg1)
 
     logger.info("NPU: pinging DPU midplane IP %s to populate ARP", dpu_midplane_ip)
     duthost.shell(f"ping -c 3 -W 2 {dpu_midplane_ip}", module_ignore_errors=True)
