@@ -292,6 +292,11 @@ def dpu_pre_config(dpuhost, dpu_dataplane_ip):
          removed with `ip route del` — the only linux command here, as in dpu.py.
       3. Loopback0 = 221.0.0.<idx+1>/32  (+ verify)
       4. Loopback1 = 221.0.<idx+1>.<idx+1>/32
+      5. SWITCH_TABLE:switch vxlan_port = 4789 (+ verify/retry)
+      6. PA return routes 221.{1,2,4}.0.0/16 -> dataplane nexthop, then VERIFY each
+         supernet resolves out the dataplane (not eth0-midplane) via `ip route get`.
+      7. PERMANENT static neighbor for the dataplane nexthop so NASA/DPDK has the
+         next-hop MAC to build the NVGRE return packet's outer Ethernet.
     """
     idx = dpuhost.dpu_index
     eth0_cidr = "%s/31" % dpu_dataplane_ip
@@ -362,6 +367,49 @@ def dpu_pre_config(dpuhost, dpu_dataplane_ip):
         logger.info("DPU: adding underlay PA return route %s -> %s", pa_supernet, nexthop)
         dpuhost.shell("sudo config route add prefix %s nexthop %s" % (pa_supernet, nexthop),
                       module_ignore_errors=True)
+
+    # Verify the PA routes actually WIN over the DHCP midplane default. A /16 should
+    # beat 0.0.0.0/0, but the midplane DHCP client has been seen to reclaim routing
+    # (wrong VRF / route reordering), which silently black-holes the return. Probe
+    # one IP per supernet with `ip route get` and confirm it egresses the dataplane
+    # nexthop, NOT eth0-midplane.
+    for probe in ("221.1.0.1", "221.2.0.1", "221.4.0.1"):
+        rg = dpuhost.shell("ip route get %s" % probe, module_ignore_errors=True).get("stdout", "")
+        rg1 = rg.splitlines()[0] if rg.strip() else "(no route)"
+        if "midplane" in rg or nexthop not in rg:
+            logger.warning("DPU: PA %s still NOT via dataplane nexthop %s -> RETURN WILL "
+                           "BLACK-HOLE: %s", probe, nexthop, rg1)
+        else:
+            logger.info("DPU: PA %s routes via dataplane nexthop %s: %s", probe, nexthop, rg1)
+
+    # Permanent static neighbor for the dataplane nexthop. NASA/DPDK builds the outer
+    # Ethernet header of the re-encapped (NVGRE) return packet from this ARP entry;
+    # without a resolved next-hop MAC the packet is dropped on egress (DPU0 Eth0 TX=0
+    # even though RX is full). Resolve once via ping, then pin it PERMANENT so DPDK
+    # always has the MAC and it survives ARP timeouts.
+    egress_rg = dpuhost.shell("ip route get %s" % nexthop, module_ignore_errors=True).get("stdout", "")
+    etoks = egress_rg.split()
+    egress_dev = next((etoks[i + 1] for i, t in enumerate(etoks) if t == "dev"), "Ethernet0")
+    dpuhost.shell("ping -c 3 -W 2 %s" % nexthop, module_ignore_errors=True)
+    nbr = dpuhost.shell("ip neigh show %s" % nexthop, module_ignore_errors=True).get("stdout", "")
+    ntoks = nbr.split()
+    nh_mac = next((ntoks[i + 1] for i, t in enumerate(ntoks) if t == "lladdr"), None)
+    if nh_mac:
+        for attempt in range(3):
+            dpuhost.shell("sudo ip neigh replace %s lladdr %s dev %s nud permanent"
+                          % (nexthop, nh_mac, egress_dev), module_ignore_errors=True)
+            chk = dpuhost.shell("ip neigh show %s" % nexthop,
+                                module_ignore_errors=True).get("stdout", "")
+            if "PERMANENT" in chk.upper():
+                logger.info("DPU: permanent ARP %s lladdr %s dev %s (attempt %d)",
+                            nexthop, nh_mac, egress_dev, attempt + 1)
+                break
+        else:
+            logger.warning("DPU: failed to pin permanent ARP for %s (last: %s)", nexthop, chk.strip())
+    else:
+        logger.warning("DPU: could not resolve next-hop %s MAC (ping unanswered on dev %s) -> "
+                       "NASA may drop the return on egress; check NPU Ethernet224 is up",
+                       nexthop, egress_dev)
 
     logger.info("DPU: show ip route")
     dpu_route = dpuhost.shell("show ip route", module_ignore_errors=True)
