@@ -41,6 +41,7 @@ chassis links come up (see test_dash_api_speed_pl_with_traffic/smartswitch-nvidi
 """
 import fnmatch
 import importlib.util
+import json
 import logging
 import os
 import re
@@ -266,6 +267,50 @@ def _log_switch_delta(before, after, label):
         logger.info("    (no interfaces with rx/tx delta)")
 
 
+# Diagram input: per-hop RX/TX DELTAS over one traffic run. Consumed by
+# c:\tmp\make_dash_chain_chart.py (mirror to tests/dash/dash_perhop_delta.json).
+_PERHOP_DELTA_JSON = os.path.join(os.path.dirname(__file__), "dash_perhop_delta.json")
+
+
+def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
+                            flow_stats, duration_s, out_path=_PERHOP_DELTA_JSON):
+    """Write per-hop RX/TX deltas (after-before) for the traffic-path diagram.
+
+    Raw 'show interface counters' are cumulative since boot and polluted by
+    LLDP/ARP/control traffic — the per-run DELTA is the only honest signal.
+    NPU Ethernet0 = UHD side, Ethernet224 = DPU side; DPU0 Ethernet0 = NPU side.
+    """
+    def _i(x):
+        try:
+            return int(str(x).replace(",", ""))
+        except (ValueError, TypeError):
+            return 0
+
+    def _delta(before, after, iface):
+        a, b = after.get(iface, {}), before.get(iface, {})
+        return {"rx": _i(a.get("rx_ok")) - _i(b.get("rx_ok")),
+                "tx": _i(a.get("tx_ok")) - _i(b.get("tx_ok"))}
+
+    payload = {
+        "captured_utc": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "duration_s": int(duration_s),
+        "npu": {"Ethernet0": _delta(sw_before, sw_after, "Ethernet0"),
+                "Ethernet224": _delta(sw_before, sw_after, "Ethernet224")},
+        "dpu": {"Ethernet0": _delta(dpu_before, dpu_after, "Ethernet0")},
+        "ixia": {"tx": sum(s.get("tx", 0) for s in flow_stats.values()),
+                 "rx": sum(s.get("rx", 0) for s in flow_stats.values())},
+    }
+    # Single-line copy in the log so the deltas survive even if file sync is manual.
+    logger.info("PERHOP_DELTA_JSON=%s", json.dumps(payload, separators=(",", ":")))
+    try:
+        with open(out_path, "w") as f:
+            json.dump(payload, f, indent=2)
+        logger.info("  wrote per-hop delta JSON: %s", out_path)
+    except OSError:
+        logger.exception("  failed to write per-hop delta JSON to %s", out_path)
+    return payload
+
+
 # ───────────────────────── results / correlation table ─────────────────────
 def _print_traffic_vs_grpc(eni_indices, push_events, flow_stats):
     """Compare per-ENI gNMI push-complete deltas vs traffic first-seen deltas."""
@@ -414,6 +459,10 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     flow_stats = {}
     sw_before = {}
     sw_after = {}
+    dpu_before = {}
+    dpu_after = {}
+    traffic_t0 = None
+    traffic_dur = 0.0
     total_start = time.time()
     traffic_started = False
 
@@ -425,10 +474,12 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         # Baseline counter snapshots before traffic/programming.
         dash_uhd_stats.clear_metrics(UHD_IP)
         sw_before = _collect_switch_counters(duthost, "baseline-NPU")
+        dpu_before = _collect_switch_counters(dpuhost, "baseline-DPU")
         uhd_before = dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="baseline")
 
         _ix_start_traffic(ixnetwork)
         traffic_started = True
+        traffic_t0 = time.time()
 
         # Baseline: with no ENIs programmed we expect ~100% loss.
         logger.info("Baseline: letting traffic run %ds before programming ...", BASELINE_SETTLE_S)
@@ -481,8 +532,11 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
                 stable = 0
             last_loss = loss
 
-        # Post-run counter snapshots.
+        # Post-run counter snapshots (same active-traffic window for NPU + DPU).
         sw_after = _collect_switch_counters(duthost, "after-NPU")
+        dpu_after = _collect_switch_counters(dpuhost, "after-DPU")
+        if traffic_t0 is not None:
+            traffic_dur = time.time() - traffic_t0
         dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="after settle", prev=uhd_before)
     finally:
         if traffic_started:
@@ -506,6 +560,14 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     # ── Switch + correlation reporting ──────────────────────────────────────
     if sw_before and sw_after:
         _log_switch_delta(sw_before, sw_after, "NPU (push window)")
+    if dpu_before and dpu_after:
+        _log_switch_delta(dpu_before, dpu_after, "DPU0 (push window)")
+    # Emit the per-hop DELTA JSON the traffic-path diagram consumes.
+    try:
+        _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
+                                flow_stats, traffic_dur)
+    except Exception:
+        logger.exception("Failed to emit per-hop delta JSON")
     n_forwarding = _print_traffic_vs_grpc(eni_indices, push_events, flow_stats)
 
     # ── Assertions ──────────────────────────────────────────────────────────
