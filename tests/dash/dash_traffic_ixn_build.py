@@ -185,27 +185,38 @@ def _configure_l1(vport):
     logger.info("L1: %s -> type=%s speed=%s autoneg=%s", vport.Name, ct, L1_SPEED, L1_AUTONEG)
 
 
-def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU,
+def assign_dual_ports(ixnetwork):
+    """Create + assign the two shared IxNetwork ports for a TX/RX-split test:
+      vp_b = chassis TX_PORT (7:5) -> UHD ixnetwork_port_1B (VLAN 1001 / VXLAN, outbound)
+      vp_a = chassis RX_PORT (7:1) -> UHD ixnetwork_port_1A (VLAN 1   / NVGRE, inbound)
+    Outbound TX on vp_b / RX on vp_a; inbound TX on vp_a / RX on vp_b. Returns (vp_b, vp_a)."""
+    vp_b = ixnetwork.Vport.add(Name="VTEP_B_%d_%d" % (TX_PORT_CARD, TX_PORT_PORT))
+    vp_a = ixnetwork.Vport.add(Name="VTEP_A_%d_%d" % (RX_PORT_CARD, RX_PORT_PORT))
+    ixnetwork.AssignPorts(
+        [{"Arg1": IXIA_CHASSIS_IP, "Arg2": TX_PORT_CARD, "Arg3": TX_PORT_PORT},
+         {"Arg1": IXIA_CHASSIS_IP, "Arg2": RX_PORT_CARD, "Arg3": RX_PORT_PORT}],
+        [], [vp_b.href, vp_a.href], True,
+    )
+    _configure_l1(vp_b)
+    _configure_l1(vp_a)
+    return vp_b, vp_a
+
+
+def build_outbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_PER_DPU,
                           frame_count=OUTBOUND_FRAME_COUNT):
     """Build (from a cleared config) the per-ENI outbound traffic item for one DPU.
 
-    Returns the TrafficItem. One raw TI, single tx/rx port (loopback through the
-    UHD), 32 ENI flows via counters (vlan / eth.dst / ipv4.dst), tracked by VLAN.
-    Sends a FIXED ``frame_count`` burst (default 9999) instead of continuous, so
-    each run's counts are deterministic.
+    Returns the TrafficItem. TWO ports (no loopback): transmits on ``vp_tx``
+    (chassis 7:5 -> UHD ixnetwork_port_1B, VLAN 1001/VXLAN) and receives the DPU's
+    return on ``vp_rx`` (chassis 7:1 -> UHD ixnetwork_port_1A). So the TX port
+    counts ONLY outbound (frame_count, default 9999) and the RX port counts only
+    the return. 32 ENI flows via counters (vlan / eth.dst / ipv4.dst), tracked by
+    VLAN. Fixed-count burst (deterministic).
     """
-    # 1. one vport on the DPU's chassis port (sends and receives the loop).
-    vport = ixnetwork.Vport.add(Name=f"VTEP_dpu{dpu_index}")
-    ixnetwork.AssignPorts(
-        [{"Arg1": IXIA_CHASSIS_IP, "Arg2": TX_PORT_CARD, "Arg3": TX_PORT_PORT}],
-        [], [vport.href], True,
-    )
-    _configure_l1(vport)
-
-    # 2. one raw traffic item, eth/vlan/ipv4/udp stack.
+    # one raw traffic item, eth/vlan/ipv4/udp stack; source = TX port, dest = RX port.
     ti = ixnetwork.Traffic.TrafficItem.add(
         Name=f"DPU{dpu_index}-Out", TrafficType="raw", BiDirectional=False)
-    ti.EndpointSet.add(Sources=vport.Protocols.find(), Destinations=vport.Protocols.find())
+    ti.EndpointSet.add(Sources=vp_tx.Protocols.find(), Destinations=vp_rx.Protocols.find())
     ce = ti.ConfigElement.find()[0]
     ce.FrameSize.update(Type="fixed", FixedSize=FRAME_SIZE)
     ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS)
@@ -265,7 +276,7 @@ def _ipv4_to_overlay_v6(ipv4, eni):
     return "2603:100:%x:0::%x:%x" % (eni, (n >> 16) & 0xFFFF, n & 0xFFFF)
 
 
-def build_inbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU,
+def build_inbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_PER_DPU,
                          frame_count=INBOUND_FRAME_COUNT, eni_start=1000):
     """Build the per-ENI INBOUND (service->VM) traffic item for one DPU.
 
@@ -273,19 +284,13 @@ def build_inbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU,
     base (1..), and IPv6 src/dst = the overlay form of 1.4.0.1 -> 1.1.0.1. NASA
     matches the inbound ENI on the inner DESTINATION MAC (= the ENI mac), the
     mirror of outbound (which matches on inner src). The UHD adds the NVGRE encap.
-    NOTE: inbound chassis port + exact overlay IPv6 are inferred from the saved
-    config; validate against 'what fails where'.
+    TWO ports (no loopback): transmits on ``vp_tx`` (chassis 7:1 -> UHD
+    ixnetwork_port_1A, VLAN 1/NVGRE) and receives the return on ``vp_rx`` (7:5 ->
+    1B). NOTE: exact overlay IPv6 inferred from the saved config.
     """
-    vport = ixnetwork.Vport.add(Name=f"VTEP_in_dpu{dpu_index}")
-    ixnetwork.AssignPorts(
-        [{"Arg1": IXIA_CHASSIS_IP, "Arg2": RX_PORT_CARD, "Arg3": RX_PORT_PORT}],
-        [], [vport.href], True,
-    )
-    _configure_l1(vport)
-
     ti = ixnetwork.Traffic.TrafficItem.add(
         Name=f"DPU{dpu_index}-In", TrafficType="raw", BiDirectional=False)
-    ti.EndpointSet.add(Sources=vport.Protocols.find(), Destinations=vport.Protocols.find())
+    ti.EndpointSet.add(Sources=vp_tx.Protocols.find(), Destinations=vp_rx.Protocols.find())
     ce = ti.ConfigElement.find()[0]
     ce.FrameSize.update(Type="fixed", FixedSize=FRAME_SIZE)
     ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS)

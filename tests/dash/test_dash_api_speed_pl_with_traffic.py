@@ -62,6 +62,7 @@ from dash_api_speed_common import (
     parse_file_index,
 )
 from dash_traffic_ixn_build import (
+    assign_dual_ports,
     build_outbound_config,
     build_inbound_config,
     VLAN_OUT_BASE,
@@ -692,10 +693,14 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     traffic_started = False
 
     try:
-        build_outbound_config(ixnetwork, dpuhost.dpu_index, enis_per_dpu=len(eni_indices))
+        # Two shared ports (TX/RX split): vp_b = 7:5 (UHD 1B, VLAN1001/VXLAN),
+        # vp_a = 7:1 (UHD 1A, VLAN1/NVGRE). Outbound TX on vp_b, RX on vp_a;
+        # inbound TX on vp_a, RX on vp_b — so each TX port counts ONE direction.
+        vp_b, vp_a = assign_dual_ports(ixnetwork)
+        build_outbound_config(ixnetwork, dpuhost.dpu_index, vp_b, vp_a, enis_per_dpu=len(eni_indices))
         # Inbound (service->VM) IPv6 flow on the same DPU/ENI — sent alongside the
         # outbound burst so we can see which direction forwards and which drops.
-        build_inbound_config(ixnetwork, dpuhost.dpu_index, enis_per_dpu=len(eni_indices))
+        build_inbound_config(ixnetwork, dpuhost.dpu_index, vp_a, vp_b, enis_per_dpu=len(eni_indices))
         states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
         logger.info("IxNetwork port states: %s", states)
         # L1 re-negotiates after AssignPorts; wait for link-up before any burst.
