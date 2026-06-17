@@ -61,7 +61,14 @@ from dash_api_speed_common import (
     npu_pre_config,
     parse_file_index,
 )
-from dash_traffic_ixn_build import build_outbound_config, VLAN_OUT_BASE, OUTBOUND_FRAME_COUNT
+from dash_traffic_ixn_build import (
+    build_outbound_config,
+    build_inbound_config,
+    VLAN_OUT_BASE,
+    VLAN_IN_BASE,
+    OUTBOUND_FRAME_COUNT,
+    INBOUND_FRAME_COUNT,
+)
 
 try:
     from ixnetwork_restpy import SessionAssistant
@@ -186,8 +193,12 @@ def _parse_ixn_timestamp(ts):
         return None
 
 
-def _read_flow_stats(ixnetwork, vlan_base):
-    """Per-ENI flow stats from the Flow Statistics view, keyed by global ENI index."""
+def _read_flow_stats(ixnetwork, vlan_base, vlan_span=1000):
+    """Per-ENI flow stats from the Flow Statistics view, keyed by global ENI index.
+
+    Only rows whose VLAN is in [vlan_base, vlan_base+vlan_span) are returned, so
+    the outbound (VLAN 1001+) and inbound (VLAN 1+) traffic items don't pollute
+    each other's aggregates."""
     views = ixnetwork.Statistics.View.find(Caption="Flow Statistics")
     if len(views) == 0:
         return {}
@@ -228,7 +239,7 @@ def _read_flow_stats(ixnetwork, vlan_base):
             if ci_vlan is None:
                 continue
             vlan = _i(cells[ci_vlan])
-            if vlan <= 0:
+            if vlan <= 0 or not (vlan_base <= vlan < vlan_base + vlan_span):
                 continue
             result[vlan - vlan_base] = {
                 "vlan": vlan,
@@ -325,7 +336,7 @@ def _i(x):
 
 def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after, flow_stats,
                             duration_s, nasa_before=None, nasa_after=None,
-                            uhd_before=None, uhd_after=None,
+                            uhd_before=None, uhd_after=None, inbound_stats=None,
                             out_path=_PERHOP_DELTA_JSON):
     """Write per-hop RX/TX deltas (after-before) + NASA counter deltas for the diagram.
 
@@ -355,6 +366,8 @@ def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after, flow_sta
         "dpu": {"Ethernet0": _delta(dpu_before, dpu_after, "Ethernet0")},
         "ixia": {"tx": sum(s.get("tx", 0) for s in flow_stats.values()),
                  "rx": sum(s.get("rx", 0) for s in flow_stats.values())},
+        "ixia_inbound": {"tx": sum(s.get("tx", 0) for s in (inbound_stats or {}).values()),
+                         "rx": sum(s.get("rx", 0) for s in (inbound_stats or {}).values())},
         "nasa_delta": nasa_delta,
         "dominant_drop": {"counter": dom_drop, "packets": dom_drop_n},
     }
@@ -407,7 +420,7 @@ def _uhd_delta(uhd_before, uhd_after):
 
 def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
                        nasa_before, nasa_after, uhd_before, uhd_after, flow_stats,
-                       out_path=_RUN_DETAILS_TXT):
+                       inbound_stats=None, out_path=_RUN_DETAILS_TXT):
     """Drop EVERY raw stat behind the run's diagram into one companion text file:
     IxN HW/flow stats, UHD per-port (before/after/delta), NPU + DPU interface
     counters (before/after/delta), and the full NASA dump (before/after/delta)."""
@@ -430,6 +443,20 @@ def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
                    % (g, s.get("tx", 0), s.get("rx", 0), s.get("loss_pct", 0.0)))
     agg = 100.0 * (tot_tx - tot_rx) / tot_tx if tot_tx else 0.0
     sec.append("    TOTAL    tx=%d rx=%d  aggregate loss=%.3f%%" % (tot_tx, tot_rx, agg))
+    sec.append("")
+
+    sec.append("== IxNetwork INBOUND IPv6 flow stats (service->VM) ==")
+    itx = irx = 0
+    for g in sorted(inbound_stats or {}):
+        s = inbound_stats[g]
+        itx += s.get("tx", 0)
+        irx += s.get("rx", 0)
+        sec.append("    eni %-6s vlan %-5s tx %-10d rx %-10d loss %.3f%%"
+                   % (g, s.get("vlan"), s.get("tx", 0), s.get("rx", 0), s.get("loss_pct", 0.0)))
+    iagg = 100.0 * (itx - irx) / itx if itx else 0.0
+    sec.append("    TOTAL    tx=%d rx=%d  aggregate loss=%.3f%%" % (itx, irx, iagg))
+    if not inbound_stats:
+        sec.append("    (no inbound flows)")
     sec.append("")
 
     sec.append("== UHD per-port metrics (before / after / delta) ==")
@@ -631,6 +658,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     mem_timeline = []
     push_events = {}
     flow_stats = {}
+    inbound_stats = {}
     sw_before = {}
     sw_after = {}
     dpu_before = {}
@@ -646,6 +674,9 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
 
     try:
         build_outbound_config(ixnetwork, dpuhost.dpu_index, enis_per_dpu=len(eni_indices))
+        # Inbound (service->VM) IPv6 flow on the same DPU/ENI — sent alongside the
+        # outbound burst so we can see which direction forwards and which drops.
+        build_inbound_config(ixnetwork, dpuhost.dpu_index, enis_per_dpu=len(eni_indices))
         states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
         logger.info("IxNetwork port states: %s", states)
 
@@ -696,8 +727,16 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         uhd_last = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
         dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="measurement", prev=uhd_before)
         flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
-        logger.info("Measurement burst: aggregate loss %.2f%% (tx should be %d/flow)",
-                    _aggregate_loss_pct(flow_stats), OUTBOUND_FRAME_COUNT)
+        inbound_stats = _read_flow_stats(ixnetwork, VLAN_IN_BASE)
+        logger.info("Measurement burst OUTBOUND(IPv4 1.1.0.1->1.4.0.1): %d flows, "
+                    "aggregate loss %.2f%% (tx should be %d/flow)",
+                    len(flow_stats), _aggregate_loss_pct(flow_stats), OUTBOUND_FRAME_COUNT)
+        logger.info("Measurement burst INBOUND (IPv6 of 1.4.0.1->1.1.0.1): %d flows, "
+                    "aggregate loss %.2f%% (tx should be %d/flow)",
+                    len(inbound_stats), _aggregate_loss_pct(inbound_stats), INBOUND_FRAME_COUNT)
+        for g, s in sorted(inbound_stats.items()):
+            logger.info("    inbound ENI %d (vlan %d): tx=%d rx=%d loss=%.2f%%",
+                        g, s.get("vlan"), s.get("tx", 0), s.get("rx", 0), s.get("loss_pct", 0.0))
     finally:
         if traffic_started:
             _ix_stop_traffic(ixnetwork)
@@ -728,9 +767,11 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         payload = _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
                                           flow_stats, traffic_dur,
                                           nasa_before=nasa_before, nasa_after=nasa_after,
-                                          uhd_before=uhd_before, uhd_after=uhd_last)
+                                          uhd_before=uhd_before, uhd_after=uhd_last,
+                                          inbound_stats=inbound_stats)
         _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
-                           nasa_before, nasa_after, uhd_before, uhd_last, flow_stats)
+                           nasa_before, nasa_after, uhd_before, uhd_last, flow_stats,
+                           inbound_stats=inbound_stats)
     except Exception:
         logger.exception("Failed to emit per-hop delta JSON / run details")
     n_forwarding = _print_traffic_vs_grpc(eni_indices, push_events, flow_stats)

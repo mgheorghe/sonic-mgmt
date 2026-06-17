@@ -59,6 +59,13 @@ TX_PORT_PORT = 5          # 10.36.77.138:7:5 == VTEP_09 (DPU0-Out source in bg.i
 
 ENIS_PER_DPU = 32
 VLAN_OUT_BASE = 1001      # outbound VLAN = VLAN_OUT_BASE + global_eni_index
+# Inbound (service->VM). The UHD bridges VLANs 1..32 on the "s" ports to NVGRE
+# toward the DPU (VLAN 1001.. on the "c" ports are the outbound VXLAN). The
+# inbound source is a separate IxNetwork port (VTEP_01); the outbound port maps
+# VTEP_09 == card7:port5, so the contiguous VTEP block puts VTEP_01 at card6:port5.
+VLAN_IN_BASE = 1          # inbound VLAN = VLAN_IN_BASE + global_eni_index
+RX_PORT_CARD = 6          # IxNetwork port wired to the UHD inbound ("s") port
+RX_PORT_PORT = 5
 
 # Per-flow packet template — matches render.py DEFAULTS / bg.ixncfg exactly.
 MAC_L_START = "00:1a:c5:00:00:01"     # eth.src (constant, VM side)
@@ -247,6 +254,75 @@ def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU,
     logger.info("Built DPU%d-Out: %d ENI flows, VLANs %d..%d",
                 dpu_index, enis_per_dpu, VLAN_OUT_BASE + g0,
                 VLAN_OUT_BASE + g0 + enis_per_dpu - 1)
+    return ti
+
+
+def _ipv4_to_overlay_v6(ipv4, eni):
+    """IPv6 'corresponding to' an IPv4, per map.json.j2 overlay_dip_prefix
+    (2603:100:<eni_hex>:0::<hi16>:<lo16>). e.g. 1.4.0.1, eni 1000 ->
+    2603:100:3e8:0::104:1 ; 1.1.0.1 -> 2603:100:3e8:0::101:1."""
+    n = _ip_to_int(ipv4)
+    return "2603:100:%x:0::%x:%x" % (eni, (n >> 16) & 0xFFFF, n & 0xFFFF)
+
+
+def build_inbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU,
+                         frame_count=INBOUND_FRAME_COUNT, eni_start=1000):
+    """Build the per-ENI INBOUND (service->VM) traffic item for one DPU.
+
+    Mirror of the outbound TI but: ethernet/vlan/IPv6 stack (no UDP), inbound VLAN
+    base (1..), and IPv6 src/dst = the overlay form of 1.4.0.1 -> 1.1.0.1. NASA
+    matches the inbound ENI on the inner DESTINATION MAC (= the ENI mac), the
+    mirror of outbound (which matches on inner src). The UHD adds the NVGRE encap.
+    NOTE: inbound chassis port + exact overlay IPv6 are inferred from the saved
+    config; validate against 'what fails where'.
+    """
+    vport = ixnetwork.Vport.add(Name=f"VTEP_in_dpu{dpu_index}")
+    ixnetwork.AssignPorts(
+        [{"Arg1": IXIA_CHASSIS_IP, "Arg2": RX_PORT_CARD, "Arg3": RX_PORT_PORT}],
+        [], [vport.href], True,
+    )
+    _configure_l1(vport)
+
+    ti = ixnetwork.Traffic.TrafficItem.add(
+        Name=f"DPU{dpu_index}-In", TrafficType="raw", BiDirectional=False)
+    ti.EndpointSet.add(Sources=vport.Protocols.find(), Destinations=vport.Protocols.find())
+    ce = ti.ConfigElement.find()[0]
+    ce.FrameSize.update(Type="fixed", FixedSize=FRAME_SIZE)
+    ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS)
+    ce.TransmissionControl.update(Type="fixedFrameCount", FrameCount=frame_count)
+
+    eth = ce.Stack.find(StackTypeId="^ethernet$")[0]
+    vlan = ce.Stack.read(eth.AppendProtocol(
+        ixnetwork.Traffic.ProtocolTemplate.find(StackTypeId="^vlan$")))
+    ipv6 = ce.Stack.read(vlan.AppendProtocol(
+        ixnetwork.Traffic.ProtocolTemplate.find(StackTypeId="^ipv6$")))
+
+    g0 = dpu_index * enis_per_dpu
+    eni0 = eni_start + g0
+    mac_l0 = _mac_to_int(MAC_L_START) + g0 * _mac_to_int(MAC_STEP_ENI)
+    mac_r0 = _mac_to_int(MAC_R_START) + g0 * _mac_to_int(MAC_STEP_ENI)
+
+    # Inbound: inner DST mac = ENI mac (NASA matches the ENI on inner dst here);
+    # inner src = the remote/gateway mac.
+    _set_field(eth, "ethernet.header.destinationAddress",
+               start=_int_to_mac(mac_l0), step=MAC_STEP_ENI, count=enis_per_dpu)
+    _set_field(eth, "ethernet.header.sourceAddress",
+               start=_int_to_mac(mac_r0), step=MAC_STEP_ENI, count=enis_per_dpu)
+    _set_field(vlan, "vlanTag.vlanID",
+               start=VLAN_IN_BASE + g0, step=1, count=enis_per_dpu)
+    # IPv6 of 1.4.0.1 (service) -> IPv6 of 1.1.0.1 (VM). Single value for the g0
+    # ENI (the minimal-config single-flow case); per-ENI ranges would need an
+    # increment on the embedded v4 + eni_hex.
+    _set_field(ipv6, "ipv6.header.srcIP", single=_ipv4_to_overlay_v6(IP_R_START, eni0))
+    _set_field(ipv6, "ipv6.header.dstIP", single=_ipv4_to_overlay_v6(IP_L_START, eni0))
+
+    ti.Tracking.find().TrackBy = ["trackingenabled0", "vlanVlanId0"]
+    ti.Generate()
+    ixnetwork.Traffic.Apply()
+    logger.info("Built DPU%d-In: %d ENI flows, VLANs %d..%d, IPv6 %s -> %s",
+                dpu_index, enis_per_dpu, VLAN_IN_BASE + g0,
+                VLAN_IN_BASE + g0 + enis_per_dpu - 1,
+                _ipv4_to_overlay_v6(IP_R_START, eni0), _ipv4_to_overlay_v6(IP_L_START, eni0))
     return ti
 
 
