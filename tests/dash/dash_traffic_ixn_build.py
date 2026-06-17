@@ -14,7 +14,7 @@ matches field-for-field):
         eth.dst = MAC_R_START + g*MAC_STEP_ENI       (VM gateway MAC; not matched)
         ipv4.src = IP_L_START                        (constant)
         ipv4.dst = IP_R_START + g*IP_STEP_ENI         (counter)
-        udp 10000/10000, 128B fixed, continuous 1000 fps
+        udp 10000/10000, 128B fixed, fixed 9999-frame burst @1000 fps
 
 Flows are tracked by VLAN id, so the Flow Statistics view yields one row per ENI
 (with First TimeStamp = when that ENI first forwarded in hardware).
@@ -71,6 +71,11 @@ UDP_SRC_PORT = 10000
 UDP_DST_PORT = 10000
 FRAME_SIZE = 128
 PER_FLOW_RATE_FPS = 1000
+# Fixed (non-continuous) burst sizes so per-run counts are deterministic and the
+# direction that fails is obvious from the raw count. OUTBOUND = 9999, INBOUND =
+# 7777 (inbound builder lands in Phase 4; the constant is ready for it).
+OUTBOUND_FRAME_COUNT = 9999
+INBOUND_FRAME_COUNT = 7777
 
 # Layer-1 settings — must match the UHD ixnetwork-facing ports (manual_RS @ 100G).
 # Verified against bg.ixncfg: novusHundredGigLan / speed100g / autoneg off / IEEE
@@ -173,11 +178,14 @@ def _configure_l1(vport):
     logger.info("L1: %s -> type=%s speed=%s autoneg=%s", vport.Name, ct, L1_SPEED, L1_AUTONEG)
 
 
-def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU):
+def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU,
+                          frame_count=OUTBOUND_FRAME_COUNT):
     """Build (from a cleared config) the per-ENI outbound traffic item for one DPU.
 
     Returns the TrafficItem. One raw TI, single tx/rx port (loopback through the
     UHD), 32 ENI flows via counters (vlan / eth.dst / ipv4.dst), tracked by VLAN.
+    Sends a FIXED ``frame_count`` burst (default 9999) instead of continuous, so
+    each run's counts are deterministic.
     """
     # 1. one vport on the DPU's chassis port (sends and receives the loop).
     vport = ixnetwork.Vport.add(Name=f"VTEP_dpu{dpu_index}")
@@ -194,7 +202,9 @@ def build_outbound_config(ixnetwork, dpu_index, enis_per_dpu=ENIS_PER_DPU):
     ce = ti.ConfigElement.find()[0]
     ce.FrameSize.update(Type="fixed", FixedSize=FRAME_SIZE)
     ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS)
-    ce.TransmissionControl.update(Type="continuous")
+    # Fixed burst (deterministic counts) instead of continuous. FrameCount is the
+    # total for this config element; with 1 ENI flow that is exactly frame_count.
+    ce.TransmissionControl.update(Type="fixedFrameCount", FrameCount=frame_count)
 
     eth = ce.Stack.find(StackTypeId="^ethernet$")[0]
     vlan = ce.Stack.read(eth.AppendProtocol(

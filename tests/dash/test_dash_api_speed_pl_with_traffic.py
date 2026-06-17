@@ -61,7 +61,7 @@ from dash_api_speed_common import (
     npu_pre_config,
     parse_file_index,
 )
-from dash_traffic_ixn_build import build_outbound_config, VLAN_OUT_BASE
+from dash_traffic_ixn_build import build_outbound_config, VLAN_OUT_BASE, OUTBOUND_FRAME_COUNT
 
 try:
     from ixnetwork_restpy import SessionAssistant
@@ -106,16 +106,16 @@ UHD_IP = "10.36.78.39"
 # UHD physical port names to sample (Port 1..4 = Nvidia DPU ports).
 UHD_PORT_NAMES = ["Port 1", "Port 2", "Port 3", "Port 4"]
 
-# Baseline (pre-program) loss check. >=15s so the Flow Statistics view has
-# populated all per-VLAN rows before the snapshot (it takes ~10s to appear).
-BASELINE_SETTLE_S = 15
+# Baseline (pre-program) loss check: a baseline burst with no ENIs programmed
+# should drop ~everything.
 BASELINE_MIN_LOSS_PCT = 99.0
 
-# Post-push settle: poll until aggregate loss stops improving (or threshold).
-SETTLE_POLL_INTERVAL_S = 5
-SETTLE_TIMEOUT_S = 300        # give the DPU time to program ENIs into the ASIC
-SETTLE_LOSS_PCT = 1.0
-SETTLE_STABLE_POLLS = 3
+# Fixed-burst model: after programming, let the DPU settle, then send one fixed
+# burst and measure the deltas around exactly that burst.
+POST_PROGRAM_SETTLE_S = 30   # ASIC bring-up time before the measurement burst
+BURST_TIMEOUT_S = 120        # max wait for a fixed burst to finish sending
+BURST_STATS_SETTLE_S = 8     # let Flow Statistics catch up after a burst
+SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the measurement burst
 # ════════════════════════════════════════════════════════════════════════════
 
 
@@ -147,6 +147,26 @@ def _ix_stop_traffic(ixnetwork):
         ixnetwork.Traffic.StopStatelessTrafficBlocking()
     except Exception:
         logger.exception("IxNetwork: stop traffic failed (non-fatal)")
+
+
+def _ix_run_fixed_burst(ixnetwork, label, timeout=BURST_TIMEOUT_S):
+    """Start a fixed-frame-count burst and block until it has finished sending.
+
+    Traffic is configured as a fixed burst (9999 frames), so it auto-stops; poll
+    Traffic.State until it leaves 'started*', then let stats settle. Returns the
+    final Traffic.State string."""
+    logger.info("IxNetwork: starting fixed-count burst (%s)", label)
+    ixnetwork.Traffic.StartStatelessTrafficBlocking()
+    deadline = time.time() + timeout
+    state = str(ixnetwork.Traffic.State or "")
+    while time.time() < deadline:
+        state = str(ixnetwork.Traffic.State or "")
+        if not state.lower().startswith("started"):
+            break
+        time.sleep(2)
+    time.sleep(BURST_STATS_SETTLE_S)   # let Flow Statistics catch up
+    logger.info("IxNetwork: burst '%s' done (state=%s)", label, ixnetwork.Traffic.State)
+    return state
 
 
 def _parse_ixn_timestamp(ts):
@@ -305,6 +325,7 @@ def _i(x):
 
 def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after, flow_stats,
                             duration_s, nasa_before=None, nasa_after=None,
+                            uhd_before=None, uhd_after=None,
                             out_path=_PERHOP_DELTA_JSON):
     """Write per-hop RX/TX deltas (after-before) + NASA counter deltas for the diagram.
 
@@ -337,6 +358,15 @@ def _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after, flow_sta
         "nasa_delta": nasa_delta,
         "dominant_drop": {"counter": dom_drop, "packets": dom_drop_n},
     }
+    # UHD per-port frame deltas (rx/tx-all) — the appliance's own view of the loop.
+    uhd_b, uhd_a = uhd_before or {}, uhd_after or {}
+    uhd_d = {}
+    for port in set(uhd_b) | set(uhd_a):
+        b, a = uhd_b.get(port, {}), uhd_a.get(port, {})
+        uhd_d[port] = {"rx": _i(a.get("frames_received_all")) - _i(b.get("frames_received_all")),
+                       "tx": _i(a.get("frames_transmitted_all")) - _i(b.get("frames_transmitted_all"))}
+    if uhd_d:
+        payload["uhd"] = uhd_d
     # Single-line copy in the log so the deltas survive even if file sync is manual.
     logger.info("PERHOP_DELTA_JSON=%s", json.dumps(payload, separators=(",", ":")))
     if dom_drop:
@@ -359,11 +389,28 @@ def _fmt_counter_table(before, after, keys, b_label="before", a_label="after"):
     return "\n".join(lines)
 
 
+def _uhd_delta(uhd_before, uhd_after):
+    """{port: {metric: (before, after, delta)}} for numeric UHD metrics."""
+    out = {}
+    for port in sorted(set(uhd_before or {}) | set(uhd_after or {})):
+        b, a = (uhd_before or {}).get(port, {}), (uhd_after or {}).get(port, {})
+        row = {}
+        for m in sorted(set(b) | set(a)):
+            bv, av = b.get(m), a.get(m)
+            try:
+                row[m] = (int(bv), int(av), int(av) - int(bv))
+            except (ValueError, TypeError):
+                row[m] = (bv, av, None)   # non-numeric (e.g. link_status)
+        out[port] = row
+    return out
+
+
 def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
-                       nasa_before, nasa_after, uhd_stats, flow_stats,
+                       nasa_before, nasa_after, uhd_before, uhd_after, flow_stats,
                        out_path=_RUN_DETAILS_TXT):
     """Drop EVERY raw stat behind the run's diagram into one companion text file:
-    IxN HW/flow stats, UHD per-port, NPU + DPU interface counters, NASA dump."""
+    IxN HW/flow stats, UHD per-port (before/after/delta), NPU + DPU interface
+    counters (before/after/delta), and the full NASA dump (before/after/delta)."""
     sec = []
     sec.append("DASH traffic-path run details — %s (duration %ss)"
                % (payload.get("captured_utc"), payload.get("duration_s")))
@@ -385,12 +432,16 @@ def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
     sec.append("    TOTAL    tx=%d rx=%d  aggregate loss=%.3f%%" % (tot_tx, tot_rx, agg))
     sec.append("")
 
-    sec.append("== UHD per-port metrics ==")
-    for port in sorted(uhd_stats or {}):
+    sec.append("== UHD per-port metrics (before / after / delta) ==")
+    ud = _uhd_delta(uhd_before, uhd_after)
+    for port in sorted(ud):
         sec.append("    %s:" % port)
-        for k in sorted(uhd_stats[port]):
-            sec.append("        %-28s %s" % (k, uhd_stats[port][k]))
-    if not uhd_stats:
+        sec.append("        %-28s %16s %16s %16s" % ("metric", "before", "after", "delta"))
+        for m in sorted(ud[port]):
+            bv, av, dv = ud[port][m]
+            sec.append("        %-28s %16s %16s %16s"
+                       % (m, bv, av, "" if dv is None else dv))
+    if not ud:
         sec.append("    (no UHD metrics)")
     sec.append("")
 
@@ -583,6 +634,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     dpu_after = {}
     nasa_before = {}
     nasa_after = {}
+    uhd_before = {}
     uhd_last = {}
     traffic_t0 = None
     traffic_dur = 0.0
@@ -594,76 +646,55 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
         logger.info("IxNetwork port states: %s", states)
 
-        # Baseline counter snapshots before traffic/programming.
+        # ── Baseline burst (no ENIs programmed) → expect ~100% loss ──────────
         dash_uhd_stats.clear_metrics(UHD_IP)
-        sw_before = _collect_switch_counters(duthost, "baseline-NPU")
-        dpu_before = _collect_switch_counters(dpuhost, "baseline-DPU")
-        nasa_before = _collect_nasa_stats(dpuhost, "baseline-NASA")
-        uhd_before = dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="baseline")
-
-        _ix_start_traffic(ixnetwork)
+        ixnetwork.ClearStats()
+        _ix_run_fixed_burst(ixnetwork, "baseline")
         traffic_started = True
-        traffic_t0 = time.time()
-
-        # Baseline: with no ENIs programmed we expect ~100% loss.
-        logger.info("Baseline: letting traffic run %ds before programming ...", BASELINE_SETTLE_S)
-        time.sleep(BASELINE_SETTLE_S)
         baseline_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
         baseline_loss = _aggregate_loss_pct(baseline_stats)
-        logger.info("Baseline aggregate loss: %.2f%% across %d flows (expected >= %.1f%%)",
+        logger.info("Baseline burst: aggregate loss %.2f%% across %d flows (expect >= %.1f%%)",
                     baseline_loss, len(baseline_stats), BASELINE_MIN_LOSS_PCT)
-        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="after traffic start", prev=uhd_before)
         if baseline_loss < BASELINE_MIN_LOSS_PCT:
             logger.warning("Baseline loss %.2f%% below %.1f%% — some flows already forwarding "
-                           "(stale config?). Continuing, but per-ENI deltas may be skewed.",
-                           baseline_loss, BASELINE_MIN_LOSS_PCT)
+                           "(stale config?).", baseline_loss, BASELINE_MIN_LOSS_PCT)
 
-        # ── Push all ENIs via gNMI while traffic runs ───────────────────────
+        # ── Program all ENIs via gNMI ────────────────────────────────────────
         def _log_progress(filename, idx, kind, t0, t1):
             if kind == "map":
                 logger.info("    gNMI: ENI %s programmed (%.2fs)", idx, t1 - t0)
 
-        logger.info("Programming %d config files via gNMI (traffic running) ...", len(files))
+        logger.info("Programming %d config files via gNMI ...", len(files))
         load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
                            creds, mem_timeline, push_events=push_events, on_file_done=_log_progress)
 
-        # ── Settle: poll until loss converges or stops improving ────────────
-        logger.info("Push done — polling traffic until loss converges (timeout %ds) ...", SETTLE_TIMEOUT_S)
-        deadline = time.time() + SETTLE_TIMEOUT_S
-        last_loss = None
-        stable = 0
-        flow_stats = baseline_stats
-        while time.time() < deadline:
-            time.sleep(SETTLE_POLL_INTERVAL_S)
-            flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
-            loss = _aggregate_loss_pct(flow_stats)
-            fwd = sum(1 for s in flow_stats.values() if s.get("first_ts") is not None)
-            logger.info("  settle: aggregate loss=%.2f%%  flows forwarding=%d/%d",
-                        loss, fwd, len(eni_indices))
-            if loss <= SETTLE_LOSS_PCT:
-                logger.info("  settle: loss <= %.1f%% — converged", SETTLE_LOSS_PCT)
-                break
-            # Only treat "flat loss" as converged once forwarding has actually
-            # started (loss dropped below baseline). Flat ~100% loss means the
-            # dataplane hasn't begun forwarding yet (NASA still bringing up the
-            # ENI/mappings) — keep waiting for the full timeout, don't early-stop.
-            if last_loss is not None and loss < BASELINE_MIN_LOSS_PCT and abs(last_loss - loss) < 0.05:
-                stable += 1
-                if stable >= SETTLE_STABLE_POLLS:
-                    logger.info("  settle: loss flat for %d polls — stopping", stable)
-                    break
-            else:
-                stable = 0
-            last_loss = loss
+        # ── Measurement burst (post-program): fixed count, deltas around it ──
+        logger.info("Settling %ds for ASIC bring-up before the measurement burst ...",
+                    POST_PROGRAM_SETTLE_S)
+        time.sleep(POST_PROGRAM_SETTLE_S)
 
-        # Post-run counter snapshots (same active-traffic window for NPU + DPU).
-        sw_after = _collect_switch_counters(duthost, "after-NPU")
-        dpu_after = _collect_switch_counters(dpuhost, "after-DPU")
-        nasa_after = _collect_nasa_stats(dpuhost, "after-NASA")
-        if traffic_t0 is not None:
-            traffic_dur = time.time() - traffic_t0
-        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="after settle", prev=uhd_before)
+        # Every "before" snapshot is taken immediately before the measurement
+        # burst so each delta reflects exactly that one fixed (9999-frame) burst.
+        dash_uhd_stats.clear_metrics(UHD_IP)
+        ixnetwork.ClearStats()
+        time.sleep(2)
+        sw_before = _collect_switch_counters(duthost, "measure-before-NPU")
+        dpu_before = _collect_switch_counters(dpuhost, "measure-before-DPU")
+        nasa_before = _collect_nasa_stats(dpuhost, "measure-before-NASA")
+        uhd_before = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
+
+        traffic_t0 = time.time()
+        _ix_run_fixed_burst(ixnetwork, "measurement")
+        traffic_dur = time.time() - traffic_t0
+
+        sw_after = _collect_switch_counters(duthost, "measure-after-NPU")
+        dpu_after = _collect_switch_counters(dpuhost, "measure-after-DPU")
+        nasa_after = _collect_nasa_stats(dpuhost, "measure-after-NASA")
         uhd_last = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
+        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="measurement", prev=uhd_before)
+        flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
+        logger.info("Measurement burst: aggregate loss %.2f%% (tx should be %d/flow)",
+                    _aggregate_loss_pct(flow_stats), OUTBOUND_FRAME_COUNT)
     finally:
         if traffic_started:
             _ix_stop_traffic(ixnetwork)
@@ -693,9 +724,10 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     try:
         payload = _emit_perhop_delta_json(sw_before, sw_after, dpu_before, dpu_after,
                                           flow_stats, traffic_dur,
-                                          nasa_before=nasa_before, nasa_after=nasa_after)
+                                          nasa_before=nasa_before, nasa_after=nasa_after,
+                                          uhd_before=uhd_before, uhd_after=uhd_last)
         _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
-                           nasa_before, nasa_after, uhd_last, flow_stats)
+                           nasa_before, nasa_after, uhd_before, uhd_last, flow_stats)
     except Exception:
         logger.exception("Failed to emit per-hop delta JSON / run details")
     n_forwarding = _print_traffic_vs_grpc(eni_indices, push_events, flow_stats)
