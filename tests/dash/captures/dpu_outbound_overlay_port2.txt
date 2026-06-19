@@ -1,0 +1,64 @@
+DASH DPU outbound overlay packet — captured at IxNetwork chassis port 2 (7/1)
+=============================================================================
+Captured 2026-06-19 from keysight-nss01 / DPU0, single ENI (eni-1000),
+private-link config (configs/dash_api_speed_pl, MINIMAL_SINGLE_ENTRY).
+
+WHAT THIS IS
+------------
+This is the DPU's OUTBOUND CA2PA output (VM -> service) for the flow
+1.1.0.1 -> 1.4.0.1, as it arrives at the traffic generator on port 2
+(chassis 10.36.77.138 7/1 = ixnetwork_port_1A, UHD dpu_port_2 side).
+
+The UHD bridges dpu_port_2 <-> ixnetwork_port_1A with connect_vlan_nvgre, so it
+DECAPSULATES the DPU's NVGRE before the packet reaches the generator. Therefore
+port 2 receives the plain decapped overlay frame (VLAN/IPv6/UDP), NOT the raw
+NVGRE. The raw NVGRE exists only on the internal NPU-Ethernet8 <-> UHD link.
+
+DECODED PACKET (IxNetwork capture, frame len 148 on the wire)
+-------------------------------------------------------------
+Ethernet  : dst 00:1b:6e:00:00:01   src 00:1a:c5:00:00:01   type 0x8100 (802.1Q)
+802.1Q    : VLAN id = 1
+IPv6      : version 6, payload 86, next-header 17 (UDP), hop-limit 64
+            src = fd41:100:3e8:d007:64:ff71:101:1      <- the VM (CA 1.1.0.1), PL-encoded
+            dst = 2603:100:3e8::104:1                  <- the service (CA 1.4.0.1) overlay
+UDP       : sport 10000  dport 10000  len 86
+Data      : 78 bytes payload (IxNetwork instrumentation signature + pattern)
+
+RAW HEX (IxNetwork PacketHex; first 8 bytes are capture metadata, frame follows)
+--------------------------------------------------------------------------------
+7880356a 73155005 | 001b6e000001 001ac5000001 8100 0001 86dd
+6000000000 56 11 40
+fd41 0100 03e8 d007 0064 ff71 0101 0001   (IPv6 src)
+2603 0100 03e8 .... (IPv6 dst 2603:100:3e8::104:1) ...
+
+KEY FINDING — the DPU's overlay address scheme vs our inbound generator
+-----------------------------------------------------------------------
+                 DPU's overlay (ground truth)        build_inbound_config sends
+  service side : 2603:100:3e8::104:1                  2603:100:3e8::104:1     (MATCH)
+  VM side      : fd41:100:3e8:d007:64:ff71:101:1      2603:100:3e8::101:1     (WRONG)
+
+The DPU encodes the VM as the pl_sip ULA fd41:100:3e8:d007:64:ff71:101:1
+(fd41.. base from ENI pl_sip_encoding fd40::d007:64:ff71:0:0 / mask fffe..,
+d007 = VNI 2000 little-endian, 101:1 = CA 1.1.0.1). For a correct inbound
+return (service -> VM) the inner packet must be:
+    src = 2603:100:3e8::104:1                  (service; already correct)
+    dst = fd41:100:3e8:d007:64:ff71:101:1      (VM; we currently send 2603:..101:1)
+
+This is the INNER / PA2CA addressing, separate from the outer NVGRE-key issue
+that causes SAI_ENI_STAT_INBOUND_ROUTING_ENTRY_MISS_DROP (a NASA dataplane gap:
+the GRE key is not extracted into the inbound-routing VNI; proven by a VXLAN-vs-
+NVGRE A/B). Both must be correct for inbound to complete end-to-end.
+
+HOW IT WAS CAPTURED (reproducible)
+----------------------------------
+IxNetwork RestPy (api 10.36.78.95:11009, chassis 10.36.77.138):
+  - assign the two ports; build the OUTBOUND traffic item (TX on port1 7/5).
+  - DEDICATE port 2 to capture: vp.RxMode='captureAndMeasure', vp.Capture.update(
+    HardwareEnabled=True). (TI endpoint membership is irrelevant; HW data capture
+    arms regardless.)
+  - ixn.StartCapture(); StartStatelessTraffic(); ~10s; StopStatelessTraffic();
+    StopCapture().
+  - read vp.Capture.DataCapturedPacketCounter (NOT ...Counters), then per packet
+    vp.Capture.CurrentPacket.GetPacketFromDataCapture(Arg2=i). PacketHex is often
+    EMPTY -> read the decoded headers from CurrentPacket.Stack.find() /
+    stack.Field.find() (DisplayName/FieldValue) instead.
