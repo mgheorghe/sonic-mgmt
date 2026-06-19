@@ -284,10 +284,17 @@ def build_inbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_P
                          frame_count=INBOUND_FRAME_COUNT, eni_start=1000):
     """Build the per-ENI INBOUND (service->VM) traffic item for one DPU.
 
-    Mirror of the outbound TI but: ethernet/vlan/IPv6 stack (no UDP), inbound VLAN
+    Mirror of the outbound TI but: ethernet/vlan/IPv6/UDP stack, inbound VLAN
     base (1..), and IPv6 src/dst = the overlay form of 1.4.0.1 -> 1.1.0.1. NASA
     matches the inbound ENI on the inner DESTINATION MAC (= the ENI mac), the
     mirror of outbound (which matches on inner src). The UHD adds the NVGRE encap.
+
+    The inner UDP header is REQUIRED: NASA runs its protocol/flow stage on the
+    DECAPPED inner packet, and a bare IPv6 with no L4 (next-header = none) is
+    rejected as SAI_ENI_STAT_UNSUPPORTED_PROTOCOL_DROP *after* a clean inbound
+    decap (INBOUND_RX counted, INBOUND_ROUTING/PA_VALIDATION/TRUSTED_VNI all 0
+    misses). Appending UDP sets ipv6.nextHeader=17 so the flow is created and the
+    packet forwards — verified on DPU0 (keysight-nss01).
     TWO ports (no loopback): transmits on ``vp_tx`` (chassis 7:1 -> UHD
     ixnetwork_port_1A, VLAN 1/NVGRE) and receives the return on ``vp_rx`` (7:5 ->
     1B). NOTE: exact overlay IPv6 inferred from the saved config.
@@ -305,6 +312,8 @@ def build_inbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_P
         ixnetwork.Traffic.ProtocolTemplate.find(StackTypeId="^vlan$")))
     ipv6 = ce.Stack.read(vlan.AppendProtocol(
         ixnetwork.Traffic.ProtocolTemplate.find(StackTypeId="^ipv6$")))
+    udp = ce.Stack.read(ipv6.AppendProtocol(
+        ixnetwork.Traffic.ProtocolTemplate.find(StackTypeId="^udp$")))
 
     g0 = dpu_index * enis_per_dpu
     eni0 = eni_start + g0
@@ -324,6 +333,10 @@ def build_inbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_P
     # increment on the embedded v4 + eni_hex.
     _set_field(ipv6, "ipv6.header.srcIP", single=_ipv4_to_overlay_v6(IP_R_START, eni0))
     _set_field(ipv6, "ipv6.header.dstIP", single=_ipv4_to_overlay_v6(IP_L_START, eni0))
+    # Inner L4: required so NASA sees a supported protocol on the decapped packet
+    # (else SAI_ENI_STAT_UNSUPPORTED_PROTOCOL_DROP). Ports mirror the outbound flow.
+    _set_field(udp, "udp.header.srcPort", single=UDP_SRC_PORT)
+    _set_field(udp, "udp.header.dstPort", single=UDP_DST_PORT)
 
     ti.Tracking.find().TrackBy = ["trackingenabled0", "vlanVlanId0"]
     ti.Generate()
