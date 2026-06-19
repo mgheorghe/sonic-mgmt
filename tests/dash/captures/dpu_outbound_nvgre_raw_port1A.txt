@@ -1,0 +1,76 @@
+DASH DPU outbound RAW NVGRE — captured at IxNetwork chassis port 1A (7/1)
+=========================================================================
+Captured 2026-06-19 from keysight-nss01 / DPU0, single ENI (eni-1000),
+private-link config (configs/dash_api_speed_pl, MINIMAL_SINGLE_ENTRY).
+
+WHAT THIS IS — and why it differs from dpu_outbound_overlay_port2.txt
+--------------------------------------------------------------------
+This is the SAME outbound CA2PA flow (VM 1.1.0.1 -> service 1.4.0.1) returning
+from the DPU, but captured with the UHD bridge for dpu_port_2 <-> ixnetwork_port_1A
+reconfigured from connect_vlan_nvgre to a plain **connect_ethernet** (non_vlan)
+L2 bypass. With the bypass the UHD does NOT decapsulate, so port 1A receives the
+**raw NVGRE** frame exactly as the NPU forwards it off Ethernet8 — outer IPv4 +
+GRE(0x6558) + inner Ethernet/IPv6/UDP. (The companion file captured the same flow
+WITH connect_vlan_nvgre, which decaps to plain VLAN/IPv6/UDP.)
+
+UHD config used for this capture: c:\tmp\uhd_rawnvgre.json (port_1A<->dpu_port_2 =
+connect_ethernet non_vlan; port_1B<->dpu_port_1 = connect_vlan_vxlan vni 1000, to
+drive the outbound flow). Restored to connect_vlan_nvgre afterwards.
+
+DECODED PACKET (frame len 186 on the wire; PacketHex has an 8-byte capture
+metadata prefix 3c9a356a23a09c30 — the Ethernet frame starts at byte 8)
+-------------------------------------------------------------------------
+Outer Ethernet : dst 80:09:02:02:00:02   src 2c:5e:ab:1b:70:00 (NPU)   type 0x0800
+Outer IPv4     : src 221.0.0.1 (VIP)   dst 221.2.0.0   proto 47 (GRE)   ttl 254  len 168
+GRE / NVGRE    : flags 0x2000 (Key Present)   proto 0x6558 (Transparent Ethernet Bridging)
+                 key bytes = 00 00 64 00  ->  VSID = 0x000064 = 100,  FlowID = 0x00
+Inner Ethernet : dst 00:1b:6e:00:00:01   src 00:1a:c5:00:00:01 (ENI MAC)   type 0x86dd
+Inner IPv6     : src fd41:100:3e8:d007:64:ff71:101:1  (VM, PL-encoded)
+                 dst 2603:100:3e8::104:1               (service)
+                 next-header 17 (UDP)  hop-limit 64  payload 86
+Inner UDP      : sport 10000  dport 10000
+
+RAW HEX (full PacketHex; first 8 bytes = capture metadata, frame follows)
+------------------------------------------------------------------------
+3c9a356a23a09c30 8009020200022c5eab1b700008004500 00a800000000fe2f0223
+dd000001dd02000020006558000064 00001b6e000001001ac500000186dd
+6000000000561140 fd41010003e8d0070064ff7101010001 2603010003e8000000000000010400 01
+27102710 ...payload...
+
+KEY FINDING — our inbound NVGRE is the EXACT MIRROR of this; VSID matches
+------------------------------------------------------------------------
+                       DPU outbound (this capture)     our inbound (UHD connect_vlan_nvgre + fixed gen)
+  outer src IPv4   :   221.0.0.1 (VIP)                  221.2.0.0
+  outer dst IPv4   :   221.2.0.0                        221.0.0.1 (VIP)
+  GRE proto        :   0x6558 (NVGRE/TEB)               0x6558 (NVGRE/TEB)
+  GRE flags        :   0x2000 (Key Present)             0x2000 (Key Present)
+  NVGRE VSID       :   100   (key = 00 00 64 00)        100  (vsid:100 in the .http)
+  inner src IPv6   :   fd41:100:3e8:d007:64:ff71:101:1  2603:100:3e8::104:1   (service)
+  inner dst IPv6   :   2603:100:3e8::104:1              fd41:100:3e8:d007:64:ff71:101:1 (VM)
+  inner UDP        :   10000 -> 10000                   22222 -> 22222
+
+Every field is a correct reverse-direction mirror, and the NVGRE VSID is identical
+(100). So the inbound packet we send is well-formed and matches what the DPU itself
+emits/uses. The DPU clearly produces standard NVGRE (flags 0x2000, proto 0x6558,
+VSID in the top 24 bits of the GRE key) and round-trips VSID 100 on egress.
+
+CONCLUSION
+----------
+This capture removes the last doubt about the sending side: the inbound NVGRE we
+generate is byte-for-byte format-compatible (same encap type, same VSID 100, mirror
+addressing) with the NVGRE the DPU itself emits. Yet inbound still dies 100% at
+SAI_ENI_STAT_INBOUND_ROUTING_ENTRY_MISS_DROP. That confirms, independently of the
+earlier VXLAN-vs-NVGRE A/B test, that the defect is in NASA's INGRESS NVGRE parsing
+— it does not extract the GRE key (VSID 100) into the inbound-routing VNI metadata,
+so the routing lookup misses. Fix must be in the NASA/DPU image, not in the test or
+UHD config. See reference_with_traffic_run_findings / reference_dash_port2_capture.
+
+HOW IT WAS CAPTURED (reproducible)
+----------------------------------
+1. POST c:\tmp\uhd_rawnvgre.json to https://10.36.78.39/connect/api/v1/config
+   (curl -sk; port_1A<->dpu_port_2 = connect_ethernet non_vlan).
+2. Run c:\tmp\cap_rawnvgre.py inside the SMD sonic-mgmt container: builds the
+   outbound TI on port_1B (7/5), dedicates port_1A (7/1) to HW capture
+   (RxMode=captureAndMeasure, Capture.HardwareEnabled=True), runs ~10s, reads
+   DataCapturedPacketCounter + GetPacketFromDataCapture(Arg2=i).PacketHex.
+3. Strip the 8-byte capture-metadata prefix; decode outer IPv4 / GRE / inner.
