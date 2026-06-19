@@ -76,6 +76,10 @@ IP_R_START = "1.4.0.1"                # ipv4.dst base (per-ENI: + g*IP_STEP_ENI)
 IP_STEP_ENI = "0.64.0.0"
 UDP_SRC_PORT = 10000
 UDP_DST_PORT = 10000
+# Inbound (service->VM) inner L4 ports — distinct from outbound's 10000 so the two
+# directions are unambiguous in captures / flow tables.
+INBOUND_UDP_SPORT = 22222
+INBOUND_UDP_DPORT = 22222
 FRAME_SIZE = 128
 # Gentle trickle. The DPU/NASA dataplane handles ~20 Mpps; 200 fps is ~100,000x
 # below that, so a packet drop here cannot be rate/overflow induced. (A line-rate
@@ -280,14 +284,37 @@ def _ipv4_to_overlay_v6(ipv4, eni):
     return "2603:100:%x:0::%x:%x" % (eni, (n >> 16) & 0xFFFF, n & 0xFFFF)
 
 
+def _vm_pl_overlay_v6(ca_ipv4, eni):
+    """The VM's PL-encoded overlay address exactly as the DPU emits it on outbound
+    CA2PA (captured ground truth — tests/dash/captures/dpu_outbound_overlay_port2.txt).
+
+    It is the bitwise OR of three pieces:
+      pl_sip base       fd40::<vni_le>:64:ff71:0:0   (ENI pl_sip_encoding; vni_le =
+                                                      byte-swapped r_vni = eni+1000)
+      overlay_sip_prefix 1:100:<eni_hex>::           (map.json.j2)
+      CA low 32 bits     ::<hi16>:<lo16>             (the customer IPv4)
+    e.g. ca 1.1.0.1, eni 1000 (r_vni 2000) -> fd41:100:3e8:d007:64:ff71:101:1.
+    This is what the inbound (service->VM) return must use as the inner DESTINATION;
+    the old 2603:.. form (used for the service side) is wrong for the VM side."""
+    r_vni = eni + 1000                        # ENI_L2R_STEP (render.py DEFAULTS)
+    h = "%04x" % r_vni
+    vni_le = h[2:4] + h[0:2]                   # 2000 -> '07d0' -> 'd007'
+    base = int(ipaddress.IPv6Address("fd40::%s:64:ff71:0:0" % vni_le))
+    osip = int(ipaddress.IPv6Address("1:100:%x::" % eni))
+    ca = _ip_to_int(ca_ipv4) & 0xFFFFFFFF     # CA occupies the low 32 bits
+    return str(ipaddress.IPv6Address(base | osip | ca))
+
+
 def build_inbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_PER_DPU,
                          frame_count=INBOUND_FRAME_COUNT, eni_start=1000):
     """Build the per-ENI INBOUND (service->VM) traffic item for one DPU.
 
     Mirror of the outbound TI but: ethernet/vlan/IPv6/UDP stack, inbound VLAN
-    base (1..), and IPv6 src/dst = the overlay form of 1.4.0.1 -> 1.1.0.1. NASA
-    matches the inbound ENI on the inner DESTINATION MAC (= the ENI mac), the
-    mirror of outbound (which matches on inner src). The UHD adds the NVGRE encap.
+    base (1..). Inner IPv6 = service overlay (2603:100:<eni>::<v4> of 1.4.0.1) ->
+    VM PL-encoded address (fd41:.. of 1.1.0.1), matching the DPU's own overlay
+    addressing captured at port2 (dpu_outbound_overlay_port2.txt). NASA matches the
+    inbound ENI on the inner DESTINATION MAC (= the ENI mac), the mirror of outbound
+    (which matches on inner src). The UHD adds the NVGRE encap.
 
     The inner UDP header is REQUIRED: NASA runs its protocol/flow stage on the
     DECAPPED inner packet, and a bare IPv6 with no L4 (next-header = none) is
@@ -328,23 +355,27 @@ def build_inbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_P
                start=_int_to_mac(mac_r0), step=MAC_STEP_ENI, count=enis_per_dpu)
     _set_field(vlan, "vlanTag.vlanID",
                start=VLAN_IN_BASE + g0, step=1, count=enis_per_dpu)
-    # IPv6 of 1.4.0.1 (service) -> IPv6 of 1.1.0.1 (VM). Single value for the g0
-    # ENI (the minimal-config single-flow case); per-ENI ranges would need an
-    # increment on the embedded v4 + eni_hex.
-    _set_field(ipv6, "ipv6.header.srcIP", single=_ipv4_to_overlay_v6(IP_R_START, eni0))
-    _set_field(ipv6, "ipv6.header.dstIP", single=_ipv4_to_overlay_v6(IP_L_START, eni0))
+    # Inner IPv6: service -> VM, matching the DPU's own overlay addressing (captured
+    # at port2). src = service overlay (2603:100:<eni>::<v4> of 1.4.0.1). dst = the
+    # VM's PL-encoded address (fd41:..) the DPU uses, NOT the 2603:.. form (the old
+    # 2603:..101:1 dst was wrong — see dpu_outbound_overlay_port2.txt). Single value
+    # for the g0 ENI (minimal single-flow case).
+    inner_src = _ipv4_to_overlay_v6(IP_R_START, eni0)        # service (1.4.0.1)
+    inner_dst = _vm_pl_overlay_v6(IP_L_START, eni0)          # VM (1.1.0.1), PL-encoded
+    _set_field(ipv6, "ipv6.header.srcIP", single=inner_src)
+    _set_field(ipv6, "ipv6.header.dstIP", single=inner_dst)
     # Inner L4: required so NASA sees a supported protocol on the decapped packet
-    # (else SAI_ENI_STAT_UNSUPPORTED_PROTOCOL_DROP). Ports mirror the outbound flow.
-    _set_field(udp, "udp.header.srcPort", single=UDP_SRC_PORT)
-    _set_field(udp, "udp.header.dstPort", single=UDP_DST_PORT)
+    # (else SAI_ENI_STAT_UNSUPPORTED_PROTOCOL_DROP). Inbound uses 22222/22222.
+    _set_field(udp, "udp.header.srcPort", single=INBOUND_UDP_SPORT)
+    _set_field(udp, "udp.header.dstPort", single=INBOUND_UDP_DPORT)
 
     ti.Tracking.find().TrackBy = ["trackingenabled0", "vlanVlanId0"]
     ti.Generate()
     ixnetwork.Traffic.Apply()
-    logger.info("Built DPU%d-In: %d ENI flows, VLANs %d..%d, IPv6 %s -> %s",
+    logger.info("Built DPU%d-In: %d ENI flows, VLANs %d..%d, IPv6 %s -> %s, UDP %d->%d",
                 dpu_index, enis_per_dpu, VLAN_IN_BASE + g0,
                 VLAN_IN_BASE + g0 + enis_per_dpu - 1,
-                _ipv4_to_overlay_v6(IP_R_START, eni0), _ipv4_to_overlay_v6(IP_L_START, eni0))
+                inner_src, inner_dst, INBOUND_UDP_SPORT, INBOUND_UDP_DPORT)
     return ti
 
 
