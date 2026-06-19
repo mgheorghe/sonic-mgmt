@@ -1,5 +1,14 @@
 # Why DASH Private-Link INBOUND drops on NVGRE (INBOUND_ROUTING_ENTRY_MISS) — upstream research
 
+> **RESOLVED 2026-06-19 — NVGRE inbound forwards end-to-end; NO image change needed.**
+> The miss only happens on the SLOW-PATH inbound_routing table (which this analysis is about).
+> Per the PL HLD the return is handled by the **reverse FLOW** created on the outbound pass, and the
+> BlueField handles NVGRE on that flow path. The real bug was in our TEST: the inbound return must be
+> the EXACT 5-tuple reverse of the outbound CA flow (UDP 10000/10000, not 22222) AND outbound must be
+> sent first so the reverse flow exists. After that fix (commits a46313c08 / 225c85d25) inbound = 0%
+> loss, `INBOUND_ROUTING_ENTRY_MISS` delta 0, test passes — with NVGRE kept on the PA side both ways.
+> The slow-path/VXLAN-only analysis below remains correct but is NOT the path PL return uses.
+
 Research date 2026-06-19. Sources: github.com/sonic-net/DASH, github.com/opencomputeproject/SAI,
 github.com/sonic-net/sonic-swss, github.com/sonic-net/sonic-dash-api (all master/main), plus a live
 read of our DPU (keysight-nss01 / DPU0, asic_type nvidia-bluefield).
