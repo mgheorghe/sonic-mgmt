@@ -872,25 +872,42 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         # ── Defeat the dashrouteorch group/route/bind ordering trap ─────────────
         # dashrouteorch requires the strict order: create OUTBOUND_ROUTING_GROUP ->
         # add routes -> bind group to ENI. But DASH_ROUTE_GROUP_TABLE and
-        # DASH_ROUTE_TABLE ship in the SAME file, and the routes are consumed ~12ms
+        # DASH_ROUTE_TABLE ship in the SAME file and the routes are consumed ~12ms
         # BEFORE the group object exists ("addOutboundRouting: Route group <g> not
-        # found") and are never retried. Worse, once the LATER file binds the group to
-        # the ENI (DASH_ENI_ROUTE_TABLE) the group is FROZEN ("Cannot add new route ...
-        # as it is already bound"), so a post-push retry is too late. Net: the routing
-        # group stays EMPTY -> 100% OUTBOUND_ROUTING_ENTRY_MISS_DROP. Fix: the instant a
-        # route-bearing file is pushed, settle so the group object is created, then
-        # re-push that SAME file -> the routes now land in the existing, NOT-YET-BOUND
-        # group (the bind is in a subsequent file). Idempotent: the group/ENI/VNET re-SETs
-        # just warn "already exists".
+        # found"), are never retried, and once the later file binds the group to the ENI
+        # the group is FROZEN ("Cannot add new route ... already bound"). Net: the routing
+        # group stays EMPTY -> 100% OUTBOUND_ROUTING_ENTRY_MISS_DROP.
+        # Re-pushing the whole file does NOT work: it re-touches the GROUP (re-racing) and
+        # a plain re-SET of identical route values is coalesced to a no-op (no reprocess).
+        # Fix: once the group object exists (after the settle), re-evaluate ONLY the routes
+        # by pushing a DEL of the DASH_ROUTE_TABLE keys (clears the failed APPL_DB entries)
+        # then a SET of them — a real change -> dashrouteorch re-runs addOutboundRouting
+        # against the now-existing, not-yet-bound group (the bind is in a later file).
         if not failed and "DASH_ROUTE_TABLE" in tables:
-            logger.info("  [%d/%d] settling %ds then re-pushing %s so routes land in the "
-                        "(created, not-yet-bound) routing group", idx, len(files),
-                        ROUTE_REPUSH_SETTLE_S, filename)
-            time.sleep(ROUTE_REPUSH_SETTLE_S)
-            if not _gnmi_server_ready(localhost, ip, port, tls_paths=tls_paths):
-                _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
-            rp = localhost.shell(cmd, module_ignore_errors=True)
-            logger.info("  [%d/%d] re-pushed %s (rc=%d)", idx, len(files), filename, rp.get("rc", -1))
+            with open(cfg_path) as _rf:
+                _ops = json.load(_rf)
+            _route_ops = [op for op in _ops
+                          if any(k != "OP" and k.startswith("DASH_ROUTE_TABLE:") for k in op)]
+            if _route_ops:
+                logger.info("  [%d/%d] settling %ds then DEL+SET %d route(s) so they land in the "
+                            "(created, not-yet-bound) routing group", idx, len(files),
+                            ROUTE_REPUSH_SETTLE_S, len(_route_ops))
+                time.sleep(ROUTE_REPUSH_SETTLE_S)
+                for _phase in ("DEL", "SET"):
+                    _phase_ops = [dict(op, OP=_phase) for op in _route_ops]
+                    _ppath = os.path.join(config_dir, "_reroute_%s_%s" % (_phase.lower(), filename))
+                    with open(_ppath, "w") as _pf:
+                        json.dump(_phase_ops, _pf)
+                    _pcmd = (
+                        f"cd {extracted_dir} && {tls_prefix}PYTHONPATH=. python3 gnmi_client.py"
+                        f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {dpu_index} -n 8"  # noqa: E231
+                        f" -u {gnmi_user} -p {gnmi_pass} update -f {_ppath}"
+                    )
+                    if not _gnmi_server_ready(localhost, ip, port, tls_paths=tls_paths):
+                        _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
+                    _rp = localhost.shell(_pcmd, module_ignore_errors=True)
+                    logger.info("  [%d/%d] route %s push rc=%d", idx, len(files), _phase, _rp.get("rc", -1))
+                    time.sleep(2)
 
     # Batch verification: check DPU_APPL_DB once for all tables.
     for table in sorted(all_tables):
