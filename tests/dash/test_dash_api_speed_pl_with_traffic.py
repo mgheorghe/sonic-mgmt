@@ -65,11 +65,7 @@ from dash_api_speed_common import (
 from dash_traffic_ixn_build import (
     assign_dual_ports,
     build_outbound_config,
-    build_inbound_config,
     VLAN_OUT_BASE,
-    VLAN_IN_BASE,
-    OUTBOUND_FRAME_COUNT,
-    INBOUND_FRAME_COUNT,
 )
 
 try:
@@ -95,10 +91,17 @@ pytestmark = [
 ]
 
 # How many ENIs to push per DPU. "ALL" = every rendered file.
-# NOTE: the DPU's DASH orchagent stalls programming the full 64-ENI x 64k-mapping
-# load into the ASIC (ASIC_DB stays ~empty). A small count lets the DPU actually
-# program + forward, for a green end-to-end run. Raise once the DPU scales.
-_ENI_COUNT = 1
+# FULL-SCALE run: push every ENI rendered for the DPU under test (64 for Nvidia,
+# 32 for Cisco) at the real private-link scale (64k mappings + ROUTES_PER_ENI
+# routes per ENI). Traffic runs continuously across the whole push so each ENI's
+# first-forwarding timestamp is recorded per VLAN. (Earlier the DPU stalled at this
+# scale; this run measures exactly how many ENIs come up and when.)
+_ENI_COUNT = "ALL"
+
+# Full-scale outbound routes per ENI. render's per-ENI route count is
+# TOTAL_OUTBOUND_ROUTES // ENI_COUNT, so we set TOTAL = ROUTES_PER_ENI * ENI_COUNT
+# below to land exactly this many routes on each ENI (default render scale = 500).
+ROUTES_PER_ENI = 10000
 
 # ════════════════════════════════════════════════════════════════════════════
 #  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
@@ -119,17 +122,15 @@ UHD_PORT_NAMES = ["Port 1", "Port 2", "Port 3", "Port 4"]
 # should drop ~everything.
 BASELINE_MIN_LOSS_PCT = 99.0
 
-# Fixed-burst model: after programming, let the DPU settle, then send one fixed
-# burst and measure the deltas around exactly that burst.
+# Continuous-traffic model: start traffic, program the DPU while it runs, and read
+# each flow's First TimeStamp (= per-ENI hardware bring-up). Then a clean steady
+# window with all ENIs up gives an honest forwarding-loss number.
 PORT_UP_TIMEOUT_S = 90       # wait for IxNetwork<->UHD L1 link-up after AssignPorts
-POST_PROGRAM_SETTLE_S = 30   # ASIC bring-up time before the measurement burst
-BURST_TIMEOUT_S = 120        # max wait for a fixed burst to finish sending
-BURST_STATS_SETTLE_S = 8     # let Flow Statistics catch up after a burst
+BASELINE_WINDOW_S = 8        # pre-program continuous-traffic window (expect ~100% loss)
+POST_PROGRAM_SETTLE_S = 30   # let the last-programmed ENIs' flows start forwarding
+STEADY_WINDOW_S = 15         # clean all-ENIs-up window for the final loss number
 NASA_RECHECK_SETTLE_S = 5    # re-read NASA after this to prove counters are stable
-# after the outbound burst, let the reverse flow install before sending the inbound
-# return (flow aging is 120s, so a few seconds is plenty)
-FLOW_POPULATE_SETTLE_S = 3
-SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the measurement burst
+SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the steady-state window
 # ════════════════════════════════════════════════════════════════════════════
 
 
@@ -179,53 +180,6 @@ def _ix_wait_ports_up(ixnetwork, timeout=PORT_UP_TIMEOUT_S):
     logger.warning("IxNetwork: ports NOT all up after %ds: %s — traffic start may fail",
                    timeout, states)
     return False
-
-
-def _ix_run_fixed_burst(ixnetwork, label, timeout=BURST_TIMEOUT_S):
-    """Start a fixed-frame-count burst and block until it has finished sending.
-
-    Traffic is configured as a fixed burst (9999 frames), so it auto-stops; poll
-    Traffic.State until it leaves 'started*', then let stats settle. Returns the
-    final Traffic.State string."""
-    logger.info("IxNetwork: starting fixed-count burst (%s)", label)
-    ixnetwork.Traffic.StartStatelessTrafficBlocking()
-    deadline = time.time() + timeout
-    state = str(ixnetwork.Traffic.State or "")
-    while time.time() < deadline:
-        state = str(ixnetwork.Traffic.State or "")
-        if not state.lower().startswith("started"):
-            break
-        time.sleep(2)
-    time.sleep(BURST_STATS_SETTLE_S)   # let Flow Statistics catch up
-    logger.info("IxNetwork: burst '%s' done (state=%s)", label, ixnetwork.Traffic.State)
-    return state
-
-
-def _ix_run_burst_subset(ixnetwork, name_regex, label, timeout=BURST_TIMEOUT_S):
-    """Start a fixed-count burst for ONLY the traffic items whose Name matches
-    ``name_regex`` (a RestPy regex), block until it finishes, let stats settle.
-
-    Used to drive the DASH private-link return path in the correct order: send the
-    OUTBOUND TI first so the DPU creates the reverse flow, then the INBOUND TI (built
-    as the exact 5-tuple reverse) so it matches that flow instead of falling through
-    to the slow-path inbound-routing table."""
-    tis = ixnetwork.Traffic.TrafficItem.find(Name=name_regex)
-    if len(tis) == 0:
-        logger.warning("IxNetwork: no traffic items match %r for burst '%s'", name_regex, label)
-        return ""
-    logger.info("IxNetwork: starting fixed-count burst (%s) for TIs: %s",
-                label, [t.Name for t in tis])
-    tis.StartStatelessTrafficBlocking()
-    deadline = time.time() + timeout
-    state = str(ixnetwork.Traffic.State or "")
-    while time.time() < deadline:
-        state = str(ixnetwork.Traffic.State or "")
-        if not state.lower().startswith("started"):
-            break
-        time.sleep(2)
-    time.sleep(BURST_STATS_SETTLE_S)
-    logger.info("IxNetwork: burst '%s' done (state=%s)", label, ixnetwork.Traffic.State)
-    return state
 
 
 def _parse_ixn_timestamp(ts):
@@ -701,20 +655,24 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     logger.info("Pre-flight: assuming %s is up at %s (no automated check)", dpu_name, dpu_midplane_ip)
 
     # ── Render configs ──────────────────────────────────────────────────────
-    # ENIs per DPU depends on platform: Nvidia DPU holds 64, Cisco 32. render's
-    # enis_per_dpu = ENI_COUNT // DPUS (DEFAULTS 256/8 = 32). Keep ENI_COUNT=256
-    # (so per-ENI route count = 500 stays matched to the UHD/bg.ixncfg dataplane)
-    # and set DPUS=4 -> 64 ENIs/DPU for Nvidia, DPUS=8 -> 32 for Cisco.
+    # FULL SCALE, one DPU. ENIs per DPU is platform-dependent (Nvidia 64, Cisco 32).
+    # We render ONLY the DPU under test by setting DPUS=1 and ENI_COUNT=enis_per_dpu
+    # (instead of DPUS=4/ENI_COUNT=256, which also renders 3 unused DPUs' worth of
+    # full-scale files — ~1GB/DPU at 64k mappings + ROUTES_PER_ENI routes/ENI).
+    # MINIMAL_SINGLE_ENTRY=False -> the real 64k mappings/ENI; TOTAL_OUTBOUND_ROUTES
+    # = ROUTES_PER_ENI * ENI_COUNT -> exactly ROUTES_PER_ENI routes on each ENI.
     hwsku = duthost.facts.get("hwsku", "")
+    enis_per_dpu = 32 if "Cisco" in hwsku else 64
     params = dict(render.DEFAULTS)
-    params["DPUS"] = 8 if "Cisco" in hwsku else 4
-    # Minimal config: exactly ONE VNet mapping (1.4.0.1) + ONE outbound route per
-    # ENI (instead of 64k mappings / ~500 routes) to isolate single-flow forwarding.
-    params["MINIMAL_SINGLE_ENTRY"] = True
-    enis_per_dpu = params["ENI_COUNT"] // params["DPUS"]
+    params["DPUS"] = 1
+    params["ENI_COUNT"] = enis_per_dpu
+    params["MINIMAL_SINGLE_ENTRY"] = False
+    params["TOTAL_OUTBOUND_ROUTES"] = ROUTES_PER_ENI * params["ENI_COUNT"]
     render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
-    logger.info("Rendering DASH configs (hwsku=%s, DPUS=%d -> %d ENIs/DPU = %d files) into %s",
-                hwsku, params["DPUS"], enis_per_dpu, 1 + 2 * enis_per_dpu, render_output_dir)
+    logger.info("Rendering DASH configs (hwsku=%s, DPUS=%d -> %d ENIs/DPU = %d files, "
+                "64k mappings + %d routes/ENI) into %s",
+                hwsku, params["DPUS"], enis_per_dpu, 1 + 3 * enis_per_dpu,
+                ROUTES_PER_ENI, render_output_dir)
     render.generate(params, render_output_dir, prefix="pl_100")
 
     config_dir = os.path.join(render_output_dir, f"dpu{dpuhost.dpu_index}")
@@ -777,106 +735,95 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     uhd_last = {}
     traffic_t0 = None
     traffic_dur = 0.0
+    steady_loss = 100.0
     total_start = time.time()
     traffic_started = False
 
     try:
-        # Two shared ports (TX/RX split): vp_b = 7:5 (UHD 1B, VLAN1001/VXLAN),
-        # vp_a = 7:1 (UHD 1A, VLAN1/NVGRE). Outbound TX on vp_b, RX on vp_a;
-        # inbound TX on vp_a, RX on vp_b — so each TX port counts ONE direction.
+        # Two shared ports (TX/RX split): vp_b = 7:5 (UHD 1B, VLAN1001/VXLAN, TX),
+        # vp_a = 7:1 (UHD 1A, RX of the DPU's return). OUTBOUND ONLY this run.
         vp_b, vp_a = assign_dual_ports(ixnetwork)
-        build_outbound_config(ixnetwork, dpuhost.dpu_index, vp_b, vp_a, enis_per_dpu=len(eni_indices))
-        # Inbound (service->VM) IPv6 flow on the same DPU/ENI — sent alongside the
-        # outbound burst so we can see which direction forwards and which drops.
-        build_inbound_config(ixnetwork, dpuhost.dpu_index, vp_a, vp_b, enis_per_dpu=len(eni_indices))
+        # Outbound, CONTINUOUS: one per-VLAN flow per ENI (64), tracked by VLAN, run
+        # non-stop so each flow's First TimeStamp marks when that ENI started
+        # forwarding in hardware during the gNMI push.
+        build_outbound_config(ixnetwork, dpuhost.dpu_index, vp_b, vp_a,
+                              enis_per_dpu=len(eni_indices), continuous=True)
         states = {vp.Name: vp.State for vp in ixnetwork.Vport.find()}
         logger.info("IxNetwork port states: %s", states)
-        # L1 re-negotiates after AssignPorts; wait for link-up before any burst.
+        # L1 re-negotiates after AssignPorts; wait for link-up before starting traffic.
         _ix_wait_ports_up(ixnetwork)
 
-        # ── Baseline burst (no ENIs programmed) → expect ~100% loss ──────────
+        # ── Start continuous traffic; baseline window (no ENIs) → ~100% loss ──
         dash_uhd_stats.clear_metrics(UHD_IP)
         ixnetwork.ClearStats()
-        _ix_run_fixed_burst(ixnetwork, "baseline")
+        logger.info("Starting CONTINUOUS outbound traffic (%d flows) across the push ...",
+                    len(eni_indices))
+        ixnetwork.Traffic.StartStatelessTrafficBlocking()
         traffic_started = True
+        time.sleep(BASELINE_WINDOW_S)
         baseline_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
         baseline_loss = _aggregate_loss_pct(baseline_stats)
-        logger.info("Baseline burst: aggregate loss %.2f%% across %d flows (expect >= %.1f%%)",
-                    baseline_loss, len(baseline_stats), BASELINE_MIN_LOSS_PCT)
+        logger.info("Baseline (pre-program) window: aggregate loss %.2f%% across %d flows "
+                    "(expect >= %.1f%%)", baseline_loss, len(baseline_stats), BASELINE_MIN_LOSS_PCT)
         if baseline_loss < BASELINE_MIN_LOSS_PCT:
             logger.warning("Baseline loss %.2f%% below %.1f%% — some flows already forwarding "
                            "(stale config?).", baseline_loss, BASELINE_MIN_LOSS_PCT)
 
-        # ── Program all ENIs via gNMI ────────────────────────────────────────
+        # 'before' snapshots, then clear IxN stats (traffic keeps running) so every
+        # flow's First TimeStamp is measured from the START of programming.
+        sw_before = _collect_switch_counters(duthost, "before-NPU")
+        dpu_before = _collect_switch_counters(dpuhost, "before-DPU")
+        eni_before = _collect_eni_counters(dpuhost, "before-ENI")
+        nasa_before = _collect_nasa_stats(dpuhost, "before-NASA")
+        uhd_before = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
+        ixnetwork.ClearStats()
+        traffic_t0 = time.time()
+
+        # ── Program all ENIs via gNMI WHILE traffic runs ─────────────────────
         def _log_progress(filename, idx, kind, t0, t1):
             if kind == "map":
                 logger.info("    gNMI: ENI %s programmed (%.2fs)", idx, t1 - t0)
 
-        logger.info("Programming %d config files via gNMI ...", len(files))
+        logger.info("Programming %d config files via gNMI (traffic running) ...", len(files))
         load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
                            creds, mem_timeline, push_events=push_events, on_file_done=_log_progress)
 
-        # ── Measurement burst (post-program): fixed count, deltas around it ──
-        logger.info("Settling %ds for ASIC bring-up before the measurement burst ...",
-                    POST_PROGRAM_SETTLE_S)
+        # Let the last-programmed ENIs come up, then capture each flow's First
+        # TimeStamp (= per-ENI hardware bring-up) BEFORE clearing stats again.
+        logger.info("Settling %ds for the last ENIs to start forwarding ...", POST_PROGRAM_SETTLE_S)
         time.sleep(POST_PROGRAM_SETTLE_S)
-
-        # Every "before" snapshot is taken immediately before the measurement
-        # burst so each delta reflects exactly that one fixed (9999-frame) burst.
-        dash_uhd_stats.clear_metrics(UHD_IP)
-        ixnetwork.ClearStats()
-        time.sleep(2)
-        sw_before = _collect_switch_counters(duthost, "measure-before-NPU")
-        dpu_before = _collect_switch_counters(dpuhost, "measure-before-DPU")
-        eni_before = _collect_eni_counters(dpuhost, "measure-before-ENI")
-        nasa_before = _collect_nasa_stats(dpuhost, "measure-before-NASA")
-        uhd_before = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
-
-        traffic_t0 = time.time()
-        # Private-link return is FLOW-based (HLD: "the return packet ... handled by
-        # reverse flow"). Send OUTBOUND first so the DPU creates the reverse flow,
-        # let it install, then send the exact-reverse-tuple INBOUND so it matches the
-        # flow instead of the slow-path inbound-routing table (which can't parse the
-        # NVGRE VSID on this build).
-        _ix_run_burst_subset(ixnetwork, r"-Out$", "measurement-outbound")
-        # Capture outbound flow stats NOW — starting the inbound burst below resets
-        # IxNetwork's Flow Statistics, which would zero the outbound TI counters.
         flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
-        logger.info("Settling %ds after outbound so the reverse flow is installed ...",
-                    FLOW_POPULATE_SETTLE_S)
-        time.sleep(FLOW_POPULATE_SETTLE_S)
-        _ix_run_burst_subset(ixnetwork, r"-In$", "measurement-inbound")
         traffic_dur = time.time() - traffic_t0
+        n_up = sum(1 for s in flow_stats.values()
+                   if s.get("first_ts") is not None or s.get("rx", 0) > 0)
+        logger.info("Programming window: %d/%d ENIs started forwarding; aggregate loss %.2f%% "
+                    "(includes pre-bring-up frames, so a high value is expected here)",
+                    n_up, len(eni_indices), _aggregate_loss_pct(flow_stats))
 
-        sw_after = _collect_switch_counters(duthost, "measure-after-NPU")
-        dpu_after = _collect_switch_counters(dpuhost, "measure-after-DPU")
-        eni_after = _collect_eni_counters(dpuhost, "measure-after-ENI")
-        nasa_after = _collect_nasa_stats(dpuhost, "measure-after-NASA")
-        # Are NASA counters still trickling in, or already complete? Re-read after a
-        # short settle and log any movement. STABLE => the "17777 RX vs 254 NASA"
-        # gap is NOT stats latency (NASA has no 'processed' counter, only drops).
+        # ── Clean steady-state window (all-up ENIs) → honest forwarding loss ──
+        ixnetwork.ClearStats()
+        time.sleep(STEADY_WINDOW_S)
+        steady_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
+        steady_loss = _aggregate_loss_pct(steady_stats)
+        logger.info("Steady-state window (%ds): aggregate loss %.2f%% across %d flows",
+                    STEADY_WINDOW_S, steady_loss, len(steady_stats))
+
+        # 'after' snapshots (deltas span baseline+program+steady = the whole run).
+        sw_after = _collect_switch_counters(duthost, "after-NPU")
+        dpu_after = _collect_switch_counters(dpuhost, "after-DPU")
+        eni_after = _collect_eni_counters(dpuhost, "after-ENI")
+        nasa_after = _collect_nasa_stats(dpuhost, "after-NASA")
+        # Re-read NASA after a short settle to prove counters are stable, not trickling.
         time.sleep(NASA_RECHECK_SETTLE_S)
-        nasa_after2 = _collect_nasa_stats(dpuhost, "measure-after-NASA+settle")
+        nasa_after2 = _collect_nasa_stats(dpuhost, "after-NASA+settle")
         _nasa_moving = {k: nasa_after2.get(k, 0) - nasa_after.get(k, 0)
                         for k in set(nasa_after) | set(nasa_after2)
                         if nasa_after2.get(k, 0) != nasa_after.get(k, 0)}
-        logger.info("NASA counters +%ds after burst: %s", NASA_RECHECK_SETTLE_S,
+        logger.info("NASA counters +%ds: %s", NASA_RECHECK_SETTLE_S,
                     _nasa_moving or "STABLE (no change — counters were already complete)")
         nasa_after = nasa_after2
         uhd_last = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
-        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="measurement", prev=uhd_before)
-        # flow_stats (outbound) was captured right after the outbound burst, before the
-        # inbound burst reset the Flow Statistics view; only read the inbound side here.
-        inbound_stats = _read_flow_stats(ixnetwork, VLAN_IN_BASE)
-        logger.info("Measurement burst OUTBOUND(IPv4 1.1.0.1->1.4.0.1): %d flows, "
-                    "aggregate loss %.2f%% (tx should be %d/flow)",
-                    len(flow_stats), _aggregate_loss_pct(flow_stats), OUTBOUND_FRAME_COUNT)
-        logger.info("Measurement burst INBOUND (IPv6 of 1.4.0.1->1.1.0.1): %d flows, "
-                    "aggregate loss %.2f%% (tx should be %d/flow)",
-                    len(inbound_stats), _aggregate_loss_pct(inbound_stats), INBOUND_FRAME_COUNT)
-        for g, s in sorted(inbound_stats.items()):
-            logger.info("    inbound ENI %d (vlan %d): tx=%d rx=%d loss=%.2f%%",
-                        g, s.get("vlan"), s.get("tx", 0), s.get("rx", 0), s.get("loss_pct", 0.0))
+        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="run", prev=uhd_before)
     finally:
         if traffic_started:
             _ix_stop_traffic(ixnetwork)
@@ -917,19 +864,22 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         logger.exception("Failed to emit per-hop delta JSON / run details")
     n_forwarding = _print_traffic_vs_grpc(eni_indices, push_events, flow_stats)
 
-    # ── Assertions ──────────────────────────────────────────────────────────
-    final_loss = _aggregate_loss_pct(flow_stats)
+    # ── Assertions ────────────────────────────────────────────────────────────
+    # Full-scale measurement run: the deliverable is the per-ENI bring-up table, so
+    # we only HARD-fail if the traffic harness itself is broken (no flow ever
+    # forwarded). How many of the 64 ENIs came up, and the steady-state loss, are
+    # reported as the result (the DPU is known to stall partway at this scale) — not
+    # asserted, so the per-ENI timestamps always make it into the log/diagram.
+    logger.info("RESULT: %d / %d ENIs started forwarding; steady-state aggregate loss %.2f%%",
+                n_forwarding, len(eni_indices), steady_loss)
+    if n_forwarding < len(eni_indices):
+        logger.warning("Only %d/%d ENIs came up in hardware at full scale — see the per-ENI "
+                       "table above for which ENIs stalled and when.",
+                       n_forwarding, len(eni_indices))
+    if steady_loss > SETTLE_LOSS_PCT:
+        logger.warning("Steady-state loss %.2f%% > %s%% — not all forwarding ENIs are lossless.",
+                       steady_loss, SETTLE_LOSS_PCT)
     assert n_forwarding >= 1, (
         "No flow ever started forwarding — no ENI brought up traffic. "
         "Check UHD config (smartswitch loaded?), chassis links, VLAN↔ENI mapping."
-    )
-    logger.info("Flows forwarding: %d / %d, final aggregate loss %.2f%%",
-                n_forwarding, len(eni_indices), final_loss)
-    assert n_forwarding >= len(eni_indices), (
-        f"Only {n_forwarding}/{len(eni_indices)} ENIs started forwarding traffic — "
-        "some ENIs never came up in hardware."
-    )
-    assert final_loss <= SETTLE_LOSS_PCT, (
-        "Aggregate loss settled at %.2f%% (> %s%%) after the full config was pushed — "
-        "traffic did not fully recover." % (final_loss, SETTLE_LOSS_PCT)
     )

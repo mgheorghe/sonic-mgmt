@@ -213,15 +213,21 @@ def assign_dual_ports(ixnetwork):
 
 
 def build_outbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_PER_DPU,
-                          frame_count=OUTBOUND_FRAME_COUNT):
+                          frame_count=OUTBOUND_FRAME_COUNT, continuous=False):
     """Build (from a cleared config) the per-ENI outbound traffic item for one DPU.
 
     Returns the TrafficItem. TWO ports (no loopback): transmits on ``vp_tx``
     (chassis 7:5 -> UHD ixnetwork_port_1B, VLAN 1001/VXLAN) and receives the DPU's
     return on ``vp_rx`` (chassis 7:1 -> UHD ixnetwork_port_1A). So the TX port
     counts ONLY outbound (frame_count, default 9999) and the RX port counts only
-    the return. 32 ENI flows via counters (vlan / eth.dst / ipv4.dst), tracked by
-    VLAN. Fixed-count burst (deterministic).
+    the return. ``enis_per_dpu`` ENI flows via counters (vlan / eth.dst / ipv4.dst),
+    tracked by VLAN.
+
+    ``continuous=True`` runs the traffic non-stop (instead of a fixed burst) so it
+    spans the whole gNMI programming window: each per-VLAN flow's "First TimeStamp"
+    then records exactly when that ENI first started forwarding in hardware. Stop it
+    explicitly with ``StopStatelessTrafficBlocking``. ``continuous=False`` keeps the
+    deterministic fixed-count burst.
     """
     # one raw traffic item, eth/vlan/ipv4/udp stack; source = TX port, dest = RX port.
     ti = ixnetwork.Traffic.TrafficItem.add(
@@ -230,9 +236,14 @@ def build_outbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_
     ce = ti.ConfigElement.find()[0]
     ce.FrameSize.update(Type="fixed", FixedSize=FRAME_SIZE)
     ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS)
-    # Fixed burst (deterministic counts) instead of continuous. FrameCount is the
-    # total for this config element; with 1 ENI flow that is exactly frame_count.
-    ce.TransmissionControl.update(Type="fixedFrameCount", FrameCount=frame_count)
+    if continuous:
+        # Run non-stop across the programming window so per-VLAN First TimeStamp
+        # captures each ENI's hardware bring-up moment.
+        ce.TransmissionControl.update(Type="continuous")
+    else:
+        # Fixed burst (deterministic counts). FrameCount is the total for this config
+        # element; with 1 ENI flow that is exactly frame_count.
+        ce.TransmissionControl.update(Type="fixedFrameCount", FrameCount=frame_count)
 
     eth = ce.Stack.find(StackTypeId="^ethernet$")[0]
     vlan = ce.Stack.read(eth.AppendProtocol(
