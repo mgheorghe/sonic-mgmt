@@ -1,0 +1,134 @@
+DASH traffic-path run details — 2026-06-19T20:54:17Z (duration 112s)
+dominant NASA drop this run: SAI_PORT_STAT_VIP_MISS_DROP_PACKETS = 667
+
+== IxNetwork flow stats (per-ENI) ==
+    eni                  tx             rx      loss%
+    0                  9999           9999      0.000
+    TOTAL    tx=9999 rx=9999  aggregate loss=0.000%
+
+== IxNetwork INBOUND IPv6 flow stats (service->VM) ==
+    eni 0      vlan 1     tx 7777       rx 7777       loss 0.000%
+    TOTAL    tx=7777 rx=7777  aggregate loss=0.000%
+
+== UHD per-port metrics (before / after / delta) ==
+    Port 1:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         1             7782             7781
+        frames_received_unicast                     0             7777             7777
+        frames_transmitted_all                      0             9999             9999
+        frames_transmitted_unicast                  0             9999             9999
+        link_status                           link_up          link_up
+    Port 2:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         1            10004            10003
+        frames_received_unicast                     0             9999             9999
+        frames_transmitted_all                      0             7777             7777
+        frames_transmitted_unicast                  0             7777             7777
+        link_status                           link_up          link_up
+    Port 3:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         0                0                0
+        frames_received_unicast                     0                0                0
+        frames_transmitted_all                      0                0                0
+        frames_transmitted_unicast                  0                0                0
+        link_status                         link_down        link_down
+    Port 4:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         0                0                0
+        frames_received_unicast                     0                0                0
+        frames_transmitted_all                      0                0                0
+        frames_transmitted_unicast                  0                0                0
+        link_status                         link_down        link_down
+
+== NPU interface counters (before / after / delta) ==
+    counter                                                     rx_before         rx_after            delta
+    Ethernet0                                                      236087           246086             9999
+    Ethernet8                                                      163317           171094             7777
+    Ethernet224                                                    249629           267405            17776
+    counter                                                     tx_before         tx_after            delta
+    Ethernet0                                                       25298            33079             7781
+    Ethernet8                                                      208046           218049            10003
+    Ethernet224                                                    421397           439177            17780
+
+== DPU0 interface counters (before / after / delta) ==
+    counter                                                     rx_before         rx_after            delta
+    Ethernet0                                                      421398           439178            17780
+    counter                                                     tx_before         tx_after            delta
+    Ethernet0                                                      249631           267407            17776
+
+== Per-ENI SAI counters (ALL, before / after / delta) ==
+    ENI eni-1000  (oid via COUNTERS_ENI_NAME_MAP):
+    counter                                                        before            after            delta
+    SAI_ENI_STAT_ENI_TRUSTED_VNI_ENTRY_MISS_DROP_PACKETS                0                0                0
+    SAI_ENI_STAT_FLOW_AGED                                             20               20                0
+    SAI_ENI_STAT_FLOW_CREATED                                          21               21                0
+    SAI_ENI_STAT_FLOW_CREATE_FAILED                                     0                0                0
+    SAI_ENI_STAT_FLOW_DELETED                                           0                0                0
+    SAI_ENI_STAT_FLOW_DELETE_FAILED                                     0                0                0
+    SAI_ENI_STAT_FLOW_UPDATED                                           0                0                0
+    SAI_ENI_STAT_FLOW_UPDATE_FAILED                                     0                0                0
+    SAI_ENI_STAT_FORWARDING_DROP_PACKETS                           108878           108878                0
+    SAI_ENI_STAT_INBOUND_ROUTING_ENTRY_MISS_DROP_PACKETS           108878           108878                0
+    SAI_ENI_STAT_INBOUND_RX_BYTES                                25321912         26581786          1259874
+    SAI_ENI_STAT_INBOUND_RX_PACKETS                                155540           163317             7777
+    SAI_ENI_STAT_INBOUND_TCP_FIN_PACKETS                                0                0                0
+    SAI_ENI_STAT_INBOUND_TCP_RST_PACKETS                                0                0                0
+    SAI_ENI_STAT_INBOUND_TCP_SYNACK_PACKETS                             0                0                0
+    SAI_ENI_STAT_INBOUND_TCP_SYN_PACKETS                                0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_CREATE_ACK_FAILED                          0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_CREATE_ACK_IGNORED                         0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_CREATE_ACK_RECV                            0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_CREATE_REQ_FAILED                          0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_CREATE_REQ_RECV                            0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_CREATE_REQ_SENT                            0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_DELETE_REQ_FAILED                          0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_DELETE_REQ_RECV                            0                0                0
+    SAI_ENI_STAT_INLINE_FLOW_DELETE_REQ_SENT                            0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_ACK_RX                                     0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_ACK_TX                                     0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_PACKET_RX_BYTES                            0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_PACKET_RX_PACKETS                          0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_PACKET_TX_BYTES                            0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_PACKET_TX_PACKETS                          0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_REDIRECT_PACKETS_RX                        0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_REDIRECT_PACKETS_TX                        0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_REQ_RX                                     0                0                0
+    SAI_ENI_STAT_INLINE_SYNC_REQ_TX                                     0                0                0
+    SAI_ENI_STAT_LB_FAST_PATH_ICMP_IN_BYTES                             0                0                0
+    SAI_ENI_STAT_LB_FAST_PATH_ICMP_IN_DROP_PACKETS                      0                0                0
+    SAI_ENI_STAT_LB_FAST_PATH_ICMP_IN_PACKETS                           0                0                0
+    SAI_ENI_STAT_MAX_RX_CPS                                             0                0                0
+    SAI_ENI_STAT_MAX_TX_CPS                                             1                1                0
+    SAI_ENI_STAT_OTHER_DROP_PACKETS                                     0                0                0
+    SAI_ENI_STAT_OUTBOUND_CA_PA_ENTRY_MISS_DROP_PACKETS                 0                0                0
+    SAI_ENI_STAT_OUTBOUND_ROUTING_ENTRY_MISS_DROP_PACKETS                0                0                0
+    SAI_ENI_STAT_OUTBOUND_RX_BYTES                               38434960         40134790          1699830
+    SAI_ENI_STAT_OUTBOUND_RX_PACKETS                               226088           236087             9999
+    SAI_ENI_STAT_OUTBOUND_TCP_FIN_PACKETS                               0                0                0
+    SAI_ENI_STAT_OUTBOUND_TCP_RST_PACKETS                               0                0                0
+    SAI_ENI_STAT_OUTBOUND_TCP_SYNACK_PACKETS                            0                0                0
+    SAI_ENI_STAT_OUTBOUND_TCP_SYN_PACKETS                               0                0                0
+    SAI_ENI_STAT_PA_VALIDATION_FAIL_DROP_PACKETS                        0                0                0
+    SAI_ENI_STAT_POLICY_DROP_PACKETS                                    0                0                0
+    SAI_ENI_STAT_RX_BYTES                                        63756872         66716576          2959704
+    SAI_ENI_STAT_RX_PACKETS                                        381628           399404            17776
+    SAI_ENI_STAT_SESSION_LIMIT_EXCEEDED_DROP_PACKETS                    0                0                0
+    SAI_ENI_STAT_TCP_NON_SYN_FLOW_MISS_DROP_PACKETS                     0                0                0
+    SAI_ENI_STAT_TCP_RST_INJECT_PACKETS                                 0                0                0
+    SAI_ENI_STAT_TOTAL_DROP_PACKETS                                116655           116655                0
+    SAI_ENI_STAT_UNSUPPORTED_PROTOCOL_DROP_PACKETS                   7777             7777                0
+      moved this run: SAI_ENI_STAT_INBOUND_RX_BYTES=+1259874, SAI_ENI_STAT_INBOUND_RX_PACKETS=+7777, SAI_ENI_STAT_OUTBOUND_RX_BYTES=+1699830, SAI_ENI_STAT_OUTBOUND_RX_PACKETS=+9999, SAI_ENI_STAT_RX_BYTES=+2959704, SAI_ENI_STAT_RX_PACKETS=+17776
+
+
+== NASA port_stats_dump (ALL counters, before / after / delta) ==
+    counter                                                        before            after            delta
+    SAI_PORT_STAT_ENI_MISS_DROP_PACKETS                                 0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ENI_MISS_DROP_BYTES                 0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ENI_MISS_DROP_PACKETS                0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ICMP_IN_BYTES                       0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ICMP_IN_PACKETS                     0                0                0
+    SAI_PORT_STAT_VIP_MISS_DROP_PACKETS                            132794           133461              667
