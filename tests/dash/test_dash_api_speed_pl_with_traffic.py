@@ -126,6 +126,9 @@ POST_PROGRAM_SETTLE_S = 30   # ASIC bring-up time before the measurement burst
 BURST_TIMEOUT_S = 120        # max wait for a fixed burst to finish sending
 BURST_STATS_SETTLE_S = 8     # let Flow Statistics catch up after a burst
 NASA_RECHECK_SETTLE_S = 5    # re-read NASA after this to prove counters are stable
+# after the outbound burst, let the reverse flow install before sending the inbound
+# return (flow aging is 120s, so a few seconds is plenty)
+FLOW_POPULATE_SETTLE_S = 3
 SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the measurement burst
 # ════════════════════════════════════════════════════════════════════════════
 
@@ -194,6 +197,33 @@ def _ix_run_fixed_burst(ixnetwork, label, timeout=BURST_TIMEOUT_S):
             break
         time.sleep(2)
     time.sleep(BURST_STATS_SETTLE_S)   # let Flow Statistics catch up
+    logger.info("IxNetwork: burst '%s' done (state=%s)", label, ixnetwork.Traffic.State)
+    return state
+
+
+def _ix_run_burst_subset(ixnetwork, name_regex, label, timeout=BURST_TIMEOUT_S):
+    """Start a fixed-count burst for ONLY the traffic items whose Name matches
+    ``name_regex`` (a RestPy regex), block until it finishes, let stats settle.
+
+    Used to drive the DASH private-link return path in the correct order: send the
+    OUTBOUND TI first so the DPU creates the reverse flow, then the INBOUND TI (built
+    as the exact 5-tuple reverse) so it matches that flow instead of falling through
+    to the slow-path inbound-routing table."""
+    tis = ixnetwork.Traffic.TrafficItem.find(Name=name_regex)
+    if len(tis) == 0:
+        logger.warning("IxNetwork: no traffic items match %r for burst '%s'", name_regex, label)
+        return ""
+    logger.info("IxNetwork: starting fixed-count burst (%s) for TIs: %s",
+                label, [t.Name for t in tis])
+    tis.StartStatelessTrafficBlocking()
+    deadline = time.time() + timeout
+    state = str(ixnetwork.Traffic.State or "")
+    while time.time() < deadline:
+        state = str(ixnetwork.Traffic.State or "")
+        if not state.lower().startswith("started"):
+            break
+        time.sleep(2)
+    time.sleep(BURST_STATS_SETTLE_S)
     logger.info("IxNetwork: burst '%s' done (state=%s)", label, ixnetwork.Traffic.State)
     return state
 
@@ -803,7 +833,16 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         uhd_before = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
 
         traffic_t0 = time.time()
-        _ix_run_fixed_burst(ixnetwork, "measurement")
+        # Private-link return is FLOW-based (HLD: "the return packet ... handled by
+        # reverse flow"). Send OUTBOUND first so the DPU creates the reverse flow,
+        # let it install, then send the exact-reverse-tuple INBOUND so it matches the
+        # flow instead of the slow-path inbound-routing table (which can't parse the
+        # NVGRE VSID on this build).
+        _ix_run_burst_subset(ixnetwork, r"-Out$", "measurement-outbound")
+        logger.info("Settling %ds after outbound so the reverse flow is installed ...",
+                    FLOW_POPULATE_SETTLE_S)
+        time.sleep(FLOW_POPULATE_SETTLE_S)
+        _ix_run_burst_subset(ixnetwork, r"-In$", "measurement-inbound")
         traffic_dur = time.time() - traffic_t0
 
         sw_after = _collect_switch_counters(duthost, "measure-after-NPU")

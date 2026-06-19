@@ -76,10 +76,12 @@ IP_R_START = "1.4.0.1"                # ipv4.dst base (per-ENI: + g*IP_STEP_ENI)
 IP_STEP_ENI = "0.64.0.0"
 UDP_SRC_PORT = 10000
 UDP_DST_PORT = 10000
-# Inbound (service->VM) inner L4 ports — distinct from outbound's 10000 so the two
-# directions are unambiguous in captures / flow tables.
-INBOUND_UDP_SPORT = 22222
-INBOUND_UDP_DPORT = 22222
+# Inbound (service->VM) inner L4 ports — the EXACT 5-tuple reverse of the outbound
+# CA flow so the return matches the reverse flow the outbound burst creates on the
+# DPU (DASH private-link return is flow-based, not slow-path inbound-routing). The
+# outbound CA UDP is 10000->10000, so the reverse is 10000->10000 (swap = same).
+INBOUND_UDP_SPORT = UDP_DST_PORT
+INBOUND_UDP_DPORT = UDP_SRC_PORT
 FRAME_SIZE = 128
 # Gentle trickle. The DPU/NASA dataplane handles ~20 Mpps; 200 fps is ~100,000x
 # below that, so a packet drop here cannot be rate/overflow induced. (A line-rate
