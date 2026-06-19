@@ -839,6 +839,9 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         # flow instead of the slow-path inbound-routing table (which can't parse the
         # NVGRE VSID on this build).
         _ix_run_burst_subset(ixnetwork, r"-Out$", "measurement-outbound")
+        # Capture outbound flow stats NOW — starting the inbound burst below resets
+        # IxNetwork's Flow Statistics, which would zero the outbound TI counters.
+        flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
         logger.info("Settling %ds after outbound so the reverse flow is installed ...",
                     FLOW_POPULATE_SETTLE_S)
         time.sleep(FLOW_POPULATE_SETTLE_S)
@@ -862,7 +865,8 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         nasa_after = nasa_after2
         uhd_last = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
         dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="measurement", prev=uhd_before)
-        flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
+        # flow_stats (outbound) was captured right after the outbound burst, before the
+        # inbound burst reset the Flow Statistics view; only read the inbound side here.
         inbound_stats = _read_flow_stats(ixnetwork, VLAN_IN_BASE)
         logger.info("Measurement burst OUTBOUND(IPv4 1.1.0.1->1.4.0.1): %d flows, "
                     "aggregate loss %.2f%% (tx should be %d/flow)",
