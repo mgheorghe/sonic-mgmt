@@ -13,7 +13,9 @@
         },
         "OP": "SET"
     },
-    {"DASH_ROUTE_GROUP_TABLE:route-group-{{ eni }}": {"guid": "{{ route_group_guid }}", "version": "1"}, "OP": "SET"},
+{# route-group-{{ eni }} (guid {{ route_group_guid }}) is created in the per-ENI grp
+   file, pushed BEFORE this eni file, so the SAI route group exists before these
+   routes reference it — see render.py (grp -> eni -> map order). #}
 {% for r in routes %}
 {% if r.routing_type == 'vnet' %}
     {"DASH_ROUTE_TABLE:route-group-{{ eni }}:{{ r.ip }}/{{ r.mask }}": {"routing_type": "vnet", "vnet": "vnet-{{ r_vni_id }}"}, "OP": "SET"},

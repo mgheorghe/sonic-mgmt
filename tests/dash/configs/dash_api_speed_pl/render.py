@@ -271,6 +271,17 @@ def _render_apl(args):
     return path
 
 
+def _render_grp(args):
+    """Render one route-group file (one per ENI, pushed before the eni/routes file)."""
+    output_dir, prefix, dpu_id, eni_global, ctx = args
+    env = make_env()
+    tmpl = env.get_template('grp.json.j2')
+    path = os.path.join(output_dir, f'dpu{dpu_id}',
+                        f'{prefix}.dpu{dpu_id}.{eni_global:03d}grp.json')  # noqa: E231
+    _write(path, tmpl.render(**ctx))
+    return path
+
+
 def _render_eni(args):
     """Render one ENI file."""
     output_dir, prefix, dpu_id, eni_global, ctx = args
@@ -313,6 +324,7 @@ def generate(params, output_dir, prefix='pl_100'):
     per_eni_total_routes = p['TOTAL_OUTBOUND_ROUTES'] // p['ENI_COUNT']
 
     apl_jobs = []
+    grp_jobs = []
     eni_jobs = []
     map_jobs = []
 
@@ -344,6 +356,16 @@ def generate(params, output_dir, prefix='pl_100'):
             eni_ip_r = dpu_ip_r + ei * IP_ENI
             eni_mac_l = dpu_mac_l + ei * MAC_ENI
             eni_hex = hex(eni)[2:]
+
+            # GRP context — the per-ENI route group. Emitted in its own file that is
+            # pushed BEFORE this ENI's eni (routes) file so the SAI OUTBOUND_ROUTING_GROUP
+            # exists before the routes reference it. dashrouteorch drops routes whose group
+            # isn't created yet (and never retries) and freezes a group once the ENI binds
+            # it, so the required order is group -> routes -> bind (grp -> eni -> map).
+            grp_jobs.append((output_dir, prefix, dpu, eni_global, {
+                'eni':              eni,
+                'route_group_guid': guid(f'route-group-{eni}'),
+            }))
 
             # ENI context — routes computed materialized as a list of dicts
             routes = list(compute_outbound_routes(
@@ -395,12 +417,14 @@ def generate(params, output_dir, prefix='pl_100'):
 
     # ── Render in parallel ──────────────────────────────────────────────
     workers = min(cpu_count(), dpus)
-    print(f'Generating {len(apl_jobs)} APL + {len(eni_jobs)} ENI '
+    print(f'Generating {len(apl_jobs)} APL + {len(grp_jobs)} GRP + {len(eni_jobs)} ENI '
           f'+ {len(map_jobs)} MAP files  ({workers} workers) ...',
           file=sys.stderr)
 
     with Pool(workers) as pool:
         for path in pool.imap_unordered(_render_apl, apl_jobs):
+            print(f'  {path}', file=sys.stderr)
+        for path in pool.imap_unordered(_render_grp, grp_jobs):
             print(f'  {path}', file=sys.stderr)
         for path in pool.imap_unordered(_render_eni, eni_jobs):
             print(f'  {path}', file=sys.stderr)

@@ -34,10 +34,6 @@ _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 _GNMI_EXTRACTED_SUBDIR = "gnmi_agent_extracted"
 _BATCH_VAL = 3000  # pl_100 sweet spot (see reference_dash_perf_facts)
 
-# Seconds to wait after the first push before re-pushing the route-bearing file(s),
-# to defeat the dashrouteorch group-before-route ordering race (see load_json_via_gnmi).
-ROUTE_REPUSH_SETTLE_S = 5
-
 # TEMP experiment: push apl+eni files (create VNET/ENI) first, barrier until the
 # VNETs are programmed into ASIC_DB, then push map files (mappings). Works around
 # the DPU orchagent issuing OUTBOUND_CA_TO_PA mappings before their VNET exists.
@@ -70,7 +66,14 @@ _NPU_STALE_ROUTES = [
 ]
 
 # Filename pattern: pl_100.dpu0.001eni.json -> index 001, kind "eni".
-_FILE_INDEX_RE = re.compile(r"\.(\d{3})(apl|eni|map)\.json$")
+# "grp" is the per-ENI route-group file, pushed before the ENI's routes (see _KIND_ORDER).
+_FILE_INDEX_RE = re.compile(r"\.(\d{3})(apl|grp|eni|map)\.json$")
+
+# Push order within a DPU: appliance/routing-type first, then per ENI the route group
+# (DASH_ROUTE_GROUP_TABLE) BEFORE the routes (eni), and the ENI->group bind (map) LAST.
+# dashrouteorch drops routes whose group isn't created yet (no retry) and freezes a group
+# once bound, so group -> routes -> bind is mandatory.
+_KIND_ORDER = {"apl": 0, "grp": 1, "eni": 2, "map": 3}
 
 
 def parse_file_index(filename):
@@ -761,6 +764,13 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         file_info.append((filename, op_count, tables))
         all_tables.update(tables.keys())
 
+    # Deterministic dependency order regardless of the incoming (alphabetical) file list:
+    # per ENI index, route group (grp) -> routes (eni) -> bind (map); apl first. This is
+    # what makes DASH outbound routes actually program (see _KIND_ORDER).
+    file_info.sort(key=lambda fi: (
+        parse_file_index(fi[0])[0] if parse_file_index(fi[0])[0] is not None else -1,
+        _KIND_ORDER.get(parse_file_index(fi[0])[1], 9)))
+
     # TEMP phased-push: order apl/eni before map, barrier on ASIC_DB in between.
     if _PHASED_PUSH:
         file_info.sort(key=lambda fi: (
@@ -868,46 +878,6 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             })
         except Exception:
             logger.debug("  [%d/%d] mem snapshot failed (non-fatal)", idx, len(files))
-
-        # ── Defeat the dashrouteorch group/route/bind ordering trap ─────────────
-        # dashrouteorch requires the strict order: create OUTBOUND_ROUTING_GROUP ->
-        # add routes -> bind group to ENI. But DASH_ROUTE_GROUP_TABLE and
-        # DASH_ROUTE_TABLE ship in the SAME file and the routes are consumed ~12ms
-        # BEFORE the group object exists ("addOutboundRouting: Route group <g> not
-        # found"), are never retried, and once the later file binds the group to the ENI
-        # the group is FROZEN ("Cannot add new route ... already bound"). Net: the routing
-        # group stays EMPTY -> 100% OUTBOUND_ROUTING_ENTRY_MISS_DROP.
-        # Re-pushing the whole file does NOT work: it re-touches the GROUP (re-racing) and
-        # a plain re-SET of identical route values is coalesced to a no-op (no reprocess).
-        # Fix: once the group object exists (after the settle), re-evaluate ONLY the routes
-        # by pushing a DEL of the DASH_ROUTE_TABLE keys (clears the failed APPL_DB entries)
-        # then a SET of them — a real change -> dashrouteorch re-runs addOutboundRouting
-        # against the now-existing, not-yet-bound group (the bind is in a later file).
-        if not failed and "DASH_ROUTE_TABLE" in tables:
-            with open(cfg_path) as _rf:
-                _ops = json.load(_rf)
-            _route_ops = [op for op in _ops
-                          if any(k != "OP" and k.startswith("DASH_ROUTE_TABLE:") for k in op)]
-            if _route_ops:
-                logger.info("  [%d/%d] settling %ds then DEL+SET %d route(s) so they land in the "
-                            "(created, not-yet-bound) routing group", idx, len(files),
-                            ROUTE_REPUSH_SETTLE_S, len(_route_ops))
-                time.sleep(ROUTE_REPUSH_SETTLE_S)
-                for _phase in ("DEL", "SET"):
-                    _phase_ops = [dict(op, OP=_phase) for op in _route_ops]
-                    _ppath = os.path.join(config_dir, "_reroute_%s_%s" % (_phase.lower(), filename))
-                    with open(_ppath, "w") as _pf:
-                        json.dump(_phase_ops, _pf)
-                    _pcmd = (
-                        f"cd {extracted_dir} && {tls_prefix}PYTHONPATH=. python3 gnmi_client.py"
-                        f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {dpu_index} -n 8"  # noqa: E231
-                        f" -u {gnmi_user} -p {gnmi_pass} update -f {_ppath}"
-                    )
-                    if not _gnmi_server_ready(localhost, ip, port, tls_paths=tls_paths):
-                        _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
-                    _rp = localhost.shell(_pcmd, module_ignore_errors=True)
-                    logger.info("  [%d/%d] route %s push rc=%d", idx, len(files), _phase, _rp.get("rc", -1))
-                    time.sleep(2)
 
     # Batch verification: check DPU_APPL_DB once for all tables.
     for table in sorted(all_tables):

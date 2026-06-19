@@ -646,7 +646,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         n = int(_ENI_COUNT)
         filtered = []
         for f in files:
-            m = re.search(r"\.(\d{3})(apl|eni|map)\.json$", f)
+            m = re.search(r"\.(\d{3})(apl|grp|eni|map)\.json$", f)
             if m and int(m.group(1)) < n:
                 filtered.append(f)
         assert filtered, f"_ENI_COUNT={_ENI_COUNT} filtered out all files (had {len(files)})"
