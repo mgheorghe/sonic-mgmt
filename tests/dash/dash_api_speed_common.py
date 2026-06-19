@@ -869,31 +869,28 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
         except Exception:
             logger.debug("  [%d/%d] mem snapshot failed (non-fatal)", idx, len(files))
 
-    # ── Work around the dashrouteorch group-before-route ordering race ──────────
-    # dashrouteorch consumes DASH_ROUTE_TABLE ~12ms BEFORE DASH_ROUTE_GROUP_TABLE has
-    # created the SAI OUTBOUND_ROUTING_GROUP, so addOutboundRouting fails with
-    # "Route group <g> not found for outbound routing entry ..." and the dropped routes
-    # are NEVER retried -> the ENI's routing group stays EMPTY -> 100%
-    # SAI_ENI_STAT_OUTBOUND_ROUTING_ENTRY_MISS_DROP (outbound traffic black-holed even
-    # though VIP/direction/ENI/CA2PA are all programmed). The group DOES exist after the
-    # first pass, so re-push the route-bearing file(s) once (idempotent — group/ENI/VNET
-    # SETs just warn "already exists") to land the routes into the now-present group.
-    route_files = [fi for fi in file_info if "DASH_ROUTE_TABLE" in fi[2]]
-    if route_files:
-        logger.info("Re-pushing %d route-bearing file(s) after %ds settle to defeat the "
-                    "dashrouteorch group-before-route race", len(route_files), ROUTE_REPUSH_SETTLE_S)
-        time.sleep(ROUTE_REPUSH_SETTLE_S)
-        for filename, op_count, tables in route_files:
-            cfg_path = os.path.join(config_dir, filename)
-            cmd = (
-                f"cd {extracted_dir} && {tls_prefix}PYTHONPATH=. python3 gnmi_client.py"
-                f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {dpu_index} -n 8"  # noqa: E231
-                f" -u {gnmi_user} -p {gnmi_pass} update -f {cfg_path}"
-            )
+        # ── Defeat the dashrouteorch group/route/bind ordering trap ─────────────
+        # dashrouteorch requires the strict order: create OUTBOUND_ROUTING_GROUP ->
+        # add routes -> bind group to ENI. But DASH_ROUTE_GROUP_TABLE and
+        # DASH_ROUTE_TABLE ship in the SAME file, and the routes are consumed ~12ms
+        # BEFORE the group object exists ("addOutboundRouting: Route group <g> not
+        # found") and are never retried. Worse, once the LATER file binds the group to
+        # the ENI (DASH_ENI_ROUTE_TABLE) the group is FROZEN ("Cannot add new route ...
+        # as it is already bound"), so a post-push retry is too late. Net: the routing
+        # group stays EMPTY -> 100% OUTBOUND_ROUTING_ENTRY_MISS_DROP. Fix: the instant a
+        # route-bearing file is pushed, settle so the group object is created, then
+        # re-push that SAME file -> the routes now land in the existing, NOT-YET-BOUND
+        # group (the bind is in a subsequent file). Idempotent: the group/ENI/VNET re-SETs
+        # just warn "already exists".
+        if not failed and "DASH_ROUTE_TABLE" in tables:
+            logger.info("  [%d/%d] settling %ds then re-pushing %s so routes land in the "
+                        "(created, not-yet-bound) routing group", idx, len(files),
+                        ROUTE_REPUSH_SETTLE_S, filename)
+            time.sleep(ROUTE_REPUSH_SETTLE_S)
             if not _gnmi_server_ready(localhost, ip, port, tls_paths=tls_paths):
                 _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
-            out = localhost.shell(cmd, module_ignore_errors=True)
-            logger.info("  re-pushed route file %s (rc=%d)", filename, out.get("rc", -1))
+            rp = localhost.shell(cmd, module_ignore_errors=True)
+            logger.info("  [%d/%d] re-pushed %s (rc=%d)", idx, len(files), filename, rp.get("rc", -1))
 
     # Batch verification: check DPU_APPL_DB once for all tables.
     for table in sorted(all_tables):
