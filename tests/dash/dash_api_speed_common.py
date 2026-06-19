@@ -34,6 +34,10 @@ _GNMI_CONTAINER_NAME = "sonic-gnmi-agent-push"
 _GNMI_EXTRACTED_SUBDIR = "gnmi_agent_extracted"
 _BATCH_VAL = 3000  # pl_100 sweet spot (see reference_dash_perf_facts)
 
+# Seconds to wait after the first push before re-pushing the route-bearing file(s),
+# to defeat the dashrouteorch group-before-route ordering race (see load_json_via_gnmi).
+ROUTE_REPUSH_SETTLE_S = 5
+
 # TEMP experiment: push apl+eni files (create VNET/ENI) first, barrier until the
 # VNETs are programmed into ASIC_DB, then push map files (mappings). Works around
 # the DPU orchagent issuing OUTBOUND_CA_TO_PA mappings before their VNET exists.
@@ -864,6 +868,32 @@ def load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, fi
             })
         except Exception:
             logger.debug("  [%d/%d] mem snapshot failed (non-fatal)", idx, len(files))
+
+    # ── Work around the dashrouteorch group-before-route ordering race ──────────
+    # dashrouteorch consumes DASH_ROUTE_TABLE ~12ms BEFORE DASH_ROUTE_GROUP_TABLE has
+    # created the SAI OUTBOUND_ROUTING_GROUP, so addOutboundRouting fails with
+    # "Route group <g> not found for outbound routing entry ..." and the dropped routes
+    # are NEVER retried -> the ENI's routing group stays EMPTY -> 100%
+    # SAI_ENI_STAT_OUTBOUND_ROUTING_ENTRY_MISS_DROP (outbound traffic black-holed even
+    # though VIP/direction/ENI/CA2PA are all programmed). The group DOES exist after the
+    # first pass, so re-push the route-bearing file(s) once (idempotent — group/ENI/VNET
+    # SETs just warn "already exists") to land the routes into the now-present group.
+    route_files = [fi for fi in file_info if "DASH_ROUTE_TABLE" in fi[2]]
+    if route_files:
+        logger.info("Re-pushing %d route-bearing file(s) after %ds settle to defeat the "
+                    "dashrouteorch group-before-route race", len(route_files), ROUTE_REPUSH_SETTLE_S)
+        time.sleep(ROUTE_REPUSH_SETTLE_S)
+        for filename, op_count, tables in route_files:
+            cfg_path = os.path.join(config_dir, filename)
+            cmd = (
+                f"cd {extracted_dir} && {tls_prefix}PYTHONPATH=. python3 gnmi_client.py"
+                f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {dpu_index} -n 8"  # noqa: E231
+                f" -u {gnmi_user} -p {gnmi_pass} update -f {cfg_path}"
+            )
+            if not _gnmi_server_ready(localhost, ip, port, tls_paths=tls_paths):
+                _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
+            out = localhost.shell(cmd, module_ignore_errors=True)
+            logger.info("  re-pushed route file %s (rc=%d)", filename, out.get("rc", -1))
 
     # Batch verification: check DPU_APPL_DB once for all tables.
     for table in sorted(all_tables):
