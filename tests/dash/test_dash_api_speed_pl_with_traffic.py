@@ -39,6 +39,7 @@ Run (from inside the sonic-mgmt container, like the gRPC-only speed test)::
 Prereq: the UHD must be loaded with the matching smartswitch config so the
 chassis links come up (see test_dash_api_speed_pl_with_traffic/smartswitch-nvidia.http).
 """
+import ast
 import fnmatch
 import importlib.util
 import json
@@ -348,6 +349,36 @@ def _collect_nasa_stats(dpuhost, label):
     return stats
 
 
+def _collect_eni_counters(dpuhost, label):
+    """Return {eni_name: {SAI_ENI_STAT_*: int}} for every ENI on the DPU.
+
+    These per-ENI flex counters name the EXACT drop stage (UNSUPPORTED_PROTOCOL_DROP,
+    INBOUND_ROUTING_ENTRY_MISS_DROP, OUTBOUND_ROUTING_ENTRY_MISS_DROP, FORWARDING_DROP,
+    FLOW_CREATED, INBOUND/OUTBOUND_RX, ...) — the authoritative per-direction signal,
+    far more precise than the 6 port-level NASA counters. COUNTERS_ENI_NAME_MAP maps
+    eni-name -> COUNTERS oid; sonic-db-cli HGETALL returns a one-line python dict.
+    """
+    out = {}
+    try:
+        raw = dpuhost.shell("sonic-db-cli COUNTERS_DB HGETALL COUNTERS_ENI_NAME_MAP",
+                            module_ignore_errors=True).get("stdout", "").strip()
+        name_map = ast.literal_eval(raw) if raw else {}
+    except Exception:
+        logger.exception("  ENI counters (%s): name-map read failed", label)
+        return out
+    for eni, oid in (name_map or {}).items():
+        try:
+            r = dpuhost.shell("sonic-db-cli COUNTERS_DB HGETALL COUNTERS:%s" % oid,
+                              module_ignore_errors=True).get("stdout", "").strip()
+            d = ast.literal_eval(r) if r else {}
+            out[eni] = {k: _i(v) for k, v in d.items()}
+        except Exception:
+            logger.exception("  ENI counters (%s): read failed for %s (%s)", label, eni, oid)
+    if not out:
+        logger.warning("  ENI counters (%s): none found (COUNTERS_ENI_NAME_MAP empty?)", label)
+    return out
+
+
 def _i(x):
     try:
         return int(str(x).replace(",", ""))
@@ -443,10 +474,12 @@ def _uhd_delta(uhd_before, uhd_after):
 
 def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
                        nasa_before, nasa_after, uhd_before, uhd_after, flow_stats,
-                       inbound_stats=None, out_path=_RUN_DETAILS_TXT):
+                       inbound_stats=None, eni_before=None, eni_after=None,
+                       out_path=_RUN_DETAILS_TXT):
     """Drop EVERY raw stat behind the run's diagram into one companion text file:
     IxN HW/flow stats, UHD per-port (before/after/delta), NPU + DPU interface
-    counters (before/after/delta), and the full NASA dump (before/after/delta)."""
+    counters (before/after/delta), the FULL per-ENI SAI counters (before/after/delta),
+    and the full NASA dump (before/after/delta)."""
     sec = []
     sec.append("DASH traffic-path run details — %s (duration %ss)"
                % (payload.get("captured_utc"), payload.get("duration_s")))
@@ -516,6 +549,25 @@ def _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
         {"Ethernet0": dpu_before.get("Ethernet0", {}).get("tx_ok")},
         {"Ethernet0": dpu_after.get("Ethernet0", {}).get("tx_ok")},
         ["Ethernet0"], "tx_before", "tx_after"))
+    sec.append("")
+
+    sec.append("== Per-ENI SAI counters (ALL, before / after / delta) ==")
+    eb, ea = eni_before or {}, eni_after or {}
+    enis = sorted(set(eb) | set(ea))
+    if not enis:
+        sec.append("    (no ENI counters collected)")
+    for eni in enis:
+        b, a = eb.get(eni, {}), ea.get(eni, {})
+        ckeys = sorted(set(b) | set(a))
+        sec.append("    ENI %s  (oid via COUNTERS_ENI_NAME_MAP):" % eni)
+        sec.append(_fmt_counter_table(b, a, ckeys))
+        # Quick-read: which stages actually moved this run (non-zero delta).
+        moved = [(k, _i(a.get(k, 0)) - _i(b.get(k, 0))) for k in ckeys
+                 if _i(a.get(k, 0)) - _i(b.get(k, 0)) != 0]
+        if moved:
+            sec.append("      moved this run: "
+                       + ", ".join("%s=%+d" % (k, d) for k, d in moved))
+        sec.append("")
     sec.append("")
 
     sec.append("== NASA port_stats_dump (ALL counters, before / after / delta) ==")
@@ -687,6 +739,8 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     sw_after = {}
     dpu_before = {}
     dpu_after = {}
+    eni_before = {}
+    eni_after = {}
     nasa_before = {}
     nasa_after = {}
     uhd_before = {}
@@ -744,6 +798,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         time.sleep(2)
         sw_before = _collect_switch_counters(duthost, "measure-before-NPU")
         dpu_before = _collect_switch_counters(dpuhost, "measure-before-DPU")
+        eni_before = _collect_eni_counters(dpuhost, "measure-before-ENI")
         nasa_before = _collect_nasa_stats(dpuhost, "measure-before-NASA")
         uhd_before = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
 
@@ -753,6 +808,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
 
         sw_after = _collect_switch_counters(duthost, "measure-after-NPU")
         dpu_after = _collect_switch_counters(dpuhost, "measure-after-DPU")
+        eni_after = _collect_eni_counters(dpuhost, "measure-after-ENI")
         nasa_after = _collect_nasa_stats(dpuhost, "measure-after-NASA")
         # Are NASA counters still trickling in, or already complete? Re-read after a
         # short settle and log any movement. STABLE => the "17777 RX vs 254 NASA"
@@ -812,7 +868,8 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
                                           inbound_stats=inbound_stats)
         _write_run_details(payload, sw_before, sw_after, dpu_before, dpu_after,
                            nasa_before, nasa_after, uhd_before, uhd_last, flow_stats,
-                           inbound_stats=inbound_stats)
+                           inbound_stats=inbound_stats, eni_before=eni_before,
+                           eni_after=eni_after)
     except Exception:
         logger.exception("Failed to emit per-hop delta JSON / run details")
     n_forwarding = _print_traffic_vs_grpc(eni_indices, push_events, flow_stats)
