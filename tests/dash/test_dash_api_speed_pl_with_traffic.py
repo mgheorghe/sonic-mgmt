@@ -103,6 +103,12 @@ _ENI_COUNT = "ALL"
 # below to land exactly this many routes on each ENI (default render scale = 500).
 ROUTES_PER_ENI = 10000
 
+# MINIMAL_MAPPING: render exactly ONE VNet mapping + ONE outbound route per ENI
+# (render.MINIMAL_SINGLE_ENTRY) instead of the 64k-mapping / ROUTES_PER_ENI scale.
+# This keeps the full ENI count (64) but a tiny per-ENI table — to isolate whether
+# the DPU's ~64-object NASA ceiling is the ENI count itself or the per-ENI volume.
+MINIMAL_MAPPING = True
+
 # ════════════════════════════════════════════════════════════════════════════
 #  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
 # ════════════════════════════════════════════════════════════════════════════
@@ -655,24 +661,24 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     logger.info("Pre-flight: assuming %s is up at %s (no automated check)", dpu_name, dpu_midplane_ip)
 
     # ── Render configs ──────────────────────────────────────────────────────
-    # FULL SCALE, one DPU. ENIs per DPU is platform-dependent (Nvidia 64, Cisco 32).
-    # We render ONLY the DPU under test by setting DPUS=1 and ENI_COUNT=enis_per_dpu
-    # (instead of DPUS=4/ENI_COUNT=256, which also renders 3 unused DPUs' worth of
-    # full-scale files — ~1GB/DPU at 64k mappings + ROUTES_PER_ENI routes/ENI).
-    # MINIMAL_SINGLE_ENTRY=False -> the real 64k mappings/ENI; TOTAL_OUTBOUND_ROUTES
-    # = ROUTES_PER_ENI * ENI_COUNT -> exactly ROUTES_PER_ENI routes on each ENI.
+    # One DPU. ENIs per DPU is platform-dependent (Nvidia 64, Cisco 32). We render
+    # ONLY the DPU under test by setting DPUS=1 and ENI_COUNT=enis_per_dpu (instead of
+    # DPUS=4/ENI_COUNT=256, which also renders 3 unused DPUs' worth of files).
+    # MINIMAL_MAPPING=True -> 1 mapping + 1 route per ENI (full 64 ENIs, tiny tables);
+    # False -> the real 64k mappings/ENI + ROUTES_PER_ENI routes/ENI.
     hwsku = duthost.facts.get("hwsku", "")
     enis_per_dpu = 32 if "Cisco" in hwsku else 64
     params = dict(render.DEFAULTS)
     params["DPUS"] = 1
     params["ENI_COUNT"] = enis_per_dpu
-    params["MINIMAL_SINGLE_ENTRY"] = False
+    params["MINIMAL_SINGLE_ENTRY"] = MINIMAL_MAPPING
     params["TOTAL_OUTBOUND_ROUTES"] = ROUTES_PER_ENI * params["ENI_COUNT"]
     render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
-    logger.info("Rendering DASH configs (hwsku=%s, DPUS=%d -> %d ENIs/DPU = %d files, "
-                "64k mappings + %d routes/ENI) into %s",
+    _scale_desc = ("1 mapping + 1 route/ENI (MINIMAL)" if MINIMAL_MAPPING
+                   else "64k mappings + %d routes/ENI" % ROUTES_PER_ENI)
+    logger.info("Rendering DASH configs (hwsku=%s, DPUS=%d -> %d ENIs/DPU = %d files, %s) into %s",
                 hwsku, params["DPUS"], enis_per_dpu, 1 + 3 * enis_per_dpu,
-                ROUTES_PER_ENI, render_output_dir)
+                _scale_desc, render_output_dir)
     render.generate(params, render_output_dir, prefix="pl_100")
 
     config_dir = os.path.join(render_output_dir, f"dpu{dpuhost.dpu_index}")
