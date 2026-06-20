@@ -175,19 +175,30 @@ def _ix_connect():
 _UHD_CONFIG_HTTP = os.path.join(os.path.dirname(os.path.abspath(__file__)),
                                 "test_dash_api_speed_pl_with_traffic",
                                 "smartswitch-nvidia-optimized.http")
+# Cisco SmartSwitch is cabled to a different set of UHD physical ports (DPU legs on
+# UHD front-panel 5/6 instead of Nvidia's 1/2) and has its own NPU base MAC, so it
+# uses a dedicated connect config. Selected by hwsku in _load_uhd_config().
+_UHD_CONFIG_HTTP_CISCO = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                      "test_dash_api_speed_pl_with_traffic",
+                                      "smartswitch-cisco-optimized.http")
+# UHD physical port names to sample, per platform (Nvidia DPU legs = Port 1..4,
+# Cisco DPU legs = Port 5..8).
+UHD_PORT_NAMES_CISCO = ["Port 5", "Port 6", "Port 7", "Port 8"]
 
 
-def _load_uhd_config(uhd_ip, enis_per_dpu):
+def _load_uhd_config(uhd_ip, enis_per_dpu, hwsku=""):
     """POST the optimized UHD connect config, scaled to ``enis_per_dpu`` ENIs.
 
     The .http file holds an HTTP header then a JSON body; we POST just the body to
     ``/connect/api/v1/config`` (replaces the live config). The template's per-ENI
     ``"count": 32`` fields (VLAN ranges, src_ip ranges, overlay dest ranges) are
     bumped to ``enis_per_dpu`` so VLANs 1001..1001+N and 1..N all bridge to the DPU.
+    Cisco uses a dedicated template (different DPU-leg ports + NPU base MAC).
     """
     import requests
     requests.packages.urllib3.disable_warnings()
-    with open(_UHD_CONFIG_HTTP) as f:
+    cfg_file = _UHD_CONFIG_HTTP_CISCO if "Cisco" in (hwsku or "") else _UHD_CONFIG_HTTP
+    with open(cfg_file) as f:
         text = f.read()
     body = text[text.index("{"):]
     body = body.replace('"count": 32', '"count": %d' % enis_per_dpu)
@@ -823,7 +834,9 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         # Load the UHD "connect" config first, scaled to our ENI count, so one
         # IxNetwork port pair bridges ALL of the DPU's VLANs (VXLAN out -> dpu_port_1,
         # NVGRE return -> dpu_port_2). Without this the UHD only wired 32 ENIs.
-        _load_uhd_config(UHD_IP, len(eni_indices))
+        # Platform-specific template + sampled physical ports (Cisco DPU legs = 5..8).
+        uhd_ports = UHD_PORT_NAMES_CISCO if "Cisco" in hwsku else UHD_PORT_NAMES
+        _load_uhd_config(UHD_IP, len(eni_indices), hwsku)
         # Two shared ports (TX/RX split): vp_b = 7:5 (UHD 1B, VLAN1001/VXLAN, TX),
         # vp_a = 7:1 (UHD 1A, RX of the DPU's return). OUTBOUND ONLY this run.
         vp_b, vp_a = assign_dual_ports(ixnetwork)
@@ -859,7 +872,7 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         dpu_before = _collect_switch_counters(dpuhost, "before-DPU")
         eni_before = _collect_eni_counters(dpuhost, "before-ENI")
         nasa_before = _collect_nasa_stats(dpuhost, "before-NASA")
-        uhd_before = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
+        uhd_before = dash_uhd_stats.query_metrics(UHD_IP, uhd_ports)
         ixnetwork.ClearStats()
         traffic_t0 = time.time()
 
@@ -944,8 +957,8 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
         logger.info("NASA counters +%ds: %s", NASA_RECHECK_SETTLE_S,
                     _nasa_moving or "STABLE (no change — counters were already complete)")
         nasa_after = nasa_after2
-        uhd_last = dash_uhd_stats.query_metrics(UHD_IP, UHD_PORT_NAMES)
-        dash_uhd_stats.log_uhd_table(UHD_IP, UHD_PORT_NAMES, label="run", prev=uhd_before)
+        uhd_last = dash_uhd_stats.query_metrics(UHD_IP, uhd_ports)
+        dash_uhd_stats.log_uhd_table(UHD_IP, uhd_ports, label="run", prev=uhd_before)
     finally:
         if traffic_started:
             _ix_stop_traffic(ixnetwork)

@@ -1,0 +1,93 @@
+POST http://10.36.78.39:80/connect/api/v1/config HTTP/1.1
+content-type: application/json
+
+{
+    "profiles": {
+        "layer_1_profiles": [
+            { "name": "autoneg"          , "link_speed": "speed_100_gbps", "choice": "autonegotiation"                                         },
+            { "name": "manual_RS"        , "link_speed": "speed_100_gbps", "choice": "manual"         , "manual": {"fec_mode": "reed_solomon"} },
+            { "name": "manual_NONE"      , "link_speed": "speed_100_gbps", "choice": "manual"         , "manual": {"fec_mode": "none"        } },
+            { "name": "autoneg_400"      , "link_speed": "speed_400_gbps", "choice": "autonegotiation"                                         },
+            { "name": "manual_RS_400"    , "link_speed": "speed_400_gbps", "choice": "manual"         , "manual": {"fec_mode": "reed_solomon"} }
+        ]
+    },
+    "front_panel_ports": [
+        {"name": "ixnetwork_port_1A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 29,"channel": 1, "num_channels": 2,"layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_1B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 30,"channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+
+        { "name": "dpu_port_1"  , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  5,                                  "layer_1_profile_name": "manual_RS_400"} },
+        { "name": "dpu_port_2"  , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  6,                                  "layer_1_profile_name": "manual_RS_400"} }
+    ],
+    "connections": [
+
+        {"name": "ARP Bypass 1N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1001, "count": 32, "step": 1} } } }
+            ]
+        },
+
+
+
+            {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 1",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                            },
+                                "dst_mac": { "choice": "mac"       , "mac": "24:d5:e4:32:4e:11"                                                                                            },
+                                "src_ip" : { "choice": "ipv4_range",  "ipv4_range": {"start": "221.2.0.0", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,    "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:3e8::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                          }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 1",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                            },
+                                "dst_mac": { "choice": "mac"       , "mac": "24:d5:e4:32:4e:11"                                                                                            },
+                                "src_ip" : { "choice": "ipv4_range",  "ipv4_range": {"start": "221.1.0.0", "count": 32, "step": "0.0.0.1"}},
+                                "dst_ip" : { "choice": "ipv4"      , "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1000 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "1.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1001, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        }
+
+
+
+    ]
+}
