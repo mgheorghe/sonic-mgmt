@@ -54,10 +54,12 @@ DEFAULTS = {
     'IP_STEP_ENI':        '0.64.0.0',
     'IP_STEP_NSG':        '0.2.0.0',
     'TOTAL_OUTBOUND_ROUTES': 128000,
-    # Minimal mode: emit exactly ONE VNet mapping (at IP_R_START) and ONE outbound
-    # route (IP_R_START/32) per ENI instead of the full 64k-mapping / ~500-route
-    # private-link scale. For isolating dataplane forwarding of a single flow.
+    # Minimal mode: emit ONE outbound route (IP_R_START/32) and MINIMAL_MAPPINGS VNet
+    # mappings (at IP_R_START, +2, +4, ...) per ENI instead of the full 64k-mapping /
+    # ~500-route private-link scale. For scaling mappings while keeping a single route
+    # (MINIMAL_MAPPINGS=1 == the original single-entry case).
     'MINIMAL_SINGLE_ENTRY': False,
+    'MINIMAL_MAPPINGS': 1,
 }
 
 
@@ -411,7 +413,10 @@ def generate(params, output_dir, prefix='pl_100'):
                 # Minimal mode: 1 nsg x range(0,2,2)=1 iteration -> exactly ONE
                 # mapping, at ip_r_start (== IP_R_START, e.g. 1.4.0.1).
                 'nsg_count':          1 if p.get('MINIMAL_SINGLE_ENTRY') else p['ACL_NSG_COUNT'] * 2,
-                'acl_rules_nsg':      2 if p.get('MINIMAL_SINGLE_ENTRY') else p['ACL_RULES_NSG'],
+                # Minimal mode: range(0, acl_rules_nsg, 2) iterations -> MINIMAL_MAPPINGS
+                # mappings (acl_rules_nsg = 2 * N -> N mappings at ip_r_start, +2, ...).
+                'acl_rules_nsg':      (2 * p.get('MINIMAL_MAPPINGS', 1)
+                                       if p.get('MINIMAL_SINGLE_ENTRY') else p['ACL_RULES_NSG']),
                 'ip_step_nsg':        IP_NSG,
             }))
 

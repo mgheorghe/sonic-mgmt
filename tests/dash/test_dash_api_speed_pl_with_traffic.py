@@ -103,11 +103,12 @@ _ENI_COUNT = "ALL"
 # below to land exactly this many routes on each ENI (default render scale = 500).
 ROUTES_PER_ENI = 10000
 
-# MINIMAL_MAPPING: render exactly ONE VNet mapping + ONE outbound route per ENI
+# MINIMAL_MAPPING: render MAPPINGS_PER_ENI VNet mappings + ONE outbound route per ENI
 # (render.MINIMAL_SINGLE_ENTRY) instead of the 64k-mapping / ROUTES_PER_ENI scale.
-# This keeps the full ENI count (64) but a tiny per-ENI table — to isolate whether
-# the DPU's ~64-object NASA ceiling is the ENI count itself or the per-ENI volume.
+# Keeps the full ENI count but a controlled per-ENI mapping count, to scale mappings
+# without the full 64k load. MAPPINGS_PER_ENI=1 == the original single-entry case.
 MINIMAL_MAPPING = True
+MAPPINGS_PER_ENI = 64
 
 # ════════════════════════════════════════════════════════════════════════════
 #  IXIA / UHD CONFIG  —  EDIT FOR YOUR TESTBED
@@ -133,7 +134,7 @@ BASELINE_MIN_LOSS_PCT = 99.0
 # window with all ENIs up gives an honest forwarding-loss number.
 PORT_UP_TIMEOUT_S = 90       # wait for IxNetwork<->UHD L1 link-up after AssignPorts
 BASELINE_WINDOW_S = 8        # pre-program continuous-traffic window (expect ~100% loss)
-POST_PROGRAM_SETTLE_S = 30   # let the last-programmed ENIs' flows start forwarding
+POST_PROGRAM_SETTLE_S = 90   # let the last-programmed ENIs' routes install + flows start
 STEADY_WINDOW_S = 15         # clean all-ENIs-up window for the final loss number
 NASA_RECHECK_SETTLE_S = 5    # re-read NASA after this to prove counters are stable
 SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the steady-state window
@@ -250,6 +251,14 @@ def _read_flow_stats(ixnetwork, vlan_base, vlan_span=1000):
     if len(views) == 0:
         return {}
     data = views[0].Data
+    # Read ALL flow rows: the view defaults to 50 rows/page, so with 64 ENI flows the
+    # last ~14 were silently missed (under-counting forwarding). Bump the page size so
+    # every flow fits on one page.
+    try:
+        data.PageSize = 2048
+        time.sleep(1)
+    except Exception:
+        logger.debug("Flow Statistics: could not raise PageSize (non-fatal)")
     captions = list(data.ColumnCaptions)
 
     def col(*subs):
@@ -281,6 +290,7 @@ def _read_flow_stats(ixnetwork, vlan_base, vlan_span=1000):
     for page in range(1, (data.TotalPages or 1) + 1):
         if data.CurrentPage != page:
             data.CurrentPage = page
+            time.sleep(0.5)   # let the view page in before reading PageValues
         for raw in data.PageValues:
             cells = raw[0] if (raw and isinstance(raw[0], list)) else raw
             if ci_vlan is None:
@@ -699,17 +709,18 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     # One DPU. ENIs per DPU is platform-dependent (Nvidia 64, Cisco 32). We render
     # ONLY the DPU under test by setting DPUS=1 and ENI_COUNT=enis_per_dpu (instead of
     # DPUS=4/ENI_COUNT=256, which also renders 3 unused DPUs' worth of files).
-    # MINIMAL_MAPPING=True -> 1 mapping + 1 route per ENI (full 64 ENIs, tiny tables);
-    # False -> the real 64k mappings/ENI + ROUTES_PER_ENI routes/ENI.
+    # MINIMAL_MAPPING=True -> MAPPINGS_PER_ENI mappings + 1 route per ENI (full 64 ENIs,
+    # controlled mapping count); False -> real 64k mappings/ENI + ROUTES_PER_ENI routes.
     hwsku = duthost.facts.get("hwsku", "")
     enis_per_dpu = 32 if "Cisco" in hwsku else 64
     params = dict(render.DEFAULTS)
     params["DPUS"] = 1
     params["ENI_COUNT"] = enis_per_dpu
     params["MINIMAL_SINGLE_ENTRY"] = MINIMAL_MAPPING
+    params["MINIMAL_MAPPINGS"] = MAPPINGS_PER_ENI
     params["TOTAL_OUTBOUND_ROUTES"] = ROUTES_PER_ENI * params["ENI_COUNT"]
     render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
-    _scale_desc = ("1 mapping + 1 route/ENI (MINIMAL)" if MINIMAL_MAPPING
+    _scale_desc = ("%d mappings + 1 route/ENI (MINIMAL)" % MAPPINGS_PER_ENI if MINIMAL_MAPPING
                    else "64k mappings + %d routes/ENI" % ROUTES_PER_ENI)
     logger.info("Rendering DASH configs (hwsku=%s, DPUS=%d -> %d ENIs/DPU = %d files, %s) into %s",
                 hwsku, params["DPUS"], enis_per_dpu, 1 + 3 * enis_per_dpu,
