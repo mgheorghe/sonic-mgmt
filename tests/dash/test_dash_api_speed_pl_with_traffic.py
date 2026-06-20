@@ -49,6 +49,7 @@ import re
 import shutil
 import sys
 import tempfile
+import threading
 import time
 
 import pytest
@@ -96,7 +97,7 @@ pytestmark = [
 # routes per ENI). Traffic runs continuously across the whole push so each ENI's
 # first-forwarding timestamp is recorded per VLAN. (Earlier the DPU stalled at this
 # scale; this run measures exactly how many ENIs come up and when.)
-_ENI_COUNT = 2
+_ENI_COUNT = "ALL"
 
 # Full-scale outbound routes per ENI. render's per-ENI route count is
 # TOTAL_OUTBOUND_ROUTES // ENI_COUNT, so we set TOTAL = ROUTES_PER_ENI * ENI_COUNT
@@ -134,7 +135,8 @@ BASELINE_MIN_LOSS_PCT = 99.0
 # window with all ENIs up gives an honest forwarding-loss number.
 PORT_UP_TIMEOUT_S = 90       # wait for IxNetwork<->UHD L1 link-up after AssignPorts
 BASELINE_WINDOW_S = 8        # pre-program continuous-traffic window (expect ~100% loss)
-POST_PROGRAM_SETTLE_S = 180  # full-scale (64k map/ENI) orchagent processing is ~minutes/ENI
+POST_PROGRAM_SETTLE_S = 300  # full-scale x 64 ENIs: orchagent processing is ~minutes/ENI
+PUSH_STATS_POLL_S = 4        # interval for the background IxN flow-stats poller (decoupled from load)
 STEADY_WINDOW_S = 15         # clean all-ENIs-up window for the final loss number
 NASA_RECHECK_SETTLE_S = 5    # re-read NASA after this to prove counters are stable
 SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the steady-state window
@@ -845,15 +847,53 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
             if kind == "map":
                 logger.info("    gNMI: ENI %s programmed (%.2fs)", idx, t1 - t0)
 
-        logger.info("Programming %d config files via gNMI (traffic running) ...", len(files))
+        # Background IxN flow-stats poller, in its OWN thread, so reading per-ENI
+        # bring-up stats never runs in (and never slows) the gNMI config-load path.
+        # During the push the main thread does only gNMI/SSH and never touches
+        # IxNetwork, so this daemon is the sole RestPy reader meanwhile (its REST
+        # calls are I/O-bound -> the GIL is released, no measurable push impact).
+        # It records each ENI's IxN First TimeStamp the instant the flow forwards.
+        live_first = {}
+        poll_stop = threading.Event()
+
+        def _poll_ixn_stats():
+            while not poll_stop.is_set():
+                try:
+                    snap = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
+                    now = time.time()
+                    for idx, s in snap.items():
+                        if idx not in live_first and (s.get("first_ts") is not None or s.get("rx", 0) > 0):
+                            live_first[idx] = {"first_ts": s.get("first_ts"), "wall": now - traffic_t0}
+                            logger.info("    live: ENI %s forwarding at +%.1fs (%d/%d up)",
+                                        idx, now - traffic_t0, len(live_first), len(eni_indices))
+                except Exception:
+                    logger.debug("live IxN poller read failed (non-fatal)", exc_info=True)
+                poll_stop.wait(PUSH_STATS_POLL_S)
+
+        poller = threading.Thread(target=_poll_ixn_stats, name="ixn-stats-poller", daemon=True)
+        poller.start()
+
+        logger.info("Programming %d config files via gNMI (traffic running; IxN stats in bg thread) ...",
+                    len(files))
         load_json_via_gnmi(localhost, duthost, dpuhost, config_facts, config_dir, files, timings,
                            creds, mem_timeline, push_events=push_events, on_file_done=_log_progress)
 
-        # Let the last-programmed ENIs come up, then capture each flow's First
-        # TimeStamp (= per-ENI hardware bring-up) BEFORE clearing stats again.
+        # Let the last-programmed ENIs come up, then stop the poller and capture
+        # each flow's First TimeStamp (= per-ENI HW bring-up) BEFORE clearing stats.
         logger.info("Settling %ds for the last ENIs to start forwarding ...", POST_PROGRAM_SETTLE_S)
         time.sleep(POST_PROGRAM_SETTLE_S)
+        poll_stop.set()
+        poller.join(timeout=15)
+        logger.info("Background poller captured first-forwarding for %d/%d ENIs",
+                    len(live_first), len(eni_indices))
         flow_stats = _read_flow_stats(ixnetwork, VLAN_OUT_BASE)
+        # Merge the threaded live capture as a safety net: if the final read missed
+        # a flow's First TimeStamp, use the value the bg poller recorded live.
+        for idx, lv in live_first.items():
+            if lv.get("first_ts") is not None:
+                rec = flow_stats.setdefault(idx, {})
+                if rec.get("first_ts") is None:
+                    rec["first_ts"] = lv["first_ts"]
         traffic_dur = time.time() - traffic_t0
         n_up = sum(1 for s in flow_stats.values()
                    if s.get("first_ts") is not None or s.get("rx", 0) > 0)
