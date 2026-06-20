@@ -153,6 +153,54 @@ the per-ENI increment (time to load that ENI). `—` = never forwarded.
   remaining ENIs (49–63) were pushed but their dataplane install never completed
   in time. No failure; just not processed yet.
 
+## gRPC push time vs first-timestamp delta (the cliff at ENI 48→49)
+
+The actual per-ENI **gRPC push duration** (the `(X.XXs)` for each ENI's 64,001-op
+map file) vs the **first-timestamp Δ** (gap between consecutive forwarded ENIs).
+`≈0 (burst)` = came up in the same orchagent drain-burst as the previous ENI.
+
+| ENI | gRPC push (s) | first-TS Δ (s) | fwd | ENI | gRPC push (s) | first-TS Δ (s) | fwd |
+|----:|-------------:|---------------:|:---:|----:|-------------:|---------------:|:---:|
+| 0 | 10.64 | — | ✓ | 32 | 11.09 | ≈0 (burst) | ✓ |
+| 1 | 10.84 | 18.93 | ✓ | 33 | 10.73 | 37.32 | ✓ |
+| 2 | 10.71 | 17.28 | ✓ | 34 | 11.91 | ≈0 (burst) | ✓ |
+| 3 | 10.87 | 15.70 | ✓ | 35 | 11.19 | 43.54 | ✓ |
+| 4 | 10.50 | 27.26 | ✓ | 36 | 11.49 | ≈0 (burst) | ✓ |
+| 5 | 10.78 | 25.87 | ✓ | 37 | 11.14 | 45.10 | ✓ |
+| 6 | 10.91 | 16.67 | ✓ | 38 | 11.48 | ≈0 (burst) | ✓ |
+| 7 | 11.00 | 15.50 | ✓ | 39 | 11.26 | 52.86 | ✓ |
+| 8 | 10.95 | 10.25 | ✓ | 40 | 11.02 | ≈0 (burst) | ✓ |
+| 9 | 10.87 | 34.85 | ✓ | 41 | 11.08 | 44.97 | ✓ |
+| 10 | 10.45 | 9.22 | ✓ | 42 | 11.20 | ≈0 (burst) | ✓ |
+| 11 | 11.04 | 16.77 | ✓ | 43 | 10.90 | 47.67 | ✓ |
+| 12 | 11.38 | 15.72 | ✓ | 44 | 11.09 | ≈0 (burst) | ✓ |
+| 13 | 11.39 | 31.80 | ✓ | 45 | 11.26 | 51.76 | ✓ |
+| 14 | 11.18 | 9.60 | ✓ | 46 | 11.07 | ≈0 (burst) | ✓ |
+| 15 | 11.48 | 18.26 | ✓ | 47 | 11.25 | — | ✗ |
+| 16 | 11.35 | 25.24 | ✓ | **48** | 11.09 | 43.65 | ✓ |
+| 17 | 10.95 | 20.80 | ✓ | **49** | 11.08 | — | ✗ |
+| 18 | 11.09 | — | ✗ | 50 | 11.58 | — | ✗ |
+| 19 | 10.87 | 31.95 | ✓ | 51 | 11.21 | — | ✗ |
+| 20 | 10.65 | 31.40 | ✓ | 52 | 11.22 | — | ✗ |
+| 21 | 11.03 | 16.21 | ✓ | 53 | 11.05 | — | ✗ |
+| 22 | 11.84 | 18.25 | ✓ | 54 | 11.50 | — | ✗ |
+| 23 | 11.13 | — | ✗ | 55 | 11.54 | — | ✗ |
+| 24 | 11.54 | 29.91 | ✓ | 56 | 11.51 | — | ✗ |
+| 25 | 11.09 | — | ✗ | 57 | 12.03 | — | ✗ |
+| 26 | 11.05 | 36.63 | ✓ | 58 | 11.49 | — | ✗ |
+| 27 | 10.72 | 33.20 | ✓ | 59 | 11.97 | — | ✗ |
+| 28 | 11.75 | ≈0 (burst) | ✓ | 60 | 12.18 | — | ✗ |
+| 29 | 11.03 | 39.91 | ✓ | 61 | 11.70 | — | ✗ |
+| 30 | 11.61 | ≈0 (burst) | ✓ | 62 | 10.85 | — | ✗ |
+| 31 | 10.95 | 42.63 | ✓ | 63 | 11.03 | — | ✗ |
+
+- **gRPC push time is flat at ~11.1 s/ENI for all 64** (range 10.45–12.18 s),
+  including the dead ENIs 49–63 — the push delivered every ENI fine. Avg ~11.15 s.
+- **first-TS Δ grows/erratic** as the dataplane install lags, then **hard-stops
+  after ENI 48**. ENIs 49–63 have a clean push but never forward: the install
+  backlog never reached them within the 300 s settle. The failure is in
+  install throughput, not the gRPC push.
+
 ## Takeaways
 1. **Pushing** 64 ENIs at full scale (4.7M keys) is fast and linear: ~18.5 s/ENI,
    ~19 min total. gNMI / config delivery is **not** the bottleneck.
