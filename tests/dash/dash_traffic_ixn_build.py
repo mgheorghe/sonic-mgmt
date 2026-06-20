@@ -235,7 +235,12 @@ def build_outbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_
     ti.EndpointSet.add(Sources=vp_tx.Protocols.find(), Destinations=vp_rx.Protocols.find())
     ce = ti.ConfigElement.find()[0]
     ce.FrameSize.update(Type="fixed", FixedSize=FRAME_SIZE)
-    ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS)
+    # FrameRate is the AGGREGATE rate for the whole traffic item — IxNetwork divides
+    # it across all flows (the VLAN counter). With one TI carrying N per-ENI flows we
+    # must multiply by N so each ENI flow actually gets PER_FLOW_RATE_FPS; otherwise 64
+    # flows each get ~3 fps, too slow to ride through outbound-flow setup, and only
+    # some ENIs ever forward (looked like a forwarding failure but was a starved rate).
+    ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS * enis_per_dpu)
     if continuous:
         # Run non-stop across the programming window so per-VLAN First TimeStamp
         # captures each ENI's hardware bring-up moment.
@@ -344,7 +349,9 @@ def build_inbound_config(ixnetwork, dpu_index, vp_tx, vp_rx, enis_per_dpu=ENIS_P
     ti.EndpointSet.add(Sources=vp_tx.Protocols.find(), Destinations=vp_rx.Protocols.find())
     ce = ti.ConfigElement.find()[0]
     ce.FrameSize.update(Type="fixed", FixedSize=FRAME_SIZE)
-    ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS)
+    # Per-flow rate: FrameRate is the aggregate for the TI, so scale by flow count
+    # (see build_outbound_config) — each ENI flow gets PER_FLOW_RATE_FPS.
+    ce.FrameRate.update(Type="framesPerSecond", Rate=PER_FLOW_RATE_FPS * enis_per_dpu)
     ce.TransmissionControl.update(Type="fixedFrameCount", FrameCount=frame_count)
 
     eth = ce.Stack.find(StackTypeId="^ethernet$")[0]
