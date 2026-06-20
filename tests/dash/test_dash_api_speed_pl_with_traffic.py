@@ -96,7 +96,7 @@ pytestmark = [
 # routes per ENI). Traffic runs continuously across the whole push so each ENI's
 # first-forwarding timestamp is recorded per VLAN. (Earlier the DPU stalled at this
 # scale; this run measures exactly how many ENIs come up and when.)
-_ENI_COUNT = "ALL"
+_ENI_COUNT = 2
 
 # Full-scale outbound routes per ENI. render's per-ENI route count is
 # TOTAL_OUTBOUND_ROUTES // ENI_COUNT, so we set TOTAL = ROUTES_PER_ENI * ENI_COUNT
@@ -107,7 +107,7 @@ ROUTES_PER_ENI = 10000
 # (render.MINIMAL_SINGLE_ENTRY) instead of the 64k-mapping / ROUTES_PER_ENI scale.
 # Keeps the full ENI count but a controlled per-ENI mapping count, to scale mappings
 # without the full 64k load. MAPPINGS_PER_ENI=1 == the original single-entry case.
-MINIMAL_MAPPING = True
+MINIMAL_MAPPING = False
 MAPPINGS_PER_ENI = 64
 
 # ════════════════════════════════════════════════════════════════════════════
@@ -134,7 +134,7 @@ BASELINE_MIN_LOSS_PCT = 99.0
 # window with all ENIs up gives an honest forwarding-loss number.
 PORT_UP_TIMEOUT_S = 90       # wait for IxNetwork<->UHD L1 link-up after AssignPorts
 BASELINE_WINDOW_S = 8        # pre-program continuous-traffic window (expect ~100% loss)
-POST_PROGRAM_SETTLE_S = 90   # let the last-programmed ENIs' routes install + flows start
+POST_PROGRAM_SETTLE_S = 180  # full-scale (64k map/ENI) orchagent processing is ~minutes/ENI
 STEADY_WINDOW_S = 15         # clean all-ENIs-up window for the final loss number
 NASA_RECHECK_SETTLE_S = 5    # re-read NASA after this to prove counters are stable
 SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the steady-state window
@@ -713,6 +713,11 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     # controlled mapping count); False -> real 64k mappings/ENI + ROUTES_PER_ENI routes.
     hwsku = duthost.facts.get("hwsku", "")
     enis_per_dpu = 32 if "Cisco" in hwsku else 64
+    # When _ENI_COUNT pins a specific count, render exactly that many ENIs (so at
+    # full 64k-mapping scale we don't render 64 ENIs' worth = millions of entries
+    # just to push 2). per_eni route count = TOTAL_OUTBOUND_ROUTES // ENI_COUNT.
+    if _ENI_COUNT != "ALL":
+        enis_per_dpu = int(_ENI_COUNT)
     params = dict(render.DEFAULTS)
     params["DPUS"] = 1
     params["ENI_COUNT"] = enis_per_dpu
