@@ -158,6 +158,41 @@ def _ix_connect():
     return sa, sa.Ixnetwork
 
 
+# UHD "connect" config template (the OPTIMIZED single-DPU loopback: VXLAN out on
+# dpu_port_1, NVGRE return on dpu_port_2). It is written for 32 ENIs/DPU; we scale
+# every per-ENI count to the actual ENI count so ONE IxNetwork port pair carries all
+# of the DPU's VLANs (1001..) — the 32-only wiring is why >32 ENIs used to silently
+# drop at the UHD. Loaded automatically so the run is self-contained.
+_UHD_CONFIG_HTTP = os.path.join(os.path.dirname(os.path.abspath(__file__)),
+                                "test_dash_api_speed_pl_with_traffic",
+                                "smartswitch-nvidia-optimized.http")
+
+
+def _load_uhd_config(uhd_ip, enis_per_dpu):
+    """POST the optimized UHD connect config, scaled to ``enis_per_dpu`` ENIs.
+
+    The .http file holds an HTTP header then a JSON body; we POST just the body to
+    ``/connect/api/v1/config`` (replaces the live config). The template's per-ENI
+    ``"count": 32`` fields (VLAN ranges, src_ip ranges, overlay dest ranges) are
+    bumped to ``enis_per_dpu`` so VLANs 1001..1001+N and 1..N all bridge to the DPU.
+    """
+    import requests
+    requests.packages.urllib3.disable_warnings()
+    with open(_UHD_CONFIG_HTTP) as f:
+        text = f.read()
+    body = text[text.index("{"):]
+    body = body.replace('"count": 32', '"count": %d' % enis_per_dpu)
+    cfg = json.loads(body)
+    url = "http://%s:80/connect/api/v1/config" % uhd_ip
+    logger.info("UHD: loading optimized connect config scaled to %d ENIs (%d connections) -> %s",
+                enis_per_dpu, len(cfg.get("connections", [])), url)
+    r = requests.post(url, json=cfg, headers={"content-type": "application/json"},
+                      verify=False, timeout=120)
+    if r.status_code >= 300:
+        raise AssertionError("UHD config load failed (%s): %s" % (r.status_code, r.text[:500]))
+    logger.info("UHD: connect config loaded (status %s)", r.status_code)
+
+
 def _ix_start_traffic(ixnetwork):
     logger.info("IxNetwork: starting continuous traffic")
     ixnetwork.Traffic.StartStatelessTrafficBlocking()
@@ -746,6 +781,10 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     traffic_started = False
 
     try:
+        # Load the UHD "connect" config first, scaled to our ENI count, so one
+        # IxNetwork port pair bridges ALL of the DPU's VLANs (VXLAN out -> dpu_port_1,
+        # NVGRE return -> dpu_port_2). Without this the UHD only wired 32 ENIs.
+        _load_uhd_config(UHD_IP, len(eni_indices))
         # Two shared ports (TX/RX split): vp_b = 7:5 (UHD 1B, VLAN1001/VXLAN, TX),
         # vp_a = 7:1 (UHD 1A, RX of the DPU's return). OUTBOUND ONLY this run.
         vp_b, vp_a = assign_dual_ports(ixnetwork)
