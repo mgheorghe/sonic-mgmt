@@ -1,0 +1,30 @@
+Debian GNU/Linux 13 \n \l
+
+2025-10-29 11:27:19,892 WARN received SIGTERM indicating exit request
+2025-10-29 11:27:19,892 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2025-10-29 11:27:19,897 INFO stopped: gnmi-native (exit status 0)
+2025-10-29 11:27:20,918 INFO stopped: rsyslogd (exit status 0)
+2025-10-29 11:27:20,920 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2025-10-29 11:49:12,228 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2025-10-29 11:49:12,229 INFO Set uid to user 0 succeeded
+2025-10-29 11:49:12,236 INFO RPC interface 'supervisor' initialized
+2025-10-29 11:49:12,237 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2025-10-29 11:49:12,237 INFO supervisord started with pid 10876
+2025-10-29 11:49:12,240 INFO spawned: 'dependent-startup' with pid 11012
+2025-10-29 11:49:12,243 INFO spawned: 'supervisor-proc-exit-listener' with pid 11013
+2025-10-29 11:49:12,261 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:49:13,605 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:49:13,608 INFO spawned: 'supervisor-proc-exit-listener' with pid 11163
+2025-10-29 11:49:13,617 INFO spawned: 'rsyslogd' with pid 11164
+2025-10-29 11:49:13,625 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:49:14,678 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:49:15,683 INFO spawned: 'supervisor-proc-exit-listener' with pid 11480
+2025-10-29 11:49:15,703 INFO spawned: 'start' with pid 11483
+2025-10-29 11:49:15,704 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:49:15,869 INFO exited: start (exit status 0; expected)
+2025-10-29 11:49:16,870 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:49:16,891 INFO spawned: 'gnmi-native' with pid 11558
+2025-10-29 11:49:17,910 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:49:17,993 INFO exited: dependent-startup (exit status 0; expected)

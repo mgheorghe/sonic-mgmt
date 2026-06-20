@@ -1,0 +1,70 @@
+DASH traffic-path run details — 2026-06-18T21:14:48Z (duration 61s)
+dominant NASA drop this run: SAI_PORT_STAT_VIP_MISS_DROP_PACKETS = 442
+
+== IxNetwork flow stats (per-ENI) ==
+    eni                  tx             rx      loss%
+    0                  9999              0    100.000
+    TOTAL    tx=9999 rx=0  aggregate loss=100.000%
+
+== IxNetwork INBOUND IPv6 flow stats (service->VM) ==
+    eni 0      vlan 1     tx 7777       rx 0          loss 100.000%
+    TOTAL    tx=7777 rx=0  aggregate loss=100.000%
+
+== UHD per-port metrics (before / after / delta) ==
+    Port 1:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         0                3                3
+        frames_received_unicast                     0                0                0
+        frames_transmitted_all                      0             9999             9999
+        frames_transmitted_unicast                  0             9999             9999
+        link_status                           link_up          link_up
+    Port 2:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         0                3                3
+        frames_received_unicast                     0                0                0
+        frames_transmitted_all                      0             7777             7777
+        frames_transmitted_unicast                  0             7777             7777
+        link_status                           link_up          link_up
+    Port 3:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         0                0                0
+        frames_received_unicast                     0                0                0
+        frames_transmitted_all                      0                0                0
+        frames_transmitted_unicast                  0                0                0
+        link_status                         link_down        link_down
+    Port 4:
+        metric                                 before            after            delta
+        frames_dropped_egress                       0                0                0
+        frames_received_all                         0                0                0
+        frames_received_unicast                     0                0                0
+        frames_transmitted_all                      0                0                0
+        frames_transmitted_unicast                  0                0                0
+        link_status                         link_down        link_down
+
+== NPU interface counters (before / after / delta) ==
+    counter                                                     rx_before         rx_after            delta
+    Ethernet0                                                        9999            19998             9999
+    Ethernet8                                                        7777            15554             7777
+    Ethernet224                                                       134              134                0
+    counter                                                     tx_before         tx_after            delta
+    Ethernet0                                                         547              549                2
+    Ethernet8                                                         536              538                2
+    Ethernet224                                                     18285            36063            17778
+
+== DPU0 interface counters (before / after / delta) ==
+    counter                                                     rx_before         rx_after            delta
+    Ethernet0                                                       18287            36065            17778
+    counter                                                     tx_before         tx_after            delta
+    Ethernet0                                                         136              136                0
+
+== NASA port_stats_dump (ALL counters, before / after / delta) ==
+    counter                                                        before            after            delta
+    SAI_PORT_STAT_ENI_MISS_DROP_PACKETS                                 0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ENI_MISS_DROP_BYTES                 0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ENI_MISS_DROP_PACKETS                0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ICMP_IN_BYTES                       0                0                0
+    SAI_PORT_STAT_PORT_LB_FAST_PATH_ICMP_IN_PACKETS                     0                0                0
+    SAI_PORT_STAT_VIP_MISS_DROP_PACKETS                             31814            32256              442

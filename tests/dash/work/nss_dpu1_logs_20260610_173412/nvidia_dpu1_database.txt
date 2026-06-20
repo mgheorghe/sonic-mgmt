@@ -1,0 +1,31 @@
+Debian GNU/Linux 13 \n \l
+
+2025-10-29 11:27:32,693 WARN received SIGTERM indicating exit request
+2025-10-29 11:27:32,694 INFO waiting for supervisor-proc-exit-listener, rsyslogd, redis to die
+2025-10-29 11:27:33,764 INFO stopped: redis (exit status 0)
+2025-10-29 11:27:33,767 INFO stopped: rsyslogd (exit status 0)
+2025-10-29 11:27:33,769 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+chown: cannot access '/var/lib/redis_bmp': No such file or directory
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2025-10-29 11:45:18,243 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2025-10-29 11:45:18,244 INFO Set uid to user 0 succeeded
+2025-10-29 11:45:18,252 INFO RPC interface 'supervisor' initialized
+2025-10-29 11:45:18,253 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2025-10-29 11:45:18,253 INFO supervisord started with pid 1
+2025-10-29 11:45:18,256 INFO spawned: 'dependent-startup' with pid 47
+2025-10-29 11:45:18,258 INFO spawned: 'supervisor-proc-exit-listener' with pid 48
+2025-10-29 11:45:18,261 INFO spawned: 'redis' with pid 49
+2025-10-29 11:45:18,273 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:45:19,646 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:19,648 INFO spawned: 'supervisor-proc-exit-listener' with pid 89
+2025-10-29 11:45:19,648 INFO success: redis entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:19,657 INFO spawned: 'rsyslogd' with pid 90
+2025-10-29 11:45:19,662 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:45:20,720 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:21,731 INFO spawned: 'supervisor-proc-exit-listener' with pid 99
+2025-10-29 11:45:21,876 INFO spawned: 'flushdb' with pid 102
+2025-10-29 11:45:23,035 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:23,036 INFO success: flushdb entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:23,178 INFO exited: dependent-startup (exit status 0; expected)
+2025-10-29 11:50:22,009 INFO exited: flushdb (exit status 0; expected)

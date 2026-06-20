@@ -1,0 +1,111 @@
+### show version
+SONiC Software Version: SONiC.internal.167426684-dfd1f4ecaa
+SONiC OS Version: 13
+Distribution: Debian 13.5
+Kernel: 6.12.41+deb13-sonic-amd64
+Build commit: dfd1f4ecaa
+Build date: Wed Jun 10 08:44:07 UTC 2026
+Built by: azureuser@6eadeb77c000000
+
+Platform: x86_64-nvidia_sn4280-r0
+HwSKU: Mellanox-SN4280-O28
+ASIC: mellanox
+ASIC Count: 1
+Serial Number: MT2504XZ09FJ
+Model Number: MSN4280-WS2RXOS
+Hardware Revision: A7
+Uptime: 01:16:08 up  5:38,  2 users,  load average: 5.25, 5.28, 5.21
+Date: Tue 14 Apr 2026 01:16:08
+
+Docker images:
+REPOSITORY                      TAG                             IMAGE ID       SIZE
+docker-platform-monitor         internal.167426684-dfd1f4ecaa   96fa6b182a7c   584MB
+docker-platform-monitor         latest                          96fa6b182a7c   584MB
+docker-orchagent                internal.167426684-dfd1f4ecaa   5078aa11e03d   339MB
+docker-orchagent                latest                          5078aa11e03d   339MB
+docker-sonic-gnmi               internal.167426684-dfd1f4ecaa   8195671622f2   404MB
+docker-sonic-gnmi               latest                          8195671622f2   404MB
+docker-acms-sidecar             internal.167426684-dfd1f4ecaa   162e7e7fdc04   286MB
+docker-acms-sidecar             latest                          162e7e7fdc04   286MB
+docker-gnmi-sidecar             internal.167426684-dfd1f4ecaa   355003a702b9   286MB
+docker-gnmi-sidecar             latest                          355003a702b9   286MB
+docker-sonic-otel               internal.167426684-dfd1f4ecaa   4269917f7d1b   628MB
+docker-sonic-otel               latest                          4269917f7d1b   628MB
+docker-bmp-watchdog             internal.167426684-dfd1f4ecaa   38d1796581a9   286MB
+docker-bmp-watchdog             latest                          38d1796581a9   286MB
+docker-restapi-sidecar          internal.167426684-dfd1f4ecaa   19a54a45e89e   286MB
+docker-restapi-sidecar          latest                          19a54a45e89e   286MB
+docker-router-advertiser        internal.167426684-dfd1f4ecaa   4c6218c24633   286MB
+docker-router-advertiser        latest                          4c6218c24633   286MB
+docker-snmp                     internal.167426684-dfd1f4ecaa   50222f86efa9   312MB
+docker-snmp                     latest                          50222f86efa9   312MB
+docker-vnet-monitor             internal.167426684-dfd1f4ecaa   68eb41d8728f   653MB
+docker-vnet-monitor             latest                          68eb41d8728f   653MB
+docker-database                 internal.167426684-dfd1f4ecaa   7d8386ae1a1b   293MB
+docker-database                 latest                          7d8386ae1a1b   293MB
+docker-acms                     internal.167426684-dfd1f4ecaa   40eff6ce7706   303MB
+docker-acms                     latest                          40eff6ce7706   303MB
+docker-dhcp-relay               internal.167426684-dfd1f4ecaa   f054d7c05be3   328MB
+docker-dhcp-relay               latest                          f054d7c05be3   328MB
+docker-sonic-restapi            internal.167426684-dfd1f4ecaa   99e2a39335ba   309MB
+docker-sonic-restapi            latest                          99e2a39335ba   309MB
+docker-macsec                   internal.167426684-dfd1f4ecaa   622e20ce3a42   326MB
+docker-macsec                   latest                          622e20ce3a42   326MB
+docker-sonic-telemetry          internal.167426684-dfd1f4ecaa   07c7afb1acd8   404MB
+docker-sonic-telemetry          latest                          07c7afb1acd8   404MB
+docker-sonic-bmp                internal.167426684-dfd1f4ecaa   f57923d48f47   287MB
+docker-sonic-bmp                latest                          f57923d48f47   287MB
+docker-teamd                    internal.167426684-dfd1f4ecaa   e3372efee7a8   324MB
+docker-teamd                    latest                          e3372efee7a8   324MB
+docker-mux                      internal.167426684-dfd1f4ecaa   193ba418258c   299MB
+docker-mux                      latest                          193ba418258c   299MB
+docker-lldp                     internal.167426684-dfd1f4ecaa   1a5d20830496   295MB
+docker-lldp                     latest                          1a5d20830496   295MB
+docker-auditd                   internal.167426684-dfd1f4ecaa   551201aa2439   286MB
+docker-auditd                   latest                          551201aa2439   286MB
+docker-gnmi-watchdog            internal.167426684-dfd1f4ecaa   1997db3c5911   292MB
+docker-gnmi-watchdog            latest                          1997db3c5911   292MB
+docker-eventd                   internal.167426684-dfd1f4ecaa   c218d26ff808   286MB
+docker-eventd                   latest                          c218d26ff808   286MB
+docker-sysmgr                   internal.167426684-dfd1f4ecaa   df9316b00da2   291MB
+docker-sysmgr                   latest                          df9316b00da2   291MB
+docker-restapi-watchdog         internal.167426684-dfd1f4ecaa   37ad5b163f6b   293MB
+docker-restapi-watchdog         latest                          37ad5b163f6b   293MB
+docker-acms-watchdog            internal.167426684-dfd1f4ecaa   e27dfc25314e   286MB
+docker-acms-watchdog            latest                          e27dfc25314e   286MB
+docker-dhcp-server              internal.167426684-dfd1f4ecaa   ddae3ca5c065   311MB
+docker-dhcp-server              latest                          ddae3ca5c065   311MB
+docker-dash-ha                  internal.167426684-dfd1f4ecaa   02501c473d6a   344MB
+docker-dash-ha                  latest                          02501c473d6a   344MB
+docker-fpm-frr                  internal.167426684-dfd1f4ecaa   bb1e4bc36c98   380MB
+docker-fpm-frr                  latest                          bb1e4bc36c98   380MB
+docker-auditd-watchdog          internal.167426684-dfd1f4ecaa   54d1621cdb73   288MB
+docker-auditd-watchdog          latest                          54d1621cdb73   288MB
+docker-syncd-mlnx               internal.167426684-dfd1f4ecaa   c902a33b9e7b   752MB
+docker-syncd-mlnx               latest                          c902a33b9e7b   752MB
+docker-sonic-profiler           internal.167426684-dfd1f4ecaa   da2f69d1beee   315MB
+docker-sonic-profiler           latest                          da2f69d1beee   315MB
+docker-dummyk8s                 internal.167426684-dfd1f4ecaa   334828eddb26   269MB
+docker-dummyk8s                 latest                          334828eddb26   269MB
+docker-profiler-watchdog        internal.167426684-dfd1f4ecaa   10e1318ae4c3   269MB
+docker-profiler-watchdog        latest                          10e1318ae4c3   269MB
+publicmirror.azurecr.io/pause   3.5                             ed210e3e4a5b   683kB
+### sonic-installer list
+Current: SONiC-OS-internal.167426684-dfd1f4ecaa
+Next: SONiC-OS-internal.167426684-dfd1f4ecaa
+Available:
+SONiC-OS-internal.167426684-dfd1f4ecaa
+### databasedpu1 DPU_APPL_DB DBSIZE
+10000
+### docker stats gnmi
+CONTAINER ID   NAME      CPU %     MEM USAGE / LIMIT     MEM %     NET I/O   BLOCK I/O         PIDS
+088aa96c7041   gnmi      0.55%     909.7MiB / 125.8GiB   0.71%     0B / 0B   28.8MB / 45.1kB   50
+### telemetry proc
+root      339097  0.6  0.1 4493900 165268 pts/0  Sl   00:29   0:18 /usr/sbin/telemetry -logtostderr --noTLS --port 50052 -v=2 -zmq_port=8100 -max_recv_msg_size=33554432 -max_send_msg_size=33554432 --threshold 100 --idle_conn_duration 5
+1000      339523  0.0  0.0  15320  5616 ?        Ss   00:29   0:00 /bin/bash /usr/local/bin/telemetry.sh wait
+1000      339566  0.0  0.0  15452  5548 ?        S    00:29   0:00 /bin/bash /usr/bin/telemetry.sh wait
+1000      339568  0.0  0.0 2169772 5216 ?        Sl   00:29   0:00 docker-rs wait telemetry
+root      339697  0.0  0.0 105096 11468 pts/0    Sl   00:29   0:00 /usr/bin/supervisor-proc-exit-listener-rs --container-name telemetry
+root      339711  0.5  0.1 4097288 134856 pts/0  Sl   00:29   0:15 /usr/sbin/telemetry -logtostderr --noTLS --port 8080 --allow_no_client_auth -v=2 --threshold 100 --idle_conn_duration 5 -gnmi_native_write=false
+### date
+Tue Apr 14 01:16:11 AM UTC 2026

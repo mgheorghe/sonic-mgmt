@@ -1,0 +1,14 @@
+{
+	"is_msb_dwsn_supported":	true,
+	"host_mem_page_num":	512,
+	"event_id_num":	50,
+	"first_fw_event_id":	0,
+	"event_id_mapping_info":	{
+		"tile_num":	8,
+		"proc_tile_num":	5,
+		"proc_main_num":	10,
+		"main_first_event_id":	0,
+		"phy_mc_sup":	0,
+		"tile_first_event_id_arr":	[10, 15, 20, 25, 30, 35, 40, 45]
+	}
+}

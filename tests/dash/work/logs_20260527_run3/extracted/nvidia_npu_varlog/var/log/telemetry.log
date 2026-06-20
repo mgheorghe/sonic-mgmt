@@ -1,0 +1,187 @@
+2026 Mar 22 20:49:49.185859 sonic WARNING systemd[1]: telemetry.service: Found left-over process 36128 (update-containe) in control group while starting unit. Ignoring.
+2026 Mar 22 20:49:49.185950 sonic WARNING systemd[1]: telemetry.service: This usually indicates unclean termination of a previous run, or service implementation deficiencies.
+2026 Mar 22 20:49:54.060906 sonic INFO telemetry#supervisord: telemetry Traceback (most recent call last):
+2026 Mar 22 20:49:54.060906 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/bin/sonic-cfggen", line 542, in <module>
+2026 Mar 22 20:49:54.060957 sonic INFO telemetry#supervisord: telemetry     main()
+2026 Mar 22 20:49:54.060957 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/bin/sonic-cfggen", line 506, in main
+2026 Mar 22 20:49:54.061043 sonic INFO telemetry#supervisord: telemetry     template_data = template.render(data)
+2026 Mar 22 20:49:54.061057 sonic INFO telemetry#supervisord: telemetry                     ^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:49:54.061068 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 1295, in render
+2026 Mar 22 20:49:54.061521 sonic INFO telemetry#supervisord: telemetry     self.environment.handle_exception()
+2026 Mar 22 20:49:54.061609 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 942, in handle_exception
+2026 Mar 22 20:49:54.061745 sonic INFO telemetry#supervisord: telemetry     raise rewrite_traceback_stack(source=source)
+2026 Mar 22 20:49:54.061835 sonic INFO telemetry#supervisord: telemetry   File "/usr/share/sonic/templates/telemetry_vars.j2", line 2, in top-level template code
+2026 Mar 22 20:49:54.061835 sonic INFO telemetry#supervisord: telemetry     "certs": {% if "certs" in TELEMETRY.keys() %}{{ TELEMETRY["certs"] }}{% else %}""{% endif %},
+2026 Mar 22 20:49:54.061938 sonic INFO telemetry#supervisord: telemetry ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:49:54.061938 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 490, in getattr
+2026 Mar 22 20:49:54.062034 sonic INFO telemetry#supervisord: telemetry     return getattr(obj, attribute)
+2026 Mar 22 20:49:54.062119 sonic INFO telemetry#supervisord: telemetry            ^^^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:49:54.062119 sonic INFO telemetry#supervisord: telemetry jinja2.exceptions.UndefinedError: 'TELEMETRY' is undefined
+2026 Mar 22 20:49:54.478796 sonic INFO telemetry#supervisord: telemetry telemetry args:  -logtostderr --noTLS --port 8080 --allow_no_client_auth -v=2 --threshold 100 --idle_conn_duration 5 -gnmi_native_write=false
+2026 Mar 22 20:49:54.523370 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.522993      28 util.go:312] [CVL] : Could not read platform schema location or no platform specific schema exists. <nil>
+2026 Mar 22 20:49:54.523418 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:49:54.523151      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-common)
+2026 Mar 22 20:49:54.523444 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:49:54.523161      28 util.go:314] [CVL] : Unable to get schema details for sonic-common.yin
+2026 Mar 22 20:49:54.523444 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:49:54.523287      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-types)
+2026 Mar 22 20:49:54.523460 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:49:54.523297      28 util.go:314] [CVL] : Unable to get schema details for sonic-types.yin
+2026 Mar 22 20:49:54.523523 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:49:54.523330      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-extension)
+2026 Mar 22 20:49:54.523523 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:49:54.523338      28 util.go:314] [CVL] : Unable to get schema details for sonic-extension.yin
+2026 Mar 22 20:49:54.526070 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.525859      28 db_lock.go:234] ConfigDBClearLock:
+2026 Mar 22 20:49:54.526070 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:49:54.525876      28 db_redis_opts.go:164] _DBRedisOptsConfig:reconfigure: flags not parsed!
+2026 Mar 22 20:49:54.526091 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.525885      28 db_redis_opts.go:174] _DBRedisOptsConfig:reconfigure: Handling signal.
+2026 Mar 22 20:49:54.527009 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.526830      28 db_lock.go:134] unlock: Already Unlocked
+2026 Mar 22 20:49:54.527076 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.526858      28 db_lock.go:242] ConfigDBClearLock: Lock Absent
+2026 Mar 22 20:49:54.528028 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.527875      28 emitjson_select.go:68] Marker file /var/run/telemetry/use_ygot_emitjson not found (err = stat /var/run/telemetry/use_ygot_emitjson: no such file or directory). Will use internal EmitJSON
+2026 Mar 22 20:49:54.626996 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.626589      28 xlate_utils.go:1384] [transformer.go:92]init.2 Yang model List: [sonic-acl.yang sonic-extensions.yang sonic-interface.yang sonic-mclag.yang sonic-port.yang sonic-portchannel.yang sonic-sflow.yang sonic-show-techsupport.yang sonic-showtech-annot.yang sonic-types.yang sonic-vlan.yang sonic-vrf.yang openconfig-acl.yang openconfig-acl-annot.yang openconfig-sampling-sflow.yang openconfig-sampling-sflow-annot.yang openconfig-if-ethernet.yang openconfig-interfaces.yang openconfig-interfaces-annot.yang openconfig-if-ip.yang openconfig-if-aggregate.yang openconfig-mclag.yang openconfig-mclag-annot.yang openconfig-vlan.yang gnsi-authz.yang gnsi-pathz.yang gnsi-certz.yang gnsi-credentialz.yang]
+2026 Mar 22 20:49:54.730233 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729859      28 xspec.go:150] xspec init done ...
+2026 Mar 22 20:49:54.730233 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729929      28 app_interface.go:117] Registering for path =/openconfig-acl:acl
+2026 Mar 22 20:49:54.730276 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729940      28 app_interface.go:117] Registering for path =/sonic-
+2026 Mar 22 20:49:54.730318 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729947      28 app_interface.go:117] Registering for path =*
+2026 Mar 22 20:49:54.730318 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729963      28 lldp_app.go:62] Init called for LLDP modules module
+2026 Mar 22 20:49:54.730347 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729970      28 app_interface.go:117] Registering for path =/openconfig-lldp:lldp
+2026 Mar 22 20:49:54.730361 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729976      28 pfm_app.go:42] Init called for Platform module
+2026 Mar 22 20:49:54.730361 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729983      28 app_interface.go:117] Registering for path =/openconfig-platform:components
+2026 Mar 22 20:49:54.730407 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.729993      28 sys_app.go:54] SysApp: Init called for System module
+2026 Mar 22 20:49:54.730407 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.730001      28 app_interface.go:117] Registering for path =/openconfig-system:system
+2026 Mar 22 20:49:54.730444 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.730152      28 version.go:144] *** Yang bundle version = 1.0.0
+2026 Mar 22 20:49:54.730444 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.730171      28 version.go:145] *** Yang base version   = 1.0.0
+2026 Mar 22 20:49:54.730444 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:49:54.730179      28 app_interface.go:117] Registering for path =/ietf-yang-library:modules-state
+2026 Mar 22 20:49:54.734645 sonic INFO telemetry#supervisord: telemetry I0322 20:49:54.734495      28 telemetry.go:197] client_auth not provided, using defaults.
+2026 Mar 22 20:49:54.736018 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:49:54 INFO: [core] [Server #1]Server created
+2026 Mar 22 20:49:54.736128 sonic INFO telemetry#supervisord: telemetry W0322 20:49:54.735811      28 whitelist.go:24] No whitelist found at path '/etc/sonic/command_whitelist.yaml', using default whitelists: open /etc/sonic/command_whitelist.yaml: no such file or directory
+2026 Mar 22 20:49:54.736204 sonic INFO telemetry#supervisord: telemetry I0322 20:49:54.736112      28 server.go:333] Created Server on localhost:8080, read-only: true
+2026 Mar 22 20:49:54.736278 sonic INFO telemetry#supervisord: telemetry I0322 20:49:54.736135      28 telemetry.go:509] Auth Modes:
+2026 Mar 22 20:49:54.736278 sonic INFO telemetry#supervisord: telemetry I0322 20:49:54.736154      28 telemetry.go:510] Starting RPC server on address: localhost:8080
+2026 Mar 22 20:49:54.736291 sonic INFO telemetry#supervisord: telemetry I0322 20:49:54.736167      28 telemetry.go:513] GNMI Server started serving
+2026 Mar 22 20:49:54.736362 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:49:54 INFO: [core] [Server #1 ListenSocket #2]ListenSocket created
+2026 Mar 22 20:52:13.049732 sonic INFO telemetry#supervisord: telemetry I0322 20:52:13.049359      28 telemetry.go:520] Received signal for gnmi server to close
+2026 Mar 22 20:52:13.049985 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:52:13 INFO: [core] [Server #1 ListenSocket #2]ListenSocket deleted
+2026 Mar 22 20:52:15.211239 sonic INFO systemd[1]: telemetry.service: Deactivated successfully.
+2026 Mar 22 20:52:15.211763 sonic INFO systemd[1]: telemetry.service: Consumed 1.636s CPU time, 32.9M memory peak.
+2026 Mar 22 20:52:45.289821 sonic INFO systemd[1]: telemetry.service: Scheduled restart job, restart counter is at 1.
+2026 Mar 22 20:52:46.013616 sonic WARNING systemd[1]: telemetry.service: Found left-over process 48649 (update-containe) in control group while starting unit. Ignoring.
+2026 Mar 22 20:52:46.013711 sonic WARNING systemd[1]: telemetry.service: This usually indicates unclean termination of a previous run, or service implementation deficiencies.
+2026 Mar 22 20:52:46.013761 sonic WARNING systemd[1]: telemetry.service: Found left-over process 48652 (update-containe) in control group while starting unit. Ignoring.
+2026 Mar 22 20:52:46.013809 sonic WARNING systemd[1]: telemetry.service: This usually indicates unclean termination of a previous run, or service implementation deficiencies.
+2026 Mar 22 20:52:50.859812 sonic INFO telemetry#supervisord: telemetry Traceback (most recent call last):
+2026 Mar 22 20:52:50.859812 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/bin/sonic-cfggen", line 542, in <module>
+2026 Mar 22 20:52:50.859812 sonic INFO telemetry#supervisord: telemetry     main()
+2026 Mar 22 20:52:50.859832 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/bin/sonic-cfggen", line 506, in main
+2026 Mar 22 20:52:50.859893 sonic INFO telemetry#supervisord: telemetry     template_data = template.render(data)
+2026 Mar 22 20:52:50.859977 sonic INFO telemetry#supervisord: telemetry                     ^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:52:50.859977 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 1295, in render
+2026 Mar 22 20:52:50.860193 sonic INFO telemetry#supervisord: telemetry     self.environment.handle_exception()
+2026 Mar 22 20:52:50.860269 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 942, in handle_exception
+2026 Mar 22 20:52:50.860412 sonic INFO telemetry#supervisord: telemetry     raise rewrite_traceback_stack(source=source)
+2026 Mar 22 20:52:50.860489 sonic INFO telemetry#supervisord: telemetry   File "/usr/share/sonic/templates/telemetry_vars.j2", line 2, in top-level template code
+2026 Mar 22 20:52:50.860571 sonic INFO telemetry#supervisord: telemetry     "certs": {% if "certs" in TELEMETRY.keys() %}{{ TELEMETRY["certs"] }}{% else %}""{% endif %},
+2026 Mar 22 20:52:50.860571 sonic INFO telemetry#supervisord: telemetry ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:52:50.860594 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 490, in getattr
+2026 Mar 22 20:52:50.860705 sonic INFO telemetry#supervisord: telemetry     return getattr(obj, attribute)
+2026 Mar 22 20:52:50.860796 sonic INFO telemetry#supervisord: telemetry            ^^^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:52:50.860796 sonic INFO telemetry#supervisord: telemetry jinja2.exceptions.UndefinedError: 'TELEMETRY' is undefined
+2026 Mar 22 20:52:51.277729 sonic INFO telemetry#supervisord: telemetry telemetry args:  -logtostderr --noTLS --port 8080 --allow_no_client_auth -v=2 --threshold 100 --idle_conn_duration 5 -gnmi_native_write=false
+2026 Mar 22 20:52:51.322080 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.321743      28 util.go:312] [CVL] : Could not read platform schema location or no platform specific schema exists. <nil>
+2026 Mar 22 20:52:51.322080 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:52:51.321820      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-common)
+2026 Mar 22 20:52:51.322108 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:52:51.321828      28 util.go:314] [CVL] : Unable to get schema details for sonic-common.yin
+2026 Mar 22 20:52:51.322108 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:52:51.321839      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-extension)
+2026 Mar 22 20:52:51.322108 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:52:51.321846      28 util.go:314] [CVL] : Unable to get schema details for sonic-extension.yin
+2026 Mar 22 20:52:51.322228 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:52:51.322020      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-types)
+2026 Mar 22 20:52:51.322228 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:52:51.322029      28 util.go:314] [CVL] : Unable to get schema details for sonic-types.yin
+2026 Mar 22 20:52:51.324763 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.324612      28 db_lock.go:234] ConfigDBClearLock:
+2026 Mar 22 20:52:51.324763 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:52:51.324627      28 db_redis_opts.go:164] _DBRedisOptsConfig:reconfigure: flags not parsed!
+2026 Mar 22 20:52:51.324778 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.324636      28 db_redis_opts.go:174] _DBRedisOptsConfig:reconfigure: Handling signal.
+2026 Mar 22 20:52:51.325283 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.325173      28 db_lock.go:134] unlock: Already Unlocked
+2026 Mar 22 20:52:51.325357 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.325196      28 db_lock.go:242] ConfigDBClearLock: Lock Absent
+2026 Mar 22 20:52:51.326313 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.326178      28 emitjson_select.go:68] Marker file /var/run/telemetry/use_ygot_emitjson not found (err = stat /var/run/telemetry/use_ygot_emitjson: no such file or directory). Will use internal EmitJSON
+2026 Mar 22 20:52:51.430126 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.429782      28 xlate_utils.go:1384] [transformer.go:92]init.2 Yang model List: [sonic-acl.yang sonic-extensions.yang sonic-interface.yang sonic-mclag.yang sonic-port.yang sonic-portchannel.yang sonic-sflow.yang sonic-show-techsupport.yang sonic-showtech-annot.yang sonic-types.yang sonic-vlan.yang sonic-vrf.yang openconfig-acl.yang openconfig-acl-annot.yang openconfig-sampling-sflow.yang openconfig-sampling-sflow-annot.yang openconfig-if-ethernet.yang openconfig-interfaces.yang openconfig-interfaces-annot.yang openconfig-if-ip.yang openconfig-if-aggregate.yang openconfig-mclag.yang openconfig-mclag-annot.yang openconfig-vlan.yang gnsi-authz.yang gnsi-pathz.yang gnsi-certz.yang gnsi-credentialz.yang]
+2026 Mar 22 20:52:51.532103 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531760      28 xspec.go:150] xspec init done ...
+2026 Mar 22 20:52:51.532163 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531835      28 app_interface.go:117] Registering for path =/openconfig-acl:acl
+2026 Mar 22 20:52:51.532163 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531848      28 app_interface.go:117] Registering for path =/sonic-
+2026 Mar 22 20:52:51.532198 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531855      28 app_interface.go:117] Registering for path =*
+2026 Mar 22 20:52:51.532198 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531871      28 lldp_app.go:62] Init called for LLDP modules module
+2026 Mar 22 20:52:51.532198 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531888      28 app_interface.go:117] Registering for path =/openconfig-lldp:lldp
+2026 Mar 22 20:52:51.532238 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531896      28 pfm_app.go:42] Init called for Platform module
+2026 Mar 22 20:52:51.532238 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531903      28 app_interface.go:117] Registering for path =/openconfig-platform:components
+2026 Mar 22 20:52:51.532238 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531913      28 sys_app.go:54] SysApp: Init called for System module
+2026 Mar 22 20:52:51.532238 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.531922      28 app_interface.go:117] Registering for path =/openconfig-system:system
+2026 Mar 22 20:52:51.532283 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.532077      28 version.go:144] *** Yang bundle version = 1.0.0
+2026 Mar 22 20:52:51.532294 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.532093      28 version.go:145] *** Yang base version   = 1.0.0
+2026 Mar 22 20:52:51.532314 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:52:51.532101      28 app_interface.go:117] Registering for path =/ietf-yang-library:modules-state
+2026 Mar 22 20:52:51.536480 sonic INFO telemetry#supervisord: telemetry I0322 20:52:51.536335      28 telemetry.go:197] client_auth not provided, using defaults.
+2026 Mar 22 20:52:51.537643 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:52:51 INFO: [core] [Server #1]Server created
+2026 Mar 22 20:52:51.537743 sonic INFO telemetry#supervisord: telemetry W0322 20:52:51.537566      28 whitelist.go:24] No whitelist found at path '/etc/sonic/command_whitelist.yaml', using default whitelists: open /etc/sonic/command_whitelist.yaml: no such file or directory
+2026 Mar 22 20:52:51.537948 sonic INFO telemetry#supervisord: telemetry I0322 20:52:51.537840      28 server.go:333] Created Server on localhost:8080, read-only: true
+2026 Mar 22 20:52:51.538030 sonic INFO telemetry#supervisord: telemetry I0322 20:52:51.537859      28 telemetry.go:509] Auth Modes:
+2026 Mar 22 20:52:51.538030 sonic INFO telemetry#supervisord: telemetry I0322 20:52:51.537873      28 telemetry.go:510] Starting RPC server on address: localhost:8080
+2026 Mar 22 20:52:51.538057 sonic INFO telemetry#supervisord: telemetry I0322 20:52:51.537887      28 telemetry.go:513] GNMI Server started serving
+2026 Mar 22 20:52:51.538057 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:52:51 INFO: [core] [Server #1 ListenSocket #2]ListenSocket created
+2026 Mar 22 20:54:24.431682 sonic INFO telemetry#supervisord: telemetry I0322 20:54:24.431057      28 telemetry.go:520] Received signal for gnmi server to close
+2026 Mar 22 20:54:24.431682 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:54:24 INFO: [core] [Server #1 ListenSocket #2]ListenSocket deleted
+2026 Mar 22 20:54:26.595079 sonic INFO systemd[1]: telemetry.service: Deactivated successfully.
+2026 Mar 22 20:54:26.595634 sonic INFO systemd[1]: telemetry.service: Consumed 1.604s CPU time, 33.2M memory peak.
+2026 Mar 22 20:54:56.789780 sonic INFO systemd[1]: telemetry.service: Scheduled restart job, restart counter is at 2.
+2026 Mar 22 20:54:57.491538 sonic WARNING systemd[1]: telemetry.service: Found left-over process 58168 (update-containe) in control group while starting unit. Ignoring.
+2026 Mar 22 20:54:57.491634 sonic WARNING systemd[1]: telemetry.service: This usually indicates unclean termination of a previous run, or service implementation deficiencies.
+2026 Mar 22 20:54:57.491682 sonic WARNING systemd[1]: telemetry.service: Found left-over process 58170 (update-containe) in control group while starting unit. Ignoring.
+2026 Mar 22 20:54:57.491729 sonic WARNING systemd[1]: telemetry.service: This usually indicates unclean termination of a previous run, or service implementation deficiencies.
+2026 Mar 22 20:55:02.344279 sonic INFO telemetry#supervisord: telemetry Traceback (most recent call last):
+2026 Mar 22 20:55:02.344279 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/bin/sonic-cfggen", line 542, in <module>
+2026 Mar 22 20:55:02.344279 sonic INFO telemetry#supervisord: telemetry     main()
+2026 Mar 22 20:55:02.344279 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/bin/sonic-cfggen", line 506, in main
+2026 Mar 22 20:55:02.344466 sonic INFO telemetry#supervisord: telemetry     template_data = template.render(data)
+2026 Mar 22 20:55:02.344466 sonic INFO telemetry#supervisord: telemetry                     ^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:55:02.344466 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 1295, in render
+2026 Mar 22 20:55:02.344656 sonic INFO telemetry#supervisord: telemetry     self.environment.handle_exception()
+2026 Mar 22 20:55:02.344744 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 942, in handle_exception
+2026 Mar 22 20:55:02.344879 sonic INFO telemetry#supervisord: telemetry     raise rewrite_traceback_stack(source=source)
+2026 Mar 22 20:55:02.344969 sonic INFO telemetry#supervisord: telemetry   File "/usr/share/sonic/templates/telemetry_vars.j2", line 2, in top-level template code
+2026 Mar 22 20:55:02.344969 sonic INFO telemetry#supervisord: telemetry     "certs": {% if "certs" in TELEMETRY.keys() %}{{ TELEMETRY["certs"] }}{% else %}""{% endif %},
+2026 Mar 22 20:55:02.345066 sonic INFO telemetry#supervisord: telemetry ^^^^^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:55:02.345066 sonic INFO telemetry#supervisord: telemetry   File "/usr/local/lib/python3.11/dist-packages/jinja2/environment.py", line 490, in getattr
+2026 Mar 22 20:55:02.345177 sonic INFO telemetry#supervisord: telemetry     return getattr(obj, attribute)
+2026 Mar 22 20:55:02.345267 sonic INFO telemetry#supervisord: telemetry            ^^^^^^^^^^^^^^^^^^^^^^^
+2026 Mar 22 20:55:02.345267 sonic INFO telemetry#supervisord: telemetry jinja2.exceptions.UndefinedError: 'TELEMETRY' is undefined
+2026 Mar 22 20:55:02.761471 sonic INFO telemetry#supervisord: telemetry telemetry args:  -logtostderr --noTLS --port 8080 --allow_no_client_auth -v=2 --threshold 100 --idle_conn_duration 5 -gnmi_native_write=false
+2026 Mar 22 20:55:02.805834 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:02.805463      28 util.go:312] [CVL] : Could not read platform schema location or no platform specific schema exists. <nil>
+2026 Mar 22 20:55:02.805913 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:55:02.805801      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-common)
+2026 Mar 22 20:55:02.805913 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:55:02.805813      28 util.go:314] [CVL] : Unable to get schema details for sonic-common.yin
+2026 Mar 22 20:55:02.806077 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:55:02.805958      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-extension)
+2026 Mar 22 20:55:02.806098 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:55:02.805970      28 util.go:314] [CVL] : Unable to get schema details for sonic-extension.yin
+2026 Mar 22 20:55:02.806123 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:55:02.805980      28 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-types)
+2026 Mar 22 20:55:02.806123 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:55:02.805987      28 util.go:314] [CVL] : Unable to get schema details for sonic-types.yin
+2026 Mar 22 20:55:02.808248 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:02.808078      28 db_lock.go:234] ConfigDBClearLock:
+2026 Mar 22 20:55:02.808248 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: W0322 20:55:02.808095      28 db_redis_opts.go:164] _DBRedisOptsConfig:reconfigure: flags not parsed!
+2026 Mar 22 20:55:02.808269 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:02.808103      28 db_redis_opts.go:174] _DBRedisOptsConfig:reconfigure: Handling signal.
+2026 Mar 22 20:55:02.808865 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:02.808738      28 db_lock.go:134] unlock: Already Unlocked
+2026 Mar 22 20:55:02.808930 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:02.808762      28 db_lock.go:242] ConfigDBClearLock: Lock Absent
+2026 Mar 22 20:55:02.809984 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:02.809836      28 emitjson_select.go:68] Marker file /var/run/telemetry/use_ygot_emitjson not found (err = stat /var/run/telemetry/use_ygot_emitjson: no such file or directory). Will use internal EmitJSON
+2026 Mar 22 20:55:02.908273 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:02.907854      28 xlate_utils.go:1384] [transformer.go:92]init.2 Yang model List: [sonic-acl.yang sonic-extensions.yang sonic-interface.yang sonic-mclag.yang sonic-port.yang sonic-portchannel.yang sonic-sflow.yang sonic-show-techsupport.yang sonic-showtech-annot.yang sonic-types.yang sonic-vlan.yang sonic-vrf.yang openconfig-acl.yang openconfig-acl-annot.yang openconfig-sampling-sflow.yang openconfig-sampling-sflow-annot.yang openconfig-if-ethernet.yang openconfig-interfaces.yang openconfig-interfaces-annot.yang openconfig-if-ip.yang openconfig-if-aggregate.yang openconfig-mclag.yang openconfig-mclag-annot.yang openconfig-vlan.yang gnsi-authz.yang gnsi-pathz.yang gnsi-certz.yang gnsi-credentialz.yang]
+2026 Mar 22 20:55:03.014794 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014446      28 xspec.go:150] xspec init done ...
+2026 Mar 22 20:55:03.014794 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014514      28 app_interface.go:117] Registering for path =/openconfig-acl:acl
+2026 Mar 22 20:55:03.014794 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse:
+2026 Mar 22 20:55:03.014883 sonic INFO telemetry#supervisord: telemetry I0322 20:55:03.014525      28 app_interface.go:117] Registering for path =/sonic-
+2026 Mar 22 20:55:03.014956 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014532      28 app_interface.go:117] Registering for path =*
+2026 Mar 22 20:55:03.014956 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014546      28 lldp_app.go:62] Init called for LLDP modules module
+2026 Mar 22 20:55:03.014956 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014553      28 app_interface.go:117] Registering for path =/openconfig-lldp:lldp
+2026 Mar 22 20:55:03.014998 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014560      28 pfm_app.go:42] Init called for Platform module
+2026 Mar 22 20:55:03.014998 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014567      28 app_interface.go:117] Registering for path =/openconfig-platform:components
+2026 Mar 22 20:55:03.015011 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014576      28 sys_app.go:54] SysApp: Init called for System module
+2026 Mar 22 20:55:03.015020 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014584      28 app_interface.go:117] Registering for path =/openconfig-system:system
+2026 Mar 22 20:55:03.015051 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014735      28 version.go:144] *** Yang bundle version = 1.0.0
+2026 Mar 22 20:55:03.015051 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014757      28 version.go:145] *** Yang base version   = 1.0.0
+2026 Mar 22 20:55:03.015062 sonic INFO telemetry#supervisord: telemetry ERROR: logging before flag.Parse: I0322 20:55:03.014765      28 app_interface.go:117] Registering for path =/ietf-yang-library:modules-state
+2026 Mar 22 20:55:03.018912 sonic INFO telemetry#supervisord: telemetry I0322 20:55:03.018750      28 telemetry.go:197] client_auth not provided, using defaults.
+2026 Mar 22 20:55:03.019986 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:55:03 INFO: [core] [Server #1]Server created
+2026 Mar 22 20:55:03.020121 sonic INFO telemetry#supervisord: telemetry W0322 20:55:03.019784      28 whitelist.go:24] No whitelist found at path '/etc/sonic/command_whitelist.yaml', using default whitelists: open /etc/sonic/command_whitelist.yaml: no such file or directory
+2026 Mar 22 20:55:03.020233 sonic INFO telemetry#supervisord: telemetry I0322 20:55:03.020125      28 server.go:333] Created Server on localhost:8080, read-only: true
+2026 Mar 22 20:55:03.020321 sonic INFO telemetry#supervisord: telemetry I0322 20:55:03.020143      28 telemetry.go:509] Auth Modes:
+2026 Mar 22 20:55:03.020321 sonic INFO telemetry#supervisord: telemetry I0322 20:55:03.020157      28 telemetry.go:510] Starting RPC server on address: localhost:8080
+2026 Mar 22 20:55:03.020344 sonic INFO telemetry#supervisord: telemetry I0322 20:55:03.020174      28 telemetry.go:513] GNMI Server started serving
+2026 Mar 22 20:55:03.020401 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:55:03 INFO: [core] [Server #1 ListenSocket #2]ListenSocket created
+2026 Mar 22 20:55:58.745170 sonic INFO telemetry#supervisord: telemetry I0322 20:55:58.744604      28 telemetry.go:520] Received signal for gnmi server to close
+2026 Mar 22 20:55:58.745170 sonic INFO telemetry#supervisord: telemetry 2026/03/22 20:55:58 INFO: [core] [Server #1 ListenSocket #2]ListenSocket deleted
+2026 Mar 22 20:56:00.909439 sonic INFO systemd[1]: telemetry.service: Deactivated successfully.
+2026 Mar 22 20:56:00.909970 sonic INFO systemd[1]: telemetry.service: Consumed 1.606s CPU time, 33.1M memory peak.
+2026 Mar 22 20:56:31.039713 sonic INFO systemd[1]: telemetry.service: Scheduled restart job, restart counter is at 3.
+2026 Mar 22 20:56:31.039824 sonic WARNING systemd[1]: telemetry.service: Start request repeated too quickly.
+2026 Mar 22 20:56:31.039878 sonic WARNING systemd[1]: telemetry.service: Failed with result 'start-limit-hit'.

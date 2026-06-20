@@ -1,0 +1,21 @@
+### date
+Thu Jun 11 11:56:12 PM PDT 2026
+### show version
+SONiC Software Version: SONiC.internal.167426684-dfd1f4ecaa
+Build date: Wed Jun 10 06:50:47 UTC 2026
+Platform: arm64-nvda_bf-bf3comdpu
+HwSKU: Nvidia-bf3-com-dpu
+docker-platform-monitor         internal.167426684-dfd1f4ecaa   88242c9a745b   629MB
+docker-platform-monitor         latest                          88242c9a745b   629MB
+### FW
+FW Version:            32.48.1000
+### swss/syncd
+syncd Up 8 weeks
+swss Up 8 weeks
+### chronyc tracking
+Reference ID    : A9FEC8FE (redis_chassis.server)
+Stratum         : 3
+Leap status     : Normal
+### DBSIZE/ENI
+64008
+1

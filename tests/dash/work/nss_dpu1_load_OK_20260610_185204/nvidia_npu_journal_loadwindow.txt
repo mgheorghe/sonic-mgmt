@@ -1,0 +1,509 @@
+Debian GNU/Linux 13 \n \l
+
+Apr 05 17:34:37 sonic sudo[478699]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/logger -t nss_load 'NSS_LOAD_START dpu1'
+Apr 05 17:34:37 sonic sudo[478699]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:37 sonic nss_load[478705]: NSS_LOAD_START dpu1
+Apr 05 17:34:37 sonic sudo[478699]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:37 sonic sshd-session[478698]: Received disconnect from 10.36.79.161 port 57840:11: disconnected by user
+Apr 05 17:34:37 sonic sshd-session[478698]: Disconnected from user admin 10.36.79.161 port 57840
+Apr 05 17:34:37 sonic sshd-session[478690]: pam_unix(sshd:session): session closed for user admin
+Apr 05 17:34:37 sonic systemd[1]: session-46.scope: Deactivated successfully.
+Apr 05 17:34:37 sonic systemd-logind[2144]: Session 46 logged out. Waiting for processes to exit.
+Apr 05 17:34:37 sonic systemd-logind[2144]: Removed session 46.
+Apr 05 17:34:37 sonic sshd-session[478793]: Connection from 10.36.79.161 port 57842 on 10.36.78.150 port 22 rdomain ""
+Apr 05 17:34:38 sonic sshd-session[478793]: Accepted password for admin from 10.36.79.161 port 57842 ssh2
+Apr 05 17:34:38 sonic sshd-session[478793]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+Apr 05 17:34:38 sonic systemd-logind[2144]: New session 47 of user admin.
+Apr 05 17:34:38 sonic systemd[1]: Started session-47.scope - Session 47 of User admin.
+Apr 05 17:34:38 sonic sshd-session[478793]: User child is on pid 478801
+Apr 05 17:34:38 sonic sshd-session[478801]: Starting session: command for admin from 10.36.79.161 port 57842 id 0
+Apr 05 17:34:38 sonic sudo[478802]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker exec databasedpu1 sonic-db-cli DPU_APPL_DB FLUSHDB
+Apr 05 17:34:38 sonic sudo[478802]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:38 sonic sudo[478802]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:38 sonic sshd-session[478801]: Received disconnect from 10.36.79.161 port 57842:11: disconnected by user
+Apr 05 17:34:38 sonic sshd-session[478801]: Disconnected from user admin 10.36.79.161 port 57842
+Apr 05 17:34:38 sonic sshd-session[478793]: pam_unix(sshd:session): session closed for user admin
+Apr 05 17:34:38 sonic systemd-logind[2144]: Session 47 logged out. Waiting for processes to exit.
+Apr 05 17:34:38 sonic systemd[1]: session-47.scope: Deactivated successfully.
+Apr 05 17:34:38 sonic systemd-logind[2144]: Removed session 47.
+Apr 05 17:34:38 sonic sshd-session[478891]: Connection from 10.36.79.161 port 57848 on 10.36.78.150 port 22 rdomain ""
+Apr 05 17:34:39 sonic sshd-session[478891]: Accepted password for admin from 10.36.79.161 port 57848 ssh2
+Apr 05 17:34:39 sonic sshd-session[478891]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+Apr 05 17:34:39 sonic systemd-logind[2144]: New session 48 of user admin.
+Apr 05 17:34:39 sonic systemd[1]: Started session-48.scope - Session 48 of User admin.
+Apr 05 17:34:39 sonic sshd-session[478891]: User child is on pid 478899
+Apr 05 17:34:39 sonic sshd-session[478899]: Starting session: command for admin from 10.36.79.161 port 57848 id 0
+Apr 05 17:34:39 sonic sudo[478903]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/find /var/lib/docker/containers -name *-json.log
+Apr 05 17:34:39 sonic sudo[478903]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478903]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478906]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/00cf3b334903d7304464c82aa2f02320a45c7c6fee0b5650c8af56202282a798/00cf3b334903d7304464c82aa2f02320a45c7c6fee0b5650c8af56202282a798-json.log
+Apr 05 17:34:39 sonic sudo[478906]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478906]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478909]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/f7c979c0844a1051a4cb305fe3c5c972bf8349219c2c9d4ab9e841f63f1ca8f9/f7c979c0844a1051a4cb305fe3c5c972bf8349219c2c9d4ab9e841f63f1ca8f9-json.log
+Apr 05 17:34:39 sonic sudo[478909]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478909]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478912]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/5505e0cf7813ad226705fd21c56046d1f9dc6eeedbbf78a00f542d379325b879/5505e0cf7813ad226705fd21c56046d1f9dc6eeedbbf78a00f542d379325b879-json.log
+Apr 05 17:34:39 sonic sudo[478912]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478912]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478915]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8fb5ea024c1db9a93f7ec4fc33da5fe5aa8fec93250833992f3eae11bba14bc9/8fb5ea024c1db9a93f7ec4fc33da5fe5aa8fec93250833992f3eae11bba14bc9-json.log
+Apr 05 17:34:39 sonic sudo[478915]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478915]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478918]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/c4aaeb5c18b68e91aa61529ec0b96beb05512cce81a9b4f928112472d5bcc527/c4aaeb5c18b68e91aa61529ec0b96beb05512cce81a9b4f928112472d5bcc527-json.log
+Apr 05 17:34:39 sonic sudo[478918]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478918]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478921]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/54c1eeff5d26919e3697e6f4b3aee884202f9c84efe820cd7a74b67b23cc2173/54c1eeff5d26919e3697e6f4b3aee884202f9c84efe820cd7a74b67b23cc2173-json.log
+Apr 05 17:34:39 sonic sudo[478921]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478921]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478924]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a8e35ddb69e90d728473d570cf13d3a32edd0df332ad9eeeaa079d28ef4fd7db/a8e35ddb69e90d728473d570cf13d3a32edd0df332ad9eeeaa079d28ef4fd7db-json.log
+Apr 05 17:34:39 sonic sudo[478924]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478924]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478927]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/b49adceb4b30bc707a59dca431063a5b664ef29453eb0df324f64b0f43670e83/b49adceb4b30bc707a59dca431063a5b664ef29453eb0df324f64b0f43670e83-json.log
+Apr 05 17:34:39 sonic sudo[478927]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478927]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478930]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/b7ada2c39ce9f3466bf20dd766a43b8d9c7b66a6447f2562cdb4c6d087c65d98/b7ada2c39ce9f3466bf20dd766a43b8d9c7b66a6447f2562cdb4c6d087c65d98-json.log
+Apr 05 17:34:39 sonic sudo[478930]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478930]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478933]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/eeca8ae0bd7be0afa2b1429da5bd0082ce42df9b9aa1d18ac9f95835899f7848/eeca8ae0bd7be0afa2b1429da5bd0082ce42df9b9aa1d18ac9f95835899f7848-json.log
+Apr 05 17:34:39 sonic sudo[478933]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478933]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478936]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/dcf9279479c9bc1ad8cd2fe66c9bbcc17bd2f7e51a1180517ea5f27556ff8540/dcf9279479c9bc1ad8cd2fe66c9bbcc17bd2f7e51a1180517ea5f27556ff8540-json.log
+Apr 05 17:34:39 sonic sudo[478936]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478936]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478939]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/63503e5d561627be573bcefa0fd11c2c2bf5d7781c5a9d07592604082f375c44/63503e5d561627be573bcefa0fd11c2c2bf5d7781c5a9d07592604082f375c44-json.log
+Apr 05 17:34:39 sonic sudo[478939]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478939]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478942]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/ecb65f48e5a99b9890a33c63de01c3278257faf4dd263d6827379e12213929b3/ecb65f48e5a99b9890a33c63de01c3278257faf4dd263d6827379e12213929b3-json.log
+Apr 05 17:34:39 sonic sudo[478942]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478942]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478945]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/3cd8980553e1bd1b698ccc30a10e1a6621bfb133fa4a8c2f605cd15d79ead7d3/3cd8980553e1bd1b698ccc30a10e1a6621bfb133fa4a8c2f605cd15d79ead7d3-json.log
+Apr 05 17:34:39 sonic sudo[478945]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478945]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478952]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a864443914feab00fb6e583d6566df459ea6f685bd78053b76e9ca73575ba2ae/a864443914feab00fb6e583d6566df459ea6f685bd78053b76e9ca73575ba2ae-json.log
+Apr 05 17:34:39 sonic sudo[478952]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478952]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478959]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/050c0dd421780d00a02cda98fe5f5f54358a032fcc0d3390bc8c16041a447605/050c0dd421780d00a02cda98fe5f5f54358a032fcc0d3390bc8c16041a447605-json.log
+Apr 05 17:34:39 sonic sudo[478959]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478959]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478966]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/bf685ced28bcc5d4618af91c722f180a948663933ba7af33d2a5be1b1ec58903/bf685ced28bcc5d4618af91c722f180a948663933ba7af33d2a5be1b1ec58903-json.log
+Apr 05 17:34:39 sonic sudo[478966]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478966]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478974]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/6d10bcfaa23ccb32608ba42e8ea8cd0d0b7899031165546a8c94ae1e2171e3f2/6d10bcfaa23ccb32608ba42e8ea8cd0d0b7899031165546a8c94ae1e2171e3f2-json.log
+Apr 05 17:34:39 sonic sudo[478974]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478974]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478982]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/e39612443567bf5254b4f16447b2d15c426cb303f6baa5c4e04d4c514616307a/e39612443567bf5254b4f16447b2d15c426cb303f6baa5c4e04d4c514616307a-json.log
+Apr 05 17:34:39 sonic sudo[478982]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478982]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478989]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/d51a6bc6dad17a76f4ecc42f20b094e4f5fe850b319aa95a59f5f01ab0fa93b3/d51a6bc6dad17a76f4ecc42f20b094e4f5fe850b319aa95a59f5f01ab0fa93b3-json.log
+Apr 05 17:34:39 sonic sudo[478989]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478989]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[478996]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/91213a830feb52b98aeb6321854991654c693c4a70fb90e6c023003f6eb135f9/91213a830feb52b98aeb6321854991654c693c4a70fb90e6c023003f6eb135f9-json.log
+Apr 05 17:34:39 sonic sudo[478996]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[478996]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479003]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/135b86c3df73792c5cbeaa65afd3ba4e3e2a6641ecb58b9c3179e8e10534fe24/135b86c3df73792c5cbeaa65afd3ba4e3e2a6641ecb58b9c3179e8e10534fe24-json.log
+Apr 05 17:34:39 sonic sudo[479003]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479003]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479010]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/aa78bff5ee52774ee8e1256745b683cdd24e9cab64c1efc85a458cb0fe7b0020/aa78bff5ee52774ee8e1256745b683cdd24e9cab64c1efc85a458cb0fe7b0020-json.log
+Apr 05 17:34:39 sonic sudo[479010]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479010]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479017]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1d20f69db48756ffc71607ee99c67bf9e1246cb4e1b4b0c4a0d0978226b9f145/1d20f69db48756ffc71607ee99c67bf9e1246cb4e1b4b0c4a0d0978226b9f145-json.log
+Apr 05 17:34:39 sonic sudo[479017]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479017]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479024]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2d43382b11d6f5bd65618a592397a8e1aea6a531c35931bfe21147e19e0b007b/2d43382b11d6f5bd65618a592397a8e1aea6a531c35931bfe21147e19e0b007b-json.log
+Apr 05 17:34:39 sonic sudo[479024]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479024]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479031]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1b2db7bf5d2ee2cd8f5a06d75f91b232cfe77625406d518715d65254ecc27240/1b2db7bf5d2ee2cd8f5a06d75f91b232cfe77625406d518715d65254ecc27240-json.log
+Apr 05 17:34:39 sonic sudo[479031]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479031]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479038]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/e63e9827ba7877c689f54dc533ed9d5299c9de0ee94663454289c53891ada275/e63e9827ba7877c689f54dc533ed9d5299c9de0ee94663454289c53891ada275-json.log
+Apr 05 17:34:39 sonic sudo[479038]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479038]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479043]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1fb7113a921766b168561d6dee4b3eead167f58d0cfecf07f04d89257df01af9/1fb7113a921766b168561d6dee4b3eead167f58d0cfecf07f04d89257df01af9-json.log
+Apr 05 17:34:39 sonic sudo[479043]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479043]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479046]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/b37f4d3e343a7113e801b7dc5c31ea7f3c3560222dbf810a84710e23efe0f42e/b37f4d3e343a7113e801b7dc5c31ea7f3c3560222dbf810a84710e23efe0f42e-json.log
+Apr 05 17:34:39 sonic sudo[479046]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479046]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479049]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/17b83a154a549ff94f6a9df046a2985c742aab85d29a80d1fe94066e621ae22e/17b83a154a549ff94f6a9df046a2985c742aab85d29a80d1fe94066e621ae22e-json.log
+Apr 05 17:34:39 sonic sudo[479049]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479049]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479052]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/23c9b3772a0d5d855503c60a97cb097c8cb018af4bc150f8261c7fda17ef025d/23c9b3772a0d5d855503c60a97cb097c8cb018af4bc150f8261c7fda17ef025d-json.log
+Apr 05 17:34:39 sonic sudo[479052]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479052]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479055]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/3b52a6b079fdd8b6f6cf92985db90036882b81fbb455d90f48281e39a51f7fcd/3b52a6b079fdd8b6f6cf92985db90036882b81fbb455d90f48281e39a51f7fcd-json.log
+Apr 05 17:34:39 sonic sudo[479055]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479055]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:39 sonic sudo[479058]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/f78efe1fe10efb178b2781a554ec7b834ddcc0b193fbea3b526e99b3098b374b/f78efe1fe10efb178b2781a554ec7b834ddcc0b193fbea3b526e99b3098b374b-json.log
+Apr 05 17:34:39 sonic sudo[479058]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:39 sonic sudo[479058]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479061]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/6404e8bf6713fc93c2657739c53e953e7232cc8698f59a34948f4b7e364d3a2f/6404e8bf6713fc93c2657739c53e953e7232cc8698f59a34948f4b7e364d3a2f-json.log
+Apr 05 17:34:40 sonic sudo[479061]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479061]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479064]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/7890334a6168d409a273fa9e43b1d2bc5001c3cd1a6a329d3fdb0c347d0406ee/7890334a6168d409a273fa9e43b1d2bc5001c3cd1a6a329d3fdb0c347d0406ee-json.log
+Apr 05 17:34:40 sonic sudo[479064]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479064]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479067]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a0cbb5fbe91dea19b49d1c63645cf4240ea2dc04d0e1c62c8f6dc8427249bc7c/a0cbb5fbe91dea19b49d1c63645cf4240ea2dc04d0e1c62c8f6dc8427249bc7c-json.log
+Apr 05 17:34:40 sonic sudo[479067]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479067]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479074]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8ee5f5dff01f30f5e8247bcfceaa68c6f142741ca1a346c6805c1ffe7399a015/8ee5f5dff01f30f5e8247bcfceaa68c6f142741ca1a346c6805c1ffe7399a015-json.log
+Apr 05 17:34:40 sonic sudo[479074]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479074]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479077]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/543fc21f9cb23ef3793b0b91f806604312ff7996b40193aed879a77899527bff/543fc21f9cb23ef3793b0b91f806604312ff7996b40193aed879a77899527bff-json.log
+Apr 05 17:34:40 sonic sudo[479077]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479077]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479080]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/64cf5960ff4800662a3dcfab9dfbe555c048732c2f2be7c816c840ef17d4ba60/64cf5960ff4800662a3dcfab9dfbe555c048732c2f2be7c816c840ef17d4ba60-json.log
+Apr 05 17:34:40 sonic sudo[479080]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479080]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479083]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/42213165e4bfc032b989fa29f12e3dacc6c20e84f88961f015c3f7389769188c/42213165e4bfc032b989fa29f12e3dacc6c20e84f88961f015c3f7389769188c-json.log
+Apr 05 17:34:40 sonic sudo[479083]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479083]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479086]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a886f6011258d5197bcaa299196b0ab04839ea9a8f668a8ab46c668bb8f56e99/a886f6011258d5197bcaa299196b0ab04839ea9a8f668a8ab46c668bb8f56e99-json.log
+Apr 05 17:34:40 sonic sudo[479086]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479086]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479089]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/6bf11df5668882e2285fa4024840e893a7651bd524533b0471bb02c83a1b4ca0/6bf11df5668882e2285fa4024840e893a7651bd524533b0471bb02c83a1b4ca0-json.log
+Apr 05 17:34:40 sonic sudo[479089]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479089]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479092]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/66fed5ffe94b82d788bb48217ae92f8dfe709434217a2355303793a2590939a9/66fed5ffe94b82d788bb48217ae92f8dfe709434217a2355303793a2590939a9-json.log
+Apr 05 17:34:40 sonic sudo[479092]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479092]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479095]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/de5b9cf370dfb18680be6bf506ace038959a4c4b9ae178a4e065e0164b197629/de5b9cf370dfb18680be6bf506ace038959a4c4b9ae178a4e065e0164b197629-json.log
+Apr 05 17:34:40 sonic sudo[479095]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479095]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479098]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/c9254b9d1dca3c179e4645e39ee97aa209df60c5b9ed74a63ccf8b6a96727adc/c9254b9d1dca3c179e4645e39ee97aa209df60c5b9ed74a63ccf8b6a96727adc-json.log
+Apr 05 17:34:40 sonic sudo[479098]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479098]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479101]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/954a505dee99a4c4b4034a51d24b562e881826c4bd49f2b2cab78dce6ae29064/954a505dee99a4c4b4034a51d24b562e881826c4bd49f2b2cab78dce6ae29064-json.log
+Apr 05 17:34:40 sonic sudo[479101]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479101]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479104]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/bed11c8948c4f9b47a9897e771217cece914cc9e3c87a0b72bb49b945a39d985/bed11c8948c4f9b47a9897e771217cece914cc9e3c87a0b72bb49b945a39d985-json.log
+Apr 05 17:34:40 sonic sudo[479104]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479104]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479107]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1a0612c7082f04d17721ed26be64a645528d520e12362899779d40cfde285d85/1a0612c7082f04d17721ed26be64a645528d520e12362899779d40cfde285d85-json.log
+Apr 05 17:34:40 sonic sudo[479107]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479107]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479110]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/7758b88b163a412c3fc7128ec8d937ccaf0c61e7502d96f27eaf96368c9d8539/7758b88b163a412c3fc7128ec8d937ccaf0c61e7502d96f27eaf96368c9d8539-json.log
+Apr 05 17:34:40 sonic sudo[479110]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479110]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479113]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/42a149b04ba554fb8d6ace374437836badcdf83b4de76da2a5fadac9ac2419da/42a149b04ba554fb8d6ace374437836badcdf83b4de76da2a5fadac9ac2419da-json.log
+Apr 05 17:34:40 sonic sudo[479113]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479113]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479116]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/3abb042ab9d52cb3a1757337f96a89346f365aacb586e0b3e54c0088351c79c0/3abb042ab9d52cb3a1757337f96a89346f365aacb586e0b3e54c0088351c79c0-json.log
+Apr 05 17:34:40 sonic sudo[479116]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479116]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479119]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/f77523f6fdcdca8c0f014e223f6b399d783d3e0d9c27d79ba6f2b1465029ff29/f77523f6fdcdca8c0f014e223f6b399d783d3e0d9c27d79ba6f2b1465029ff29-json.log
+Apr 05 17:34:40 sonic sudo[479119]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479119]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479123]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a2ba809076a075ebb543a050594a2549be1d332d45b957ba49d70a65eb396c02/a2ba809076a075ebb543a050594a2549be1d332d45b957ba49d70a65eb396c02-json.log
+Apr 05 17:34:40 sonic sudo[479123]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479123]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479126]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/6ec423613479e481c6571d7ffc1c8b4f669a2b339a25a562890d10efec92509b/6ec423613479e481c6571d7ffc1c8b4f669a2b339a25a562890d10efec92509b-json.log
+Apr 05 17:34:40 sonic sudo[479126]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479126]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479129]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/e865d77d2c46dcf0fef4dbe8a0130c6e8b89bf4a1d02531b1e6bdeea0df0e99d/e865d77d2c46dcf0fef4dbe8a0130c6e8b89bf4a1d02531b1e6bdeea0df0e99d-json.log
+Apr 05 17:34:40 sonic sudo[479129]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479129]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479132]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/cd9740f0249fbd90e7bf9622c295223ddf4575583d5573f11c7e76abbc49b145/cd9740f0249fbd90e7bf9622c295223ddf4575583d5573f11c7e76abbc49b145-json.log
+Apr 05 17:34:40 sonic sudo[479132]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479132]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479135]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8e6645f567f4c8be638e6c5b1f38bba01bab33f936de68ca7006d5013c7d0295/8e6645f567f4c8be638e6c5b1f38bba01bab33f936de68ca7006d5013c7d0295-json.log
+Apr 05 17:34:40 sonic sudo[479135]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479135]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479138]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/15410bf47b75e811864ecf150798efb2f5031ce286cbf3d2b8e12a2a40e8bcec/15410bf47b75e811864ecf150798efb2f5031ce286cbf3d2b8e12a2a40e8bcec-json.log
+Apr 05 17:34:40 sonic sudo[479138]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479138]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479141]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/443ef7b9ab685eeddabf5010f275880e649baebb261be4b73bc97d34313b8705/443ef7b9ab685eeddabf5010f275880e649baebb261be4b73bc97d34313b8705-json.log
+Apr 05 17:34:40 sonic sudo[479141]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479141]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479144]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/ee475b674c5a7e416f8b1337f89def4d7d0ebb0ab01776037ece202cd164b6d1/ee475b674c5a7e416f8b1337f89def4d7d0ebb0ab01776037ece202cd164b6d1-json.log
+Apr 05 17:34:40 sonic sudo[479144]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479144]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479147]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/eb1b1fbc10d555f6c3f0d447e1862c23d98cb13f3f61751502d34b5938a9a438/eb1b1fbc10d555f6c3f0d447e1862c23d98cb13f3f61751502d34b5938a9a438-json.log
+Apr 05 17:34:40 sonic sudo[479147]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479147]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479150]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/efec38d559a326cb4aca3a3867adeef06bee097d9ebcf5a27de1fd743428071a/efec38d559a326cb4aca3a3867adeef06bee097d9ebcf5a27de1fd743428071a-json.log
+Apr 05 17:34:40 sonic sudo[479150]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479150]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479153]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/dddf62b70e4cf1eadd6a2a4386bc44b86aed2f5d45f8edf67d6006ace96ddc51/dddf62b70e4cf1eadd6a2a4386bc44b86aed2f5d45f8edf67d6006ace96ddc51-json.log
+Apr 05 17:34:40 sonic sudo[479153]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479153]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479156]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/813ccf5a69bdfb7f560db0c70ceccb0eefe1c1f5c7f40e9a3af6f2ca396c00f0/813ccf5a69bdfb7f560db0c70ceccb0eefe1c1f5c7f40e9a3af6f2ca396c00f0-json.log
+Apr 05 17:34:40 sonic sudo[479156]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479156]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479159]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a645db8ea5db439751ce53e5398dae1e1917b753c37588ab453b193f5a1fc3ff/a645db8ea5db439751ce53e5398dae1e1917b753c37588ab453b193f5a1fc3ff-json.log
+Apr 05 17:34:40 sonic sudo[479159]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479159]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479162]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/3cc2fa29d4ef664e0039c01feadef3148007432543f93c81ce17cb73d866e992/3cc2fa29d4ef664e0039c01feadef3148007432543f93c81ce17cb73d866e992-json.log
+Apr 05 17:34:40 sonic sudo[479162]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479162]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479165]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/524d1700d30e031ede99e4597e21d1d6912e532f6dbeb887e6b91caaca9bc662/524d1700d30e031ede99e4597e21d1d6912e532f6dbeb887e6b91caaca9bc662-json.log
+Apr 05 17:34:40 sonic sudo[479165]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479165]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479168]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8943b814ee8a8f6cea4c45c66f5538ec67741836bf37af679bf419f8fe8a8e0c/8943b814ee8a8f6cea4c45c66f5538ec67741836bf37af679bf419f8fe8a8e0c-json.log
+Apr 05 17:34:40 sonic sudo[479168]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479168]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479171]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/d72d5aa57f2437629c005f0b0b900a1357c4357304e7a446202015fb2e550f43/d72d5aa57f2437629c005f0b0b900a1357c4357304e7a446202015fb2e550f43-json.log
+Apr 05 17:34:40 sonic sudo[479171]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479171]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479174]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/d08f7dd187d60c0b6d8cb7c2ed6b408390a123033940b930f4c067de96518959/d08f7dd187d60c0b6d8cb7c2ed6b408390a123033940b930f4c067de96518959-json.log
+Apr 05 17:34:40 sonic sudo[479174]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479174]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479177]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/324b6191b47d676379fe36268344abc37766705b0ea4bdb1a03a9c34bedb2459/324b6191b47d676379fe36268344abc37766705b0ea4bdb1a03a9c34bedb2459-json.log
+Apr 05 17:34:40 sonic sudo[479177]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479177]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479180]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/93f68e998d289374ba3238aa62c5a6bc0b07bdb902a808d98deac3d439832f89/93f68e998d289374ba3238aa62c5a6bc0b07bdb902a808d98deac3d439832f89-json.log
+Apr 05 17:34:40 sonic sudo[479180]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479180]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479183]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1b11a77626790eb6736206a4ad4a9e9c606a6f3fb853a7a2d89b3de9ea71a877/1b11a77626790eb6736206a4ad4a9e9c606a6f3fb853a7a2d89b3de9ea71a877-json.log
+Apr 05 17:34:40 sonic sudo[479183]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479183]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479186]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/f7a902088d63dd5b8e0b76d62ffd90306210354ebab9d6e651284d9f4265a56b/f7a902088d63dd5b8e0b76d62ffd90306210354ebab9d6e651284d9f4265a56b-json.log
+Apr 05 17:34:40 sonic sudo[479186]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479186]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479189]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1d946ac8f5feea8268a6f37f8b04a752ab5220481ac9a04e7ed951f82d283fa3/1d946ac8f5feea8268a6f37f8b04a752ab5220481ac9a04e7ed951f82d283fa3-json.log
+Apr 05 17:34:40 sonic sudo[479189]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479189]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479192]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8221502c540c0e6162df2af60825daf32cd1412bbcd2b81d51b77c8ddb0050b0/8221502c540c0e6162df2af60825daf32cd1412bbcd2b81d51b77c8ddb0050b0-json.log
+Apr 05 17:34:40 sonic sudo[479192]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479192]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479195]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/244dd99e029de57a33297bf591807f24b5e47a76435d1306b59ca010a047d6fe/244dd99e029de57a33297bf591807f24b5e47a76435d1306b59ca010a047d6fe-json.log
+Apr 05 17:34:40 sonic sudo[479195]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479195]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479198]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/c6d5940f540f2fb13ef2fcdde664bf7005a5e482efdcb34496006d91888e5bc4/c6d5940f540f2fb13ef2fcdde664bf7005a5e482efdcb34496006d91888e5bc4-json.log
+Apr 05 17:34:40 sonic sudo[479198]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479198]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479201]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/eb20810550bd4bd884ba5411906a62e392d9cd0178bd70c126b259d2f7e1ba7d/eb20810550bd4bd884ba5411906a62e392d9cd0178bd70c126b259d2f7e1ba7d-json.log
+Apr 05 17:34:40 sonic sudo[479201]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479201]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479204]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/4b2aa071c3a98040ace4cc565b235af8e25aa2778abd327bdae52caec5434a78/4b2aa071c3a98040ace4cc565b235af8e25aa2778abd327bdae52caec5434a78-json.log
+Apr 05 17:34:40 sonic sudo[479204]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479204]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479207]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/d16e41d5e60b18cbdfe4d2ce46e46b4555ad1723e3fab29db91770eec4cbaffd/d16e41d5e60b18cbdfe4d2ce46e46b4555ad1723e3fab29db91770eec4cbaffd-json.log
+Apr 05 17:34:40 sonic sudo[479207]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479207]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479210]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8e67c8e2349a0fcb10290adf0079ceb52f42c81eec3ae60f63f80e49e712c3f5/8e67c8e2349a0fcb10290adf0079ceb52f42c81eec3ae60f63f80e49e712c3f5-json.log
+Apr 05 17:34:40 sonic sudo[479210]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479210]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479213]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/023b9a5adbeccf75313ce78634d6d81305331174c4a578fa9c65a8edfaa58310/023b9a5adbeccf75313ce78634d6d81305331174c4a578fa9c65a8edfaa58310-json.log
+Apr 05 17:34:40 sonic sudo[479213]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479213]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479216]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1403f7c67a72627f8b459a402421a67c3a1d764e259abe192a57ef8535175645/1403f7c67a72627f8b459a402421a67c3a1d764e259abe192a57ef8535175645-json.log
+Apr 05 17:34:40 sonic sudo[479216]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479216]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479219]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/81d670a62ab5a53fd1671f91e49af69d7264099b9b8b43da29c445b3253d98b8/81d670a62ab5a53fd1671f91e49af69d7264099b9b8b43da29c445b3253d98b8-json.log
+Apr 05 17:34:40 sonic sudo[479219]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479219]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479222]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/d65f45119c2520b3f05ab7bfd73f1ade43085afea24e3460b137ee715bdd99c8/d65f45119c2520b3f05ab7bfd73f1ade43085afea24e3460b137ee715bdd99c8-json.log
+Apr 05 17:34:40 sonic sudo[479222]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479222]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479229]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/cc151bf9d8ee2590ba47ab43372cdc5ad8443e7d2b70d7a8c5fbc7227270ca01/cc151bf9d8ee2590ba47ab43372cdc5ad8443e7d2b70d7a8c5fbc7227270ca01-json.log
+Apr 05 17:34:40 sonic sudo[479229]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479229]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479236]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/43b0da4eb2457e9322e36d46240360b2cb500534dd0d573efe74ad9bf26497cf/43b0da4eb2457e9322e36d46240360b2cb500534dd0d573efe74ad9bf26497cf-json.log
+Apr 05 17:34:40 sonic sudo[479236]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479236]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479243]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a78bd01b61f830b3de416f85ccfe11fa30a8cd984958de5dbab3ac2c8ad50ba2/a78bd01b61f830b3de416f85ccfe11fa30a8cd984958de5dbab3ac2c8ad50ba2-json.log
+Apr 05 17:34:40 sonic sudo[479243]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479243]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479251]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/aa89204d34416fccf532c48662d345a023768019cad4957aa4357817483e8a92/aa89204d34416fccf532c48662d345a023768019cad4957aa4357817483e8a92-json.log
+Apr 05 17:34:40 sonic sudo[479251]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479251]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479258]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/f3f96b1539a19edacc90c67f2b39ce29bc7ea35150dd93d53cdb697b5ffc478d/f3f96b1539a19edacc90c67f2b39ce29bc7ea35150dd93d53cdb697b5ffc478d-json.log
+Apr 05 17:34:40 sonic sudo[479258]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479258]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:40 sonic sudo[479265]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/bbbdabf6c73ffd6586c3ee7b799c95fedef6ed9ffa453c9604c418f11da6cd06/bbbdabf6c73ffd6586c3ee7b799c95fedef6ed9ffa453c9604c418f11da6cd06-json.log
+Apr 05 17:34:40 sonic sudo[479265]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:40 sonic sudo[479265]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479273]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2e74d1908f124912c8166e76b5d4262337f2535597554f63309b45659e193dcf/2e74d1908f124912c8166e76b5d4262337f2535597554f63309b45659e193dcf-json.log
+Apr 05 17:34:41 sonic sudo[479273]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479273]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479280]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/4a77d81ada77e22f243e3226a5069c57eb0adcbce7692cb492ac943d6bb3787a/4a77d81ada77e22f243e3226a5069c57eb0adcbce7692cb492ac943d6bb3787a-json.log
+Apr 05 17:34:41 sonic sudo[479280]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479280]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479287]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/afba186656abdd06a3f3d8e88347d1adf7987896bddfd4781c2d6b6d1fc04986/afba186656abdd06a3f3d8e88347d1adf7987896bddfd4781c2d6b6d1fc04986-json.log
+Apr 05 17:34:41 sonic sudo[479287]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479287]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479294]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/10a6f16c639726aed8c27a2933b8459fd46dd6eb6fa968a026bd6e7a13cd0646/10a6f16c639726aed8c27a2933b8459fd46dd6eb6fa968a026bd6e7a13cd0646-json.log
+Apr 05 17:34:41 sonic sudo[479294]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479294]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479301]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/59776340c427a29972ae3019493a1fcc9f66cee78f52d72d551314f62cf1fc4b/59776340c427a29972ae3019493a1fcc9f66cee78f52d72d551314f62cf1fc4b-json.log
+Apr 05 17:34:41 sonic sudo[479301]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479301]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479308]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/c9e7470e0ec719384c3212399547c31cae8a05521336207536b03cd61d4d5913/c9e7470e0ec719384c3212399547c31cae8a05521336207536b03cd61d4d5913-json.log
+Apr 05 17:34:41 sonic sudo[479308]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479308]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479315]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/16887ad279efe7873e25f0b5aeb8a2bb69ca2e01371c8c070e775305a5b0c9eb/16887ad279efe7873e25f0b5aeb8a2bb69ca2e01371c8c070e775305a5b0c9eb-json.log
+Apr 05 17:34:41 sonic sudo[479315]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479315]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479320]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/4d5d77274151e152b06e077e183194367df1b481bd2c519bc39f2f2686c90823/4d5d77274151e152b06e077e183194367df1b481bd2c519bc39f2f2686c90823-json.log
+Apr 05 17:34:41 sonic sudo[479320]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479320]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479323]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2e1c0ec2fa9fa799ac3d8c8ac85de5f0abb1a585dd2ec763d832fd6fedfa6792/2e1c0ec2fa9fa799ac3d8c8ac85de5f0abb1a585dd2ec763d832fd6fedfa6792-json.log
+Apr 05 17:34:41 sonic sudo[479323]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479323]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479326]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/e36679beafe7e94a50b6d940d0ea15a85fadc25ef2e36c411143477bd9e2964d/e36679beafe7e94a50b6d940d0ea15a85fadc25ef2e36c411143477bd9e2964d-json.log
+Apr 05 17:34:41 sonic sudo[479326]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479326]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479329]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/deaf5a6e763b41d757cfd693ace926d231a6b9079a997a1abb37bcfced835aab/deaf5a6e763b41d757cfd693ace926d231a6b9079a997a1abb37bcfced835aab-json.log
+Apr 05 17:34:41 sonic sudo[479329]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479329]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479332]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a7979f5f1cb4905d7e326385a9d64858d5b6f5d9681c19910e49983f991e3bac/a7979f5f1cb4905d7e326385a9d64858d5b6f5d9681c19910e49983f991e3bac-json.log
+Apr 05 17:34:41 sonic sudo[479332]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479332]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479335]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/13fd613c4a6123ba07fbd296e3fe459cb0ef31512827564510e0d48d4d9bea8c/13fd613c4a6123ba07fbd296e3fe459cb0ef31512827564510e0d48d4d9bea8c-json.log
+Apr 05 17:34:41 sonic sudo[479335]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479335]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479338]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/efa8ead1caa9d5443f3b85c909c9f4a4ef43500e03666e1b6a73d2863e98de91/efa8ead1caa9d5443f3b85c909c9f4a4ef43500e03666e1b6a73d2863e98de91-json.log
+Apr 05 17:34:41 sonic sudo[479338]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479338]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479341]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/63fdf17ffab47d753b7b8447ef591079c24c0e9d62b848af516e7f7b0e303504/63fdf17ffab47d753b7b8447ef591079c24c0e9d62b848af516e7f7b0e303504-json.log
+Apr 05 17:34:41 sonic sudo[479341]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479341]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479344]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8c721b95793f2b815aee49efb4cf245a04df73444c95380d8c54423adad032dc/8c721b95793f2b815aee49efb4cf245a04df73444c95380d8c54423adad032dc-json.log
+Apr 05 17:34:41 sonic sudo[479344]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479344]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479347]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/c62b6078d24be6adbe6f5014a61f05490a115aaf32aefaa891dbfe80e5d28b06/c62b6078d24be6adbe6f5014a61f05490a115aaf32aefaa891dbfe80e5d28b06-json.log
+Apr 05 17:34:41 sonic sudo[479347]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479347]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479350]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8e7bcc27b30ef4ac861337b130c1fb4794d7632058311f8177080c7af7178fb0/8e7bcc27b30ef4ac861337b130c1fb4794d7632058311f8177080c7af7178fb0-json.log
+Apr 05 17:34:41 sonic sudo[479350]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479350]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479353]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/faf04aeb457a40fc055a41d947f57444a63932c67fd26099f15ec551907d6994/faf04aeb457a40fc055a41d947f57444a63932c67fd26099f15ec551907d6994-json.log
+Apr 05 17:34:41 sonic sudo[479353]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479353]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479357]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/cb415bf43312257f7b4311dc44ae6d481763616e54355fdc401b155a6105618e/cb415bf43312257f7b4311dc44ae6d481763616e54355fdc401b155a6105618e-json.log
+Apr 05 17:34:41 sonic sudo[479357]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479357]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479360]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/e2c6658a5d09a51087a498b04da918c1bbeb4292855d3d743ea50ffbaf16fb38/e2c6658a5d09a51087a498b04da918c1bbeb4292855d3d743ea50ffbaf16fb38-json.log
+Apr 05 17:34:41 sonic sudo[479360]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479360]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479363]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/edfd9ff5c04cf95bfb6c171a8367f4972fbe36162664fbb45cbf1453ce48ad97/edfd9ff5c04cf95bfb6c171a8367f4972fbe36162664fbb45cbf1453ce48ad97-json.log
+Apr 05 17:34:41 sonic sudo[479363]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479363]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479366]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/27a311c7a36279047c88058233d194e2cc8f6cdc5936f8c62ca98ccea672ceca/27a311c7a36279047c88058233d194e2cc8f6cdc5936f8c62ca98ccea672ceca-json.log
+Apr 05 17:34:41 sonic sudo[479366]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479366]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479369]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/48946b75e8dfc2012a7324838840d68eee3a05a8f6f35d2f3d8582f73f68ded1/48946b75e8dfc2012a7324838840d68eee3a05a8f6f35d2f3d8582f73f68ded1-json.log
+Apr 05 17:34:41 sonic sudo[479369]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479369]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479372]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/dec54214d9a6c3985bf72ea297704ae7b11d0da2a63c4f8d16407f8a51806a67/dec54214d9a6c3985bf72ea297704ae7b11d0da2a63c4f8d16407f8a51806a67-json.log
+Apr 05 17:34:41 sonic sudo[479372]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479372]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479375]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/21cef63e9f5b1a86dc119ec3964033b74637d8bc04e14d8827b37a914a6e8118/21cef63e9f5b1a86dc119ec3964033b74637d8bc04e14d8827b37a914a6e8118-json.log
+Apr 05 17:34:41 sonic sudo[479375]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479375]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479378]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/de9e9fc796fa4f509d782624308adf6beea7b27bfdd6ca686fd88d6dbeb99375/de9e9fc796fa4f509d782624308adf6beea7b27bfdd6ca686fd88d6dbeb99375-json.log
+Apr 05 17:34:41 sonic sudo[479378]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479378]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479381]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/60e6a5e32bf3f216101a7740a2c81947a9645031a3201cd0962288f71d785c3d/60e6a5e32bf3f216101a7740a2c81947a9645031a3201cd0962288f71d785c3d-json.log
+Apr 05 17:34:41 sonic sudo[479381]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479381]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479384]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2572596cd5dd48ae0acb0b6a165ed7728279268aaa243a5061fbbd30a78f99af/2572596cd5dd48ae0acb0b6a165ed7728279268aaa243a5061fbbd30a78f99af-json.log
+Apr 05 17:34:41 sonic sudo[479384]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479384]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479387]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/654994fbf19071e3ca9456c69a49fc89f0515a98471f8e56593e73ef7c76d64b/654994fbf19071e3ca9456c69a49fc89f0515a98471f8e56593e73ef7c76d64b-json.log
+Apr 05 17:34:41 sonic sudo[479387]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479387]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479390]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/599645b1afbacab59f2e428325ba9e9551876b41c46af135ad98167ca9b1bc90/599645b1afbacab59f2e428325ba9e9551876b41c46af135ad98167ca9b1bc90-json.log
+Apr 05 17:34:41 sonic sudo[479390]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479390]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479393]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/24ec621fb2d07bc48ad76eb1dde16fe76645f65faef96df0ce05aa9a5864430e/24ec621fb2d07bc48ad76eb1dde16fe76645f65faef96df0ce05aa9a5864430e-json.log
+Apr 05 17:34:41 sonic sudo[479393]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479393]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479396]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/3ba95db957dbeef116a2b1910ad9ac0c1bafe8a80dfd5a5776d1787728f9ad06/3ba95db957dbeef116a2b1910ad9ac0c1bafe8a80dfd5a5776d1787728f9ad06-json.log
+Apr 05 17:34:41 sonic sudo[479396]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479396]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479399]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/3765eb73e2524fdc722f49d14b68507e78440826d01971b8486b90261a410c54/3765eb73e2524fdc722f49d14b68507e78440826d01971b8486b90261a410c54-json.log
+Apr 05 17:34:41 sonic sudo[479399]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479399]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479402]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/d2dc8fcdfea41bcb51ee121dfad6288c9f63a2a1fc02fd6e6aaed044a2f5c157/d2dc8fcdfea41bcb51ee121dfad6288c9f63a2a1fc02fd6e6aaed044a2f5c157-json.log
+Apr 05 17:34:41 sonic sudo[479402]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479402]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479405]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/46b09b7743f409c85cbac80e8f0b4b962996cdb860322f6ad739114b7377d6cd/46b09b7743f409c85cbac80e8f0b4b962996cdb860322f6ad739114b7377d6cd-json.log
+Apr 05 17:34:41 sonic sudo[479405]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479405]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479408]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/9123761127d1b52bf957d19d81bb0e173529dacca3b5baf94560bc6266dee90b/9123761127d1b52bf957d19d81bb0e173529dacca3b5baf94560bc6266dee90b-json.log
+Apr 05 17:34:41 sonic sudo[479408]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479408]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479411]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2a3be4642ff61e0d84f00535b5876ca909e715c52fec10b4c943ad38d82a8607/2a3be4642ff61e0d84f00535b5876ca909e715c52fec10b4c943ad38d82a8607-json.log
+Apr 05 17:34:41 sonic sudo[479411]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479411]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479414]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/0a99e6c9782a6e6ca8b37b0452e76e755b315ed92b5466e0cbfede6f3d60635a/0a99e6c9782a6e6ca8b37b0452e76e755b315ed92b5466e0cbfede6f3d60635a-json.log
+Apr 05 17:34:41 sonic sudo[479414]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479414]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479417]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/d17655b9857f9bf40126f2b22fce89c164e53d9483306f5ffe195680e8f50844/d17655b9857f9bf40126f2b22fce89c164e53d9483306f5ffe195680e8f50844-json.log
+Apr 05 17:34:41 sonic sudo[479417]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479417]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479420]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8355291fcf2b64a53f28fc481e39a3e394d306312d0eb5a7906aba6a804a47ee/8355291fcf2b64a53f28fc481e39a3e394d306312d0eb5a7906aba6a804a47ee-json.log
+Apr 05 17:34:41 sonic sudo[479420]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479420]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479423]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/848276a0a0d40c5d4c026bf45bf8429636ba9892b0d99f63f5f12d80a7fc0d5d/848276a0a0d40c5d4c026bf45bf8429636ba9892b0d99f63f5f12d80a7fc0d5d-json.log
+Apr 05 17:34:41 sonic sudo[479423]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479423]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479426]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/9664af17af06e862becf8177979f9a310b17fa27b3fb2130f2956670139c2b36/9664af17af06e862becf8177979f9a310b17fa27b3fb2130f2956670139c2b36-json.log
+Apr 05 17:34:41 sonic sudo[479426]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479426]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479429]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8914bf0c9c16e5cd79ce1404e4b516f8fa7c9a12b228ffa8f2bb472a0d1d2e44/8914bf0c9c16e5cd79ce1404e4b516f8fa7c9a12b228ffa8f2bb472a0d1d2e44-json.log
+Apr 05 17:34:41 sonic sudo[479429]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479429]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479432]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/cc88513732f1a848e115bd9e564f2ce77ce517cb96d7d3e195dfc38f6451d4da/cc88513732f1a848e115bd9e564f2ce77ce517cb96d7d3e195dfc38f6451d4da-json.log
+Apr 05 17:34:41 sonic sudo[479432]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479432]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479435]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/c421c147a29ff3a45865e0fd5329843042ee50e28763c5b8bd9d82c88b181061/c421c147a29ff3a45865e0fd5329843042ee50e28763c5b8bd9d82c88b181061-json.log
+Apr 05 17:34:41 sonic sudo[479435]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479435]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479438]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8ca728f559c2895808254560a211b81c4c98803dbd0acfcee91b5d3738920068/8ca728f559c2895808254560a211b81c4c98803dbd0acfcee91b5d3738920068-json.log
+Apr 05 17:34:41 sonic sudo[479438]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479438]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479441]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/40cf1b63a45c618b9258a5eebd5cb7b942e0969fa45c8fd8672cbe962837e75a/40cf1b63a45c618b9258a5eebd5cb7b942e0969fa45c8fd8672cbe962837e75a-json.log
+Apr 05 17:34:41 sonic sudo[479441]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479441]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479444]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/240f19b656c930a3993701ff39a10c342db319fab64e465e5e959f6c86d93f85/240f19b656c930a3993701ff39a10c342db319fab64e465e5e959f6c86d93f85-json.log
+Apr 05 17:34:41 sonic sudo[479444]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479444]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479447]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a0d1fe0c0d051f09c755a145930e85745f651ce1ae9a80de3bc3b818a2ced5ff/a0d1fe0c0d051f09c755a145930e85745f651ce1ae9a80de3bc3b818a2ced5ff-json.log
+Apr 05 17:34:41 sonic sudo[479447]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479447]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479450]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/a667d5a42599afe067888e35b1fde197b02cf7a0931bcfb26aa37cb0fd1c9c3c/a667d5a42599afe067888e35b1fde197b02cf7a0931bcfb26aa37cb0fd1c9c3c-json.log
+Apr 05 17:34:41 sonic sudo[479450]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479450]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479453]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2a50291ac196a02668bdbab6d672b607761cd09b25ebf3f820144e6495793dc0/2a50291ac196a02668bdbab6d672b607761cd09b25ebf3f820144e6495793dc0-json.log
+Apr 05 17:34:41 sonic sudo[479453]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479453]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479456]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/0865a0c18757b809dd83a1fbd5a1a5501b982971839e64f8934eb474641c9ade/0865a0c18757b809dd83a1fbd5a1a5501b982971839e64f8934eb474641c9ade-json.log
+Apr 05 17:34:41 sonic sudo[479456]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479456]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479459]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/9c9cf94aad89830477da385226b82261cf12eb3dab36233d9f99dc3548b911cb/9c9cf94aad89830477da385226b82261cf12eb3dab36233d9f99dc3548b911cb-json.log
+Apr 05 17:34:41 sonic sudo[479459]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479459]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479462]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8efce44eabd38c67fbf25cdd8b61831d5305413e4b6f502caa792a93031f63f7/8efce44eabd38c67fbf25cdd8b61831d5305413e4b6f502caa792a93031f63f7-json.log
+Apr 05 17:34:41 sonic sudo[479462]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479462]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479465]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/dfb67d0d4a08c922c11f3e9cbd66015851d10c1eac2fbea98616ab38fb960bbb/dfb67d0d4a08c922c11f3e9cbd66015851d10c1eac2fbea98616ab38fb960bbb-json.log
+Apr 05 17:34:41 sonic sudo[479465]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479465]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479468]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2b9d2be125f1871b9fa234aeec78e49dd5880c61033a87a35d5d316e19a794c3/2b9d2be125f1871b9fa234aeec78e49dd5880c61033a87a35d5d316e19a794c3-json.log
+Apr 05 17:34:41 sonic sudo[479468]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479468]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479471]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/cbcd65b2cc5c55218e75c2a9904dd854db84dadc14ef6fb2b7437c1ee041951e/cbcd65b2cc5c55218e75c2a9904dd854db84dadc14ef6fb2b7437c1ee041951e-json.log
+Apr 05 17:34:41 sonic sudo[479471]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:41 sonic sudo[479471]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:41 sonic sudo[479474]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/fab5d424dc34ecbe5b81a2d3a5633c505cbe7fa04e623e249d3a62ce1dbf0ce9/fab5d424dc34ecbe5b81a2d3a5633c505cbe7fa04e623e249d3a62ce1dbf0ce9-json.log
+Apr 05 17:34:41 sonic sudo[479474]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:42 sonic sudo[479474]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:42 sonic sudo[479477]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/34f8710e7cfa400f068a7458b613bb71dd9d7d5e9b5a79f849445c1a837f2649/34f8710e7cfa400f068a7458b613bb71dd9d7d5e9b5a79f849445c1a837f2649-json.log
+Apr 05 17:34:42 sonic sudo[479477]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Apr 05 17:34:42 sonic sudo[479477]: pam_unix(sudo:session): session closed for user root
+Apr 05 17:34:42 sonic sshd-session[478899]: Received disconnect from 10.36.79.161 port 57848:11: disconnected by user
+Apr 05 17:34:42 sonic sshd-session[478899]: Disconnected from user admin 10.36.79.161 port 57848
+Apr 05 17:34:42 sonic sshd-session[478891]: pam_unix(sshd:session): session closed for user admin
+Apr 05 17:34:42 sonic systemd[1]: session-48.scope: Deactivated successfully.
+Apr 05 17:34:42 sonic systemd[1]: session-48.scope: Consumed 2.699s CPU time, 8.1M memory peak.
+Apr 05 17:34:42 sonic systemd-logind[2144]: Session 48 logged out. Waiting for processes to exit.
+Apr 05 17:34:42 sonic systemd-logind[2144]: Removed session 48.
+Apr 05 17:34:59 sonic sshd-session[480398]: Connection from 10.36.79.161 port 40920 on 10.36.78.150 port 22 rdomain ""
+Apr 05 17:34:59 sonic sshd-session[480398]: Accepted password for admin from 10.36.79.161 port 40920 ssh2
+Apr 05 17:34:59 sonic sshd-session[480398]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+Apr 05 17:34:59 sonic systemd-logind[2144]: New session 49 of user admin.
+Apr 05 17:34:59 sonic systemd[1]: Started session-49.scope - Session 49 of User admin.
+Apr 05 17:34:59 sonic sshd-session[480398]: User child is on pid 480455
+Apr 05 17:34:59 sonic sshd-session[480455]: Starting session: command for admin from 10.36.79.161 port 40920 id 0
+Apr 05 17:34:59 sonic sudo[480456]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/logger -t nss_load 'NSS_LOAD_END dpu1'

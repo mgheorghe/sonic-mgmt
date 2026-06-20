@@ -1,0 +1,693 @@
+Debian GNU/Linux 13 \n \l
+
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-21 16:46:11,403 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-21 16:46:11,403 INFO Set uid to user 0 succeeded
+2026-04-21 16:46:11,426 INFO RPC interface 'supervisor' initialized
+2026-04-21 16:46:11,426 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-21 16:46:11,426 INFO supervisord started with pid 22742
+2026-04-21 16:46:11,428 INFO spawned: 'dependent-startup' with pid 23013
+2026-04-21 16:46:11,430 INFO spawned: 'supervisor-proc-exit-listener' with pid 23014
+2026-04-21 16:46:11,447 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-21 16:46:12,641 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 16:46:12,645 INFO spawned: 'supervisor-proc-exit-listener' with pid 23280
+2026-04-21 16:46:12,655 INFO spawned: 'rsyslogd' with pid 23283
+2026-04-21 16:46:12,661 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-21 16:46:13,699 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 16:46:14,704 INFO spawned: 'supervisor-proc-exit-listener' with pid 23785
+2026-04-21 16:46:14,722 INFO spawned: 'start' with pid 23788
+2026-04-21 16:46:14,723 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-21 16:46:14,865 INFO exited: start (exit status 0; expected)
+2026-04-21 16:46:15,866 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 16:46:15,882 INFO spawned: 'gnmi-native' with pid 23843
+2026-04-21 16:46:16,882 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 16:46:17,032 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-21 18:17:13,083 WARN received SIGTERM indicating exit request
+2026-04-21 18:17:13,084 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-21 18:17:13,092 INFO stopped: gnmi-native (exit status 0)
+2026-04-21 18:17:14,113 INFO stopped: rsyslogd (exit status 0)
+2026-04-21 18:17:14,115 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-21 18:22:00,395 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-21 18:22:00,395 INFO Set uid to user 0 succeeded
+2026-04-21 18:22:00,399 INFO RPC interface 'supervisor' initialized
+2026-04-21 18:22:00,399 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-21 18:22:00,400 INFO supervisord started with pid 14377
+2026-04-21 18:22:00,401 INFO spawned: 'dependent-startup' with pid 14497
+2026-04-21 18:22:00,403 INFO spawned: 'supervisor-proc-exit-listener' with pid 14502
+2026-04-21 18:22:00,421 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-21 18:22:01,603 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 18:22:01,606 INFO spawned: 'supervisor-proc-exit-listener' with pid 14757
+2026-04-21 18:22:01,617 INFO spawned: 'rsyslogd' with pid 14758
+2026-04-21 18:22:01,625 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-21 18:22:02,668 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 18:22:03,672 INFO spawned: 'supervisor-proc-exit-listener' with pid 15289
+2026-04-21 18:22:03,688 INFO spawned: 'start' with pid 15293
+2026-04-21 18:22:03,689 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-21 18:22:03,801 INFO exited: start (exit status 0; expected)
+2026-04-21 18:22:04,802 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 18:22:04,824 INFO spawned: 'gnmi-native' with pid 15418
+2026-04-21 18:22:06,792 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-21 18:22:07,852 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-28 20:07:07,914 WARN received SIGTERM indicating exit request
+2026-04-28 20:07:07,914 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-28 20:07:07,922 INFO stopped: gnmi-native (exit status 0)
+2026-04-28 20:07:08,926 INFO stopped: rsyslogd (exit status 0)
+2026-04-28 20:07:08,928 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-28 20:11:34,433 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-28 20:11:34,433 INFO Set uid to user 0 succeeded
+2026-04-28 20:11:34,438 INFO RPC interface 'supervisor' initialized
+2026-04-28 20:11:34,438 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-28 20:11:34,438 INFO supervisord started with pid 18614
+2026-04-28 20:11:34,440 INFO spawned: 'dependent-startup' with pid 18778
+2026-04-28 20:11:34,442 INFO spawned: 'supervisor-proc-exit-listener' with pid 18782
+2026-04-28 20:11:34,457 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-28 20:11:35,642 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:11:35,645 INFO spawned: 'supervisor-proc-exit-listener' with pid 19030
+2026-04-28 20:11:35,656 INFO spawned: 'rsyslogd' with pid 19031
+2026-04-28 20:11:35,662 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-28 20:11:36,714 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:11:37,717 INFO spawned: 'supervisor-proc-exit-listener' with pid 19474
+2026-04-28 20:11:37,730 INFO spawned: 'start' with pid 19475
+2026-04-28 20:11:37,731 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-28 20:11:37,840 INFO exited: start (exit status 0; expected)
+2026-04-28 20:11:38,841 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:11:38,854 INFO spawned: 'gnmi-native' with pid 19798
+2026-04-28 20:11:39,856 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:11:39,922 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-28 20:54:45,035 WARN received SIGTERM indicating exit request
+2026-04-28 20:54:45,036 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-28 20:54:45,045 INFO stopped: gnmi-native (exit status 0)
+2026-04-28 20:54:46,064 INFO stopped: rsyslogd (exit status 0)
+2026-04-28 20:54:46,065 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-28 20:59:45,624 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-28 20:59:45,624 INFO Set uid to user 0 succeeded
+2026-04-28 20:59:45,629 INFO RPC interface 'supervisor' initialized
+2026-04-28 20:59:45,629 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-28 20:59:45,629 INFO supervisord started with pid 18952
+2026-04-28 20:59:45,631 INFO spawned: 'dependent-startup' with pid 19037
+2026-04-28 20:59:45,633 INFO spawned: 'supervisor-proc-exit-listener' with pid 19038
+2026-04-28 20:59:45,649 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-28 20:59:46,833 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:59:46,835 INFO spawned: 'supervisor-proc-exit-listener' with pid 19263
+2026-04-28 20:59:46,845 INFO spawned: 'rsyslogd' with pid 19265
+2026-04-28 20:59:46,852 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-28 20:59:47,883 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:59:48,887 INFO spawned: 'supervisor-proc-exit-listener' with pid 19790
+2026-04-28 20:59:48,897 INFO spawned: 'start' with pid 19794
+2026-04-28 20:59:48,897 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-28 20:59:48,998 INFO exited: start (exit status 0; expected)
+2026-04-28 20:59:49,999 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:59:50,016 INFO spawned: 'gnmi-native' with pid 20082
+2026-04-28 20:59:51,990 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-28 20:59:53,054 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-29 00:06:30,973 WARN received SIGTERM indicating exit request
+2026-04-29 00:06:30,973 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-29 00:06:30,988 INFO stopped: gnmi-native (exit status 0)
+2026-04-29 00:06:31,992 INFO stopped: rsyslogd (exit status 0)
+2026-04-29 00:06:31,994 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-29 00:11:11,296 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-29 00:11:11,296 INFO Set uid to user 0 succeeded
+2026-04-29 00:11:11,300 INFO RPC interface 'supervisor' initialized
+2026-04-29 00:11:11,300 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-29 00:11:11,301 INFO supervisord started with pid 18655
+2026-04-29 00:11:11,302 INFO spawned: 'dependent-startup' with pid 18815
+2026-04-29 00:11:11,304 INFO spawned: 'supervisor-proc-exit-listener' with pid 18816
+2026-04-29 00:11:11,323 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 00:11:12,545 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 00:11:12,548 INFO spawned: 'supervisor-proc-exit-listener' with pid 18992
+2026-04-29 00:11:12,559 INFO spawned: 'rsyslogd' with pid 18995
+2026-04-29 00:11:12,566 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 00:11:13,609 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 00:11:14,613 INFO spawned: 'supervisor-proc-exit-listener' with pid 19488
+2026-04-29 00:11:14,627 INFO spawned: 'start' with pid 19489
+2026-04-29 00:11:14,627 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-29 00:11:14,733 INFO exited: start (exit status 0; expected)
+2026-04-29 00:11:15,735 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 00:11:15,748 INFO spawned: 'gnmi-native' with pid 19772
+2026-04-29 00:11:16,771 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 00:11:16,829 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-29 15:37:55,510 WARN received SIGTERM indicating exit request
+2026-04-29 15:37:55,510 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-29 15:37:55,520 INFO stopped: gnmi-native (exit status 0)
+2026-04-29 15:37:56,524 INFO stopped: rsyslogd (exit status 0)
+2026-04-29 15:37:56,527 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-29 15:42:43,687 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-29 15:42:43,687 INFO Set uid to user 0 succeeded
+2026-04-29 15:42:43,691 INFO RPC interface 'supervisor' initialized
+2026-04-29 15:42:43,691 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-29 15:42:43,691 INFO supervisord started with pid 18916
+2026-04-29 15:42:43,692 INFO spawned: 'dependent-startup' with pid 18992
+2026-04-29 15:42:43,694 INFO spawned: 'supervisor-proc-exit-listener' with pid 18993
+2026-04-29 15:42:43,713 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 15:42:44,902 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 15:42:44,905 INFO spawned: 'supervisor-proc-exit-listener' with pid 19255
+2026-04-29 15:42:44,917 INFO spawned: 'rsyslogd' with pid 19263
+2026-04-29 15:42:44,923 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 15:42:45,974 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 15:42:46,978 INFO spawned: 'supervisor-proc-exit-listener' with pid 19814
+2026-04-29 15:42:46,994 INFO spawned: 'start' with pid 19816
+2026-04-29 15:42:46,995 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-29 15:42:47,094 INFO exited: start (exit status 0; expected)
+2026-04-29 15:42:48,095 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 15:42:48,114 INFO spawned: 'gnmi-native' with pid 20181
+2026-04-29 15:42:49,154 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 15:42:49,220 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-29 18:03:48,241 WARN received SIGTERM indicating exit request
+2026-04-29 18:03:48,242 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-29 18:03:48,247 INFO stopped: gnmi-native (exit status 0)
+2026-04-29 18:03:49,266 INFO stopped: rsyslogd (exit status 0)
+2026-04-29 18:03:49,268 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-29 18:04:48,767 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-29 18:04:48,767 INFO Set uid to user 0 succeeded
+2026-04-29 18:04:48,770 INFO RPC interface 'supervisor' initialized
+2026-04-29 18:04:48,770 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-29 18:04:48,770 INFO supervisord started with pid 612380
+2026-04-29 18:04:48,772 INFO spawned: 'dependent-startup' with pid 612467
+2026-04-29 18:04:48,774 INFO spawned: 'supervisor-proc-exit-listener' with pid 612472
+2026-04-29 18:04:48,792 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 18:04:49,991 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:04:49,994 INFO spawned: 'supervisor-proc-exit-listener' with pid 612764
+2026-04-29 18:04:50,005 INFO spawned: 'rsyslogd' with pid 612786
+2026-04-29 18:04:50,012 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 18:04:51,059 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:04:52,063 INFO spawned: 'supervisor-proc-exit-listener' with pid 613216
+2026-04-29 18:04:52,082 INFO spawned: 'start' with pid 613225
+2026-04-29 18:04:52,082 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-29 18:04:52,180 INFO exited: start (exit status 0; expected)
+2026-04-29 18:04:53,181 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:04:53,198 INFO spawned: 'gnmi-native' with pid 613583
+2026-04-29 18:04:55,140 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:04:56,210 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-29 18:09:59,381 WARN received SIGTERM indicating exit request
+2026-04-29 18:09:59,381 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-29 18:10:00,389 INFO stopped: gnmi-native (exit status 0)
+2026-04-29 18:10:00,777 INFO stopped: rsyslogd (exit status 0)
+2026-04-29 18:10:00,779 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-29 18:14:47,356 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-29 18:14:47,356 INFO Set uid to user 0 succeeded
+2026-04-29 18:14:47,361 INFO RPC interface 'supervisor' initialized
+2026-04-29 18:14:47,361 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-29 18:14:47,361 INFO supervisord started with pid 19245
+2026-04-29 18:14:47,362 INFO spawned: 'dependent-startup' with pid 19393
+2026-04-29 18:14:47,364 INFO spawned: 'supervisor-proc-exit-listener' with pid 19394
+2026-04-29 18:14:47,380 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 18:14:48,590 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:14:48,593 INFO spawned: 'supervisor-proc-exit-listener' with pid 19719
+2026-04-29 18:14:48,604 INFO spawned: 'rsyslogd' with pid 19726
+2026-04-29 18:14:48,612 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 18:14:49,662 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:14:50,667 INFO spawned: 'supervisor-proc-exit-listener' with pid 20209
+2026-04-29 18:14:50,686 INFO spawned: 'start' with pid 20215
+2026-04-29 18:14:50,687 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-29 18:14:50,776 INFO exited: start (exit status 0; expected)
+2026-04-29 18:14:51,778 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:14:51,794 INFO spawned: 'gnmi-native' with pid 20589
+2026-04-29 18:14:53,754 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 18:14:54,817 INFO exited: dependent-startup (exit status 0; expected)
+2026-04-29 20:36:09,931 WARN received SIGTERM indicating exit request
+2026-04-29 20:36:09,931 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-04-29 20:36:09,941 INFO stopped: gnmi-native (exit status 0)
+2026-04-29 20:36:10,945 INFO stopped: rsyslogd (exit status 0)
+2026-04-29 20:36:10,947 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-04-29 20:37:10,905 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-04-29 20:37:10,905 INFO Set uid to user 0 succeeded
+2026-04-29 20:37:10,908 INFO RPC interface 'supervisor' initialized
+2026-04-29 20:37:10,908 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-04-29 20:37:10,908 INFO supervisord started with pid 651143
+2026-04-29 20:37:10,910 INFO spawned: 'dependent-startup' with pid 651216
+2026-04-29 20:37:10,912 INFO spawned: 'supervisor-proc-exit-listener' with pid 651217
+2026-04-29 20:37:10,931 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 20:37:12,133 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 20:37:12,135 INFO spawned: 'supervisor-proc-exit-listener' with pid 651624
+2026-04-29 20:37:12,147 INFO spawned: 'rsyslogd' with pid 651625
+2026-04-29 20:37:12,148 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-04-29 20:37:13,193 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 20:37:14,197 INFO spawned: 'supervisor-proc-exit-listener' with pid 652020
+2026-04-29 20:37:14,213 INFO spawned: 'start' with pid 652021
+2026-04-29 20:37:14,214 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-04-29 20:37:14,322 INFO exited: start (exit status 0; expected)
+2026-04-29 20:37:15,324 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 20:37:15,343 INFO spawned: 'gnmi-native' with pid 652389
+2026-04-29 20:37:17,288 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-04-29 20:37:18,351 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-04 19:30:16,835 WARN received SIGTERM indicating exit request
+2026-05-04 19:30:16,836 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-04 19:30:16,847 INFO stopped: gnmi-native (exit status 0)
+2026-05-04 19:30:17,851 INFO stopped: rsyslogd (exit status 0)
+2026-05-04 19:30:17,853 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-04 19:31:20,658 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-04 19:31:20,658 INFO Set uid to user 0 succeeded
+2026-05-04 19:31:20,662 INFO RPC interface 'supervisor' initialized
+2026-05-04 19:31:20,662 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-04 19:31:20,662 INFO supervisord started with pid 2850932
+2026-05-04 19:31:20,664 INFO spawned: 'dependent-startup' with pid 2851043
+2026-05-04 19:31:20,667 INFO spawned: 'supervisor-proc-exit-listener' with pid 2851049
+2026-05-04 19:31:20,684 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-04 19:31:21,871 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:31:21,874 INFO spawned: 'supervisor-proc-exit-listener' with pid 2851290
+2026-05-04 19:31:21,886 INFO spawned: 'rsyslogd' with pid 2851292
+2026-05-04 19:31:21,892 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-04 19:31:22,944 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:31:23,948 INFO spawned: 'supervisor-proc-exit-listener' with pid 2851768
+2026-05-04 19:31:23,966 INFO spawned: 'start' with pid 2851769
+2026-05-04 19:31:23,967 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-04 19:31:24,071 INFO exited: start (exit status 0; expected)
+2026-05-04 19:31:25,072 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:31:25,091 INFO spawned: 'gnmi-native' with pid 2852055
+2026-05-04 19:31:26,992 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:31:28,060 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-04 19:56:11,873 WARN received SIGTERM indicating exit request
+2026-05-04 19:56:11,874 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-04 19:56:12,883 INFO stopped: gnmi-native (exit status 0)
+2026-05-04 19:56:13,887 INFO stopped: rsyslogd (exit status 0)
+2026-05-04 19:56:13,888 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-04 19:57:16,004 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-04 19:57:16,004 INFO Set uid to user 0 succeeded
+2026-05-04 19:57:16,007 INFO RPC interface 'supervisor' initialized
+2026-05-04 19:57:16,008 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-04 19:57:16,008 INFO supervisord started with pid 2982154
+2026-05-04 19:57:16,009 INFO spawned: 'dependent-startup' with pid 2982250
+2026-05-04 19:57:16,011 INFO spawned: 'supervisor-proc-exit-listener' with pid 2982251
+2026-05-04 19:57:16,031 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-04 19:57:17,224 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:57:17,227 INFO spawned: 'supervisor-proc-exit-listener' with pid 2982515
+2026-05-04 19:57:17,239 INFO spawned: 'rsyslogd' with pid 2982528
+2026-05-04 19:57:17,246 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-04 19:57:18,299 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:57:19,303 INFO spawned: 'supervisor-proc-exit-listener' with pid 2982983
+2026-05-04 19:57:19,320 INFO spawned: 'start' with pid 2982984
+2026-05-04 19:57:19,321 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-04 19:57:19,437 INFO exited: start (exit status 0; expected)
+2026-05-04 19:57:20,438 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:57:20,456 INFO spawned: 'gnmi-native' with pid 2983273
+2026-05-04 19:57:21,463 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 19:57:21,609 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-04 20:12:40,374 WARN received SIGTERM indicating exit request
+2026-05-04 20:12:40,374 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-04 20:12:41,383 INFO stopped: gnmi-native (exit status 0)
+2026-05-04 20:12:42,400 INFO stopped: rsyslogd (exit status 0)
+2026-05-04 20:12:42,402 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-04 20:13:41,453 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-04 20:13:41,453 INFO Set uid to user 0 succeeded
+2026-05-04 20:13:41,457 INFO RPC interface 'supervisor' initialized
+2026-05-04 20:13:41,457 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-04 20:13:41,457 INFO supervisord started with pid 3074669
+2026-05-04 20:13:41,459 INFO spawned: 'dependent-startup' with pid 3074744
+2026-05-04 20:13:41,461 INFO spawned: 'supervisor-proc-exit-listener' with pid 3074745
+2026-05-04 20:13:41,482 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-04 20:13:42,694 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:13:42,698 INFO spawned: 'supervisor-proc-exit-listener' with pid 3075004
+2026-05-04 20:13:42,710 INFO spawned: 'rsyslogd' with pid 3075018
+2026-05-04 20:13:42,718 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-04 20:13:43,761 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:13:44,765 INFO spawned: 'supervisor-proc-exit-listener' with pid 3075465
+2026-05-04 20:13:44,784 INFO spawned: 'start' with pid 3075468
+2026-05-04 20:13:44,785 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-04 20:13:44,892 INFO exited: start (exit status 0; expected)
+2026-05-04 20:13:45,893 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:13:45,909 INFO spawned: 'gnmi-native' with pid 3075751
+2026-05-04 20:13:47,902 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:13:48,973 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-04 20:29:41,833 WARN received SIGTERM indicating exit request
+2026-05-04 20:29:41,834 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-04 20:29:42,844 INFO stopped: gnmi-native (exit status 0)
+2026-05-04 20:29:43,848 INFO stopped: rsyslogd (exit status 0)
+2026-05-04 20:29:43,850 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-04 20:34:01,494 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-04 20:34:01,494 INFO Set uid to user 0 succeeded
+2026-05-04 20:34:01,499 INFO RPC interface 'supervisor' initialized
+2026-05-04 20:34:01,499 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-04 20:34:01,499 INFO supervisord started with pid 20445
+2026-05-04 20:34:01,501 INFO spawned: 'dependent-startup' with pid 20527
+2026-05-04 20:34:01,503 INFO spawned: 'supervisor-proc-exit-listener' with pid 20528
+2026-05-04 20:34:01,524 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-04 20:34:02,679 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:34:02,682 INFO spawned: 'supervisor-proc-exit-listener' with pid 20790
+2026-05-04 20:34:02,694 INFO spawned: 'rsyslogd' with pid 20796
+2026-05-04 20:34:03,737 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:34:03,737 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:34:03,754 INFO spawned: 'start' with pid 21160
+2026-05-04 20:34:03,755 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-04 20:34:03,862 INFO exited: start (exit status 0; expected)
+2026-05-04 20:34:04,875 INFO spawned: 'gnmi-native' with pid 21344
+2026-05-04 20:34:06,860 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-04 20:34:07,908 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-05 17:39:28,046 WARN received SIGTERM indicating exit request
+2026-05-05 17:39:28,046 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-05 17:39:28,056 INFO stopped: gnmi-native (exit status 0)
+2026-05-05 17:39:29,061 INFO stopped: rsyslogd (exit status 0)
+2026-05-05 17:39:29,062 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-05 17:44:06,458 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-05 17:44:06,458 INFO Set uid to user 0 succeeded
+2026-05-05 17:44:06,461 INFO RPC interface 'supervisor' initialized
+2026-05-05 17:44:06,462 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-05 17:44:06,462 INFO supervisord started with pid 22281
+2026-05-05 17:44:06,463 INFO spawned: 'dependent-startup' with pid 22435
+2026-05-05 17:44:06,465 INFO spawned: 'supervisor-proc-exit-listener' with pid 22436
+2026-05-05 17:44:06,485 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 17:44:07,665 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 17:44:07,668 INFO spawned: 'supervisor-proc-exit-listener' with pid 22733
+2026-05-05 17:44:07,678 INFO spawned: 'rsyslogd' with pid 22734
+2026-05-05 17:44:07,680 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 17:44:08,743 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 17:44:09,746 INFO spawned: 'supervisor-proc-exit-listener' with pid 23200
+2026-05-05 17:44:09,760 INFO spawned: 'start' with pid 23201
+2026-05-05 17:44:09,761 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-05 17:44:09,868 INFO exited: start (exit status 0; expected)
+2026-05-05 17:44:10,869 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 17:44:10,886 INFO spawned: 'gnmi-native' with pid 23504
+2026-05-05 17:44:12,013 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 17:44:12,154 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-05 21:25:33,744 WARN received SIGTERM indicating exit request
+2026-05-05 21:25:33,745 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-05 21:25:33,754 INFO stopped: gnmi-native (exit status 0)
+2026-05-05 21:25:34,759 INFO stopped: rsyslogd (exit status 0)
+2026-05-05 21:25:35,762 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-05 21:26:36,572 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-05 21:26:36,573 INFO Set uid to user 0 succeeded
+2026-05-05 21:26:36,576 INFO RPC interface 'supervisor' initialized
+2026-05-05 21:26:36,576 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-05 21:26:36,576 INFO supervisord started with pid 955673
+2026-05-05 21:26:36,578 INFO spawned: 'dependent-startup' with pid 955739
+2026-05-05 21:26:36,580 INFO spawned: 'supervisor-proc-exit-listener' with pid 955742
+2026-05-05 21:26:36,599 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 21:26:37,783 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:26:37,786 INFO spawned: 'supervisor-proc-exit-listener' with pid 955995
+2026-05-05 21:26:37,798 INFO spawned: 'rsyslogd' with pid 955998
+2026-05-05 21:26:37,805 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 21:26:38,855 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:26:39,859 INFO spawned: 'supervisor-proc-exit-listener' with pid 956485
+2026-05-05 21:26:39,876 INFO spawned: 'start' with pid 956486
+2026-05-05 21:26:39,877 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-05 21:26:39,984 INFO exited: start (exit status 0; expected)
+2026-05-05 21:26:40,986 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:26:41,003 INFO spawned: 'gnmi-native' with pid 956771
+2026-05-05 21:26:42,046 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:26:42,201 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-05 21:29:25,688 WARN received SIGTERM indicating exit request
+2026-05-05 21:29:25,688 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-05 21:29:25,697 INFO stopped: gnmi-native (exit status 0)
+2026-05-05 21:29:26,720 INFO stopped: rsyslogd (exit status 0)
+2026-05-05 21:29:26,722 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-05 21:34:03,603 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-05 21:34:03,603 INFO Set uid to user 0 succeeded
+2026-05-05 21:34:03,606 INFO RPC interface 'supervisor' initialized
+2026-05-05 21:34:03,606 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-05 21:34:03,606 INFO supervisord started with pid 20935
+2026-05-05 21:34:03,608 INFO spawned: 'dependent-startup' with pid 21021
+2026-05-05 21:34:03,609 INFO spawned: 'supervisor-proc-exit-listener' with pid 21022
+2026-05-05 21:34:03,627 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 21:34:04,782 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:34:04,783 INFO spawned: 'supervisor-proc-exit-listener' with pid 21323
+2026-05-05 21:34:04,793 INFO spawned: 'rsyslogd' with pid 21346
+2026-05-05 21:34:05,828 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:34:05,828 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:34:05,850 INFO spawned: 'start' with pid 21698
+2026-05-05 21:34:05,851 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-05 21:34:05,956 INFO exited: start (exit status 0; expected)
+2026-05-05 21:34:06,972 INFO spawned: 'gnmi-native' with pid 21859
+2026-05-05 21:34:08,068 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:34:08,212 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-05 21:39:40,800 WARN received SIGTERM indicating exit request
+2026-05-05 21:39:40,801 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-05 21:39:40,808 INFO stopped: gnmi-native (exit status 0)
+2026-05-05 21:39:41,812 INFO stopped: rsyslogd (exit status 0)
+2026-05-05 21:39:41,813 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-05 21:40:43,314 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-05 21:40:43,314 INFO Set uid to user 0 succeeded
+2026-05-05 21:40:43,319 INFO RPC interface 'supervisor' initialized
+2026-05-05 21:40:43,319 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-05 21:40:43,319 INFO supervisord started with pid 76003
+2026-05-05 21:40:43,321 INFO spawned: 'dependent-startup' with pid 76124
+2026-05-05 21:40:43,324 INFO spawned: 'supervisor-proc-exit-listener' with pid 76131
+2026-05-05 21:40:43,333 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 21:40:44,526 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:40:44,529 INFO spawned: 'supervisor-proc-exit-listener' with pid 76451
+2026-05-05 21:40:44,541 INFO spawned: 'rsyslogd' with pid 76452
+2026-05-05 21:40:44,547 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 21:40:45,597 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:40:46,601 INFO spawned: 'supervisor-proc-exit-listener' with pid 76891
+2026-05-05 21:40:46,619 INFO spawned: 'start' with pid 76893
+2026-05-05 21:40:46,620 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-05 21:40:46,724 INFO exited: start (exit status 0; expected)
+2026-05-05 21:40:47,726 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:40:47,741 INFO spawned: 'gnmi-native' with pid 77302
+2026-05-05 21:40:48,772 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 21:40:48,833 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-05 22:02:27,496 WARN received SIGTERM indicating exit request
+2026-05-05 22:02:27,497 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-05 22:02:27,503 INFO stopped: gnmi-native (exit status 0)
+2026-05-05 22:02:28,508 INFO stopped: rsyslogd (exit status 0)
+2026-05-05 22:02:28,509 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-05 22:03:29,599 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-05 22:03:29,599 INFO Set uid to user 0 succeeded
+2026-05-05 22:03:29,602 INFO RPC interface 'supervisor' initialized
+2026-05-05 22:03:29,602 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-05 22:03:29,602 INFO supervisord started with pid 209018
+2026-05-05 22:03:29,603 INFO spawned: 'dependent-startup' with pid 209088
+2026-05-05 22:03:29,605 INFO spawned: 'supervisor-proc-exit-listener' with pid 209089
+2026-05-05 22:03:29,623 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 22:03:30,804 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 22:03:30,807 INFO spawned: 'supervisor-proc-exit-listener' with pid 209366
+2026-05-05 22:03:30,819 INFO spawned: 'rsyslogd' with pid 209373
+2026-05-05 22:03:30,824 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-05 22:03:31,881 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 22:03:32,885 INFO spawned: 'supervisor-proc-exit-listener' with pid 209878
+2026-05-05 22:03:32,901 INFO spawned: 'start' with pid 209879
+2026-05-05 22:03:32,902 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-05 22:03:33,004 INFO exited: start (exit status 0; expected)
+2026-05-05 22:03:34,005 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 22:03:34,019 INFO spawned: 'gnmi-native' with pid 210248
+2026-05-05 22:03:35,959 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-05 22:03:37,020 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-06 00:00:11,487 WARN received SIGTERM indicating exit request
+2026-05-06 00:00:11,487 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-06 00:00:11,498 INFO stopped: gnmi-native (exit status 0)
+2026-05-06 00:00:12,501 INFO stopped: rsyslogd (exit status 0)
+2026-05-06 00:00:12,503 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-06 00:01:11,911 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-06 00:01:11,911 INFO Set uid to user 0 succeeded
+2026-05-06 00:01:11,914 INFO RPC interface 'supervisor' initialized
+2026-05-06 00:01:11,914 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-06 00:01:11,914 INFO supervisord started with pid 716728
+2026-05-06 00:01:11,916 INFO spawned: 'dependent-startup' with pid 716803
+2026-05-06 00:01:11,918 INFO spawned: 'supervisor-proc-exit-listener' with pid 716804
+2026-05-06 00:01:11,937 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 00:01:13,104 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:01:13,107 INFO spawned: 'supervisor-proc-exit-listener' with pid 717099
+2026-05-06 00:01:13,119 INFO spawned: 'rsyslogd' with pid 717100
+2026-05-06 00:01:13,131 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 00:01:14,172 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:01:15,176 INFO spawned: 'supervisor-proc-exit-listener' with pid 717583
+2026-05-06 00:01:15,193 INFO spawned: 'start' with pid 717584
+2026-05-06 00:01:15,194 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-06 00:01:15,311 INFO exited: start (exit status 0; expected)
+2026-05-06 00:01:16,312 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:01:16,329 INFO spawned: 'gnmi-native' with pid 717873
+2026-05-06 00:01:18,273 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:01:19,334 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-06 00:06:24,973 WARN received SIGTERM indicating exit request
+2026-05-06 00:06:24,973 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-06 00:06:24,981 INFO stopped: gnmi-native (exit status 0)
+2026-05-06 00:06:25,999 INFO stopped: rsyslogd (exit status 0)
+2026-05-06 00:06:26,001 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-06 00:07:26,061 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-06 00:07:26,061 INFO Set uid to user 0 succeeded
+2026-05-06 00:07:26,064 INFO RPC interface 'supervisor' initialized
+2026-05-06 00:07:26,064 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-06 00:07:26,064 INFO supervisord started with pid 771451
+2026-05-06 00:07:26,066 INFO spawned: 'dependent-startup' with pid 771554
+2026-05-06 00:07:26,068 INFO spawned: 'supervisor-proc-exit-listener' with pid 771555
+2026-05-06 00:07:26,086 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 00:07:27,254 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:07:27,257 INFO spawned: 'supervisor-proc-exit-listener' with pid 771804
+2026-05-06 00:07:27,269 INFO spawned: 'rsyslogd' with pid 771809
+2026-05-06 00:07:27,275 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 00:07:28,323 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:07:29,328 INFO spawned: 'supervisor-proc-exit-listener' with pid 772286
+2026-05-06 00:07:29,344 INFO spawned: 'start' with pid 772287
+2026-05-06 00:07:29,345 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-06 00:07:29,448 INFO exited: start (exit status 0; expected)
+2026-05-06 00:07:30,450 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:07:30,467 INFO spawned: 'gnmi-native' with pid 772624
+2026-05-06 00:07:32,449 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:07:33,510 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-06 00:10:57,556 WARN received SIGTERM indicating exit request
+2026-05-06 00:10:57,556 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-06 00:10:57,564 INFO stopped: gnmi-native (exit status 0)
+2026-05-06 00:10:58,583 INFO stopped: rsyslogd (exit status 0)
+2026-05-06 00:10:58,584 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-06 00:11:56,835 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-06 00:11:56,835 INFO Set uid to user 0 succeeded
+2026-05-06 00:11:56,838 INFO RPC interface 'supervisor' initialized
+2026-05-06 00:11:56,838 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-06 00:11:56,838 INFO supervisord started with pid 814675
+2026-05-06 00:11:56,839 INFO spawned: 'dependent-startup' with pid 814738
+2026-05-06 00:11:56,841 INFO spawned: 'supervisor-proc-exit-listener' with pid 814739
+2026-05-06 00:11:56,859 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 00:11:58,020 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:11:58,023 INFO spawned: 'supervisor-proc-exit-listener' with pid 815004
+2026-05-06 00:11:58,034 INFO spawned: 'rsyslogd' with pid 815008
+2026-05-06 00:11:58,041 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 00:11:59,086 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:12:00,090 INFO spawned: 'supervisor-proc-exit-listener' with pid 815484
+2026-05-06 00:12:00,106 INFO spawned: 'start' with pid 815485
+2026-05-06 00:12:00,107 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-06 00:12:00,221 INFO exited: start (exit status 0; expected)
+2026-05-06 00:12:01,223 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:12:01,239 INFO spawned: 'gnmi-native' with pid 815800
+2026-05-06 00:12:03,181 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 00:12:04,242 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-06 02:43:16,475 WARN received SIGTERM indicating exit request
+2026-05-06 02:43:16,475 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-06 02:43:17,486 INFO stopped: gnmi-native (exit status 0)
+2026-05-06 02:43:18,490 INFO stopped: rsyslogd (exit status 0)
+2026-05-06 02:43:18,491 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-06 02:44:17,029 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-06 02:44:17,029 INFO Set uid to user 0 succeeded
+2026-05-06 02:44:17,033 INFO RPC interface 'supervisor' initialized
+2026-05-06 02:44:17,033 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-06 02:44:17,033 INFO supervisord started with pid 1443437
+2026-05-06 02:44:17,034 INFO spawned: 'dependent-startup' with pid 1443508
+2026-05-06 02:44:17,036 INFO spawned: 'supervisor-proc-exit-listener' with pid 1443509
+2026-05-06 02:44:17,054 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 02:44:18,232 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 02:44:18,235 INFO spawned: 'supervisor-proc-exit-listener' with pid 1443768
+2026-05-06 02:44:18,247 INFO spawned: 'rsyslogd' with pid 1443776
+2026-05-06 02:44:18,254 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 02:44:19,308 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 02:44:20,313 INFO spawned: 'supervisor-proc-exit-listener' with pid 1444321
+2026-05-06 02:44:20,329 INFO spawned: 'start' with pid 1444329
+2026-05-06 02:44:20,330 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-06 02:44:20,436 INFO exited: start (exit status 0; expected)
+2026-05-06 02:44:21,438 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 02:44:21,452 INFO spawned: 'gnmi-native' with pid 1444860
+2026-05-06 02:44:23,434 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 02:44:24,495 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-06 15:11:32,440 WARN received SIGTERM indicating exit request
+2026-05-06 15:11:32,440 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-06 15:11:32,452 INFO stopped: gnmi-native (exit status 0)
+2026-05-06 15:11:33,463 INFO stopped: rsyslogd (exit status 0)
+2026-05-06 15:11:33,465 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-06 15:12:34,647 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-06 15:12:34,647 INFO Set uid to user 0 succeeded
+2026-05-06 15:12:34,649 INFO RPC interface 'supervisor' initialized
+2026-05-06 15:12:34,650 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-06 15:12:34,650 INFO supervisord started with pid 247585
+2026-05-06 15:12:34,651 INFO spawned: 'dependent-startup' with pid 247650
+2026-05-06 15:12:34,653 INFO spawned: 'supervisor-proc-exit-listener' with pid 247651
+2026-05-06 15:12:34,662 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 15:12:35,858 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 15:12:35,861 INFO spawned: 'supervisor-proc-exit-listener' with pid 247902
+2026-05-06 15:12:35,871 INFO spawned: 'rsyslogd' with pid 247906
+2026-05-06 15:12:35,881 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-06 15:12:36,912 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 15:12:37,916 INFO spawned: 'supervisor-proc-exit-listener' with pid 248390
+2026-05-06 15:12:37,934 INFO spawned: 'start' with pid 248391
+2026-05-06 15:12:37,935 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-06 15:12:38,037 INFO exited: start (exit status 0; expected)
+2026-05-06 15:12:39,038 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 15:12:39,054 INFO spawned: 'gnmi-native' with pid 248689
+2026-05-06 15:12:40,982 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-06 15:12:42,044 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-15 17:37:00,587 WARN received SIGTERM indicating exit request
+2026-05-15 17:37:00,587 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-15 17:37:00,599 INFO stopped: gnmi-native (exit status 0)
+2026-05-15 17:37:01,603 INFO stopped: rsyslogd (exit status 0)
+2026-05-15 17:37:01,604 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-15 17:38:01,270 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-15 17:38:01,270 INFO Set uid to user 0 succeeded
+2026-05-15 17:38:01,273 INFO RPC interface 'supervisor' initialized
+2026-05-15 17:38:01,273 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-15 17:38:01,273 INFO supervisord started with pid 1656084
+2026-05-15 17:38:01,275 INFO spawned: 'dependent-startup' with pid 1656155
+2026-05-15 17:38:01,277 INFO spawned: 'supervisor-proc-exit-listener' with pid 1656156
+2026-05-15 17:38:01,296 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-15 17:38:02,459 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:38:02,463 INFO spawned: 'supervisor-proc-exit-listener' with pid 1656422
+2026-05-15 17:38:02,473 INFO spawned: 'rsyslogd' with pid 1656429
+2026-05-15 17:38:02,481 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-15 17:38:03,528 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:38:04,532 INFO spawned: 'supervisor-proc-exit-listener' with pid 1656896
+2026-05-15 17:38:04,549 INFO spawned: 'start' with pid 1656897
+2026-05-15 17:38:04,550 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-15 17:38:04,654 INFO exited: start (exit status 0; expected)
+2026-05-15 17:38:05,656 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:38:05,672 INFO spawned: 'gnmi-native' with pid 1657255
+2026-05-15 17:38:07,594 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:38:08,654 INFO exited: dependent-startup (exit status 0; expected)
+2026-05-15 17:43:20,574 WARN received SIGTERM indicating exit request
+2026-05-15 17:43:20,574 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-05-15 17:43:20,582 INFO stopped: gnmi-native (exit status 0)
+2026-05-15 17:43:21,588 INFO stopped: rsyslogd (exit status 0)
+2026-05-15 17:43:21,589 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-05-15 17:47:35,642 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-05-15 17:47:35,642 INFO Set uid to user 0 succeeded
+2026-05-15 17:47:35,646 INFO RPC interface 'supervisor' initialized
+2026-05-15 17:47:35,646 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-05-15 17:47:35,646 INFO supervisord started with pid 20981
+2026-05-15 17:47:35,648 INFO spawned: 'dependent-startup' with pid 21063
+2026-05-15 17:47:35,650 INFO spawned: 'supervisor-proc-exit-listener' with pid 21064
+2026-05-15 17:47:35,668 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-15 17:47:36,842 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:47:36,845 INFO spawned: 'supervisor-proc-exit-listener' with pid 21338
+2026-05-15 17:47:36,857 INFO spawned: 'rsyslogd' with pid 21353
+2026-05-15 17:47:36,866 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-05-15 17:47:37,911 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:47:38,915 INFO spawned: 'supervisor-proc-exit-listener' with pid 21878
+2026-05-15 17:47:38,931 INFO spawned: 'start' with pid 21879
+2026-05-15 17:47:38,932 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-05-15 17:47:39,039 INFO exited: start (exit status 0; expected)
+2026-05-15 17:47:40,041 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:47:40,058 INFO spawned: 'gnmi-native' with pid 22200
+2026-05-15 17:47:41,056 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-05-15 17:47:41,122 INFO exited: dependent-startup (exit status 0; expected)

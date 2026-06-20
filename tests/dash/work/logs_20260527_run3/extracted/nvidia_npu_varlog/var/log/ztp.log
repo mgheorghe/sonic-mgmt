@@ -1,0 +1,2 @@
+2026 Mar 22 20:48:23.921468 sonic INFO sonic-ztp[23621]: ZTP service started.
+2026 Mar 22 20:48:23.921567 sonic INFO sonic-ztp[23621]: Configuration file '/etc/sonic/config_db.json' detected. Shutting down ZTP service.

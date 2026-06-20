@@ -1,0 +1,37 @@
+2026 Mar 22 20:48:20.204540 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 28: ip nht resolve-via-default
+2026 Mar 22 20:48:20.204540 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 29: ipv6 nht resolve-via-default
+2026 Mar 22 20:48:20.204591 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 31: interface Ethernet0
+2026 Mar 22 20:48:20.204591 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 32: link-detect
+2026 Mar 22 20:48:20.204591 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 34: interface Ethernet16
+2026 Mar 22 20:48:20.204604 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 35: link-detect
+2026 Mar 22 20:48:20.204614 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 37: interface Ethernet224
+2026 Mar 22 20:48:20.204694 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 38: link-detect
+2026 Mar 22 20:48:20.204694 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 40: interface Ethernet232
+2026 Mar 22 20:48:20.204694 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 41: link-detect
+2026 Mar 22 20:48:20.204709 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 43: interface Ethernet240
+2026 Mar 22 20:48:20.204709 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 44: link-detect
+2026 Mar 22 20:48:20.204721 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 46: interface Ethernet248
+2026 Mar 22 20:48:20.204721 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 47: link-detect
+2026 Mar 22 20:48:20.204721 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 49: interface Ethernet24
+2026 Mar 22 20:48:20.204778 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 50: link-detect
+2026 Mar 22 20:48:20.204778 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 52: interface Ethernet8
+2026 Mar 22 20:48:20.204778 sonic WARNING bgp#zebra[46]: [PGMWY-9JJTE][EC 100663304] No such command on config line 53: link-detect
+2026 Mar 22 20:48:20.204885 sonic INFO bgp#zebra[46]: [K55SV-YMF8X] Sweeping the RIB for stale routes...
+2026 Mar 22 20:48:20.205304 sonic INFO bgp#zebra[46]: [VV6HE-T64CB] fpm_process_event: manual FPM reconnect event
+2026 Mar 22 20:48:23.207521 sonic WARNING bgp#zebra[46]: [RBS07-T2HR4] fpm_write: connection failed: Connection refused
+2026 Mar 22 20:48:26.243256 sonic WARNING bgp#zebra[46]: [RBS07-T2HR4] fpm_write: connection failed: Connection refused
+2026 Mar 22 20:48:26.243256 sonic WARNING bgp#zebra[46]: [YDG3W-JND95] FD Limit set: 1073741816 is stupidly large.  Is this what you intended?  Consider using --limit-fds also limiting size to 100000
+2026 Mar 22 20:48:26.243582 sonic NOTICE bgp#zebra[46]: [V98V0-MTWPF] client 32 says hello and bids fair to announce only static routes vrf=0
+2026 Mar 22 20:48:26.300676 sonic WARNING bgp#zebra[46]: [YDG3W-JND95] FD Limit set: 1073741816 is stupidly large.  Is this what you intended?  Consider using --limit-fds also limiting size to 100000
+2026 Mar 22 20:48:26.301014 sonic WARNING bgp#zebra[46]: [YDG3W-JND95] FD Limit set: 1073741816 is stupidly large.  Is this what you intended?  Consider using --limit-fds also limiting size to 100000
+2026 Mar 22 20:48:26.301014 sonic NOTICE bgp#zebra[46]: [V98V0-MTWPF] client 37 says hello and bids fair to announce only bgp routes vrf=0
+2026 Mar 22 20:48:26.301189 sonic NOTICE bgp#zebra[46]: [V98V0-MTWPF] client 40 says hello and bids fair to announce only vnc routes vrf=0
+2026 Mar 22 20:48:26.885459 sonic INFO bgp#zebra[46]: [VTVCM-Y2NW3] Configuration Read in Took: 00:00:00
+2026 Mar 22 20:48:27.258410 sonic WARNING bgp#zebra[46]: [YDG3W-JND95] FD Limit set: 1073741816 is stupidly large.  Is this what you intended?  Consider using --limit-fds also limiting size to 100000
+2026 Mar 22 20:48:27.258729 sonic NOTICE bgp#zebra[46]: [V98V0-MTWPF] client 47 says hello and bids fair to announce only bgp routes vrf=0
+2026 Mar 22 20:49:00.211831 sonic INFO bgp#zebra[46]: [WPPMZ-G9797] if_zebra_speed_update: docker0 old speed: 0 new speed: 10000
+2026 Mar 22 20:49:10.200691 sonic INFO bgp#zebra[46]: [WPPMZ-G9797] if_zebra_speed_update: dpu2 old speed: 0 new speed: 400000
+2026 Mar 22 20:49:10.201296 sonic INFO bgp#zebra[46]: [WPPMZ-G9797] if_zebra_speed_update: dpu3 old speed: 0 new speed: 400000
+2026 Mar 22 20:49:10.201989 sonic INFO bgp#zebra[46]: [WPPMZ-G9797] if_zebra_speed_update: dpu1 old speed: 0 new speed: 400000
+2026 Mar 22 20:49:10.202837 sonic INFO bgp#zebra[46]: [WPPMZ-G9797] if_zebra_speed_update: dpu0 old speed: 0 new speed: 400000
+2026 Mar 22 20:49:10.216152 sonic INFO bgp#zebra[46]: [WPPMZ-G9797] if_zebra_speed_update: bridge-midplane old speed: 0 new speed: 400000

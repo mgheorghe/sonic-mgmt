@@ -1,0 +1,73 @@
+
+DASH ENI counters — eni-1000  (oid:0x7008000000022)  DPU: keysight-nss01-dpu0
+Captured: 2026-06-18   Traffic: outbound 29,997 pkts + inbound 23,331 pkts (100% loss both)
+
+--- Received ---
+SAI_ENI_STAT_RX_PACKETS                                  53328
+SAI_ENI_STAT_RX_BYTES                                    8879112
+SAI_ENI_STAT_OUTBOUND_RX_PACKETS                         29997
+SAI_ENI_STAT_OUTBOUND_RX_BYTES                           5099490
+SAI_ENI_STAT_INBOUND_RX_PACKETS                          23331
+SAI_ENI_STAT_INBOUND_RX_BYTES                            3779622
+SAI_ENI_STAT_MAX_TX_CPS                                  201
+SAI_ENI_STAT_MAX_RX_CPS                                  0
+
+--- Drops (100% of received traffic) ---
+SAI_ENI_STAT_TOTAL_DROP_PACKETS                          53328
+SAI_ENI_STAT_OUTBOUND_ROUTING_ENTRY_MISS_DROP_PACKETS    29997   <== outbound
+SAI_ENI_STAT_FORWARDING_DROP_PACKETS                     29997
+SAI_ENI_STAT_UNSUPPORTED_PROTOCOL_DROP_PACKETS           23331   <== inbound
+SAI_ENI_STAT_OUTBOUND_CA_PA_ENTRY_MISS_DROP_PACKETS      0
+SAI_ENI_STAT_INBOUND_ROUTING_ENTRY_MISS_DROP_PACKETS     0
+SAI_ENI_STAT_ENI_TRUSTED_VNI_ENTRY_MISS_DROP_PACKETS     0
+SAI_ENI_STAT_PA_VALIDATION_FAIL_DROP_PACKETS             0
+SAI_ENI_STAT_POLICY_DROP_PACKETS                         0
+SAI_ENI_STAT_SESSION_LIMIT_EXCEEDED_DROP_PACKETS         0
+SAI_ENI_STAT_TCP_NON_SYN_FLOW_MISS_DROP_PACKETS          0
+SAI_ENI_STAT_LB_FAST_PATH_ICMP_IN_DROP_PACKETS           0
+SAI_ENI_STAT_OTHER_DROP_PACKETS                          0
+
+--- Flow table ---
+SAI_ENI_STAT_FLOW_CREATED                                0
+SAI_ENI_STAT_FLOW_CREATE_FAILED                          0
+SAI_ENI_STAT_FLOW_UPDATED                                0
+SAI_ENI_STAT_FLOW_UPDATE_FAILED                          0
+SAI_ENI_STAT_FLOW_DELETED                                0
+SAI_ENI_STAT_FLOW_DELETE_FAILED                          0
+SAI_ENI_STAT_FLOW_AGED                                   0
+
+--- TCP ---
+SAI_ENI_STAT_OUTBOUND_TCP_SYN_PACKETS                    0
+SAI_ENI_STAT_OUTBOUND_TCP_SYNACK_PACKETS                 0
+SAI_ENI_STAT_OUTBOUND_TCP_FIN_PACKETS                    0
+SAI_ENI_STAT_OUTBOUND_TCP_RST_PACKETS                    0
+SAI_ENI_STAT_INBOUND_TCP_SYN_PACKETS                     0
+SAI_ENI_STAT_INBOUND_TCP_SYNACK_PACKETS                  0
+SAI_ENI_STAT_INBOUND_TCP_FIN_PACKETS                     0
+SAI_ENI_STAT_INBOUND_TCP_RST_PACKETS                     0
+SAI_ENI_STAT_TCP_RST_INJECT_PACKETS                      0
+
+--- Fast path / misc ---
+SAI_ENI_STAT_LB_FAST_PATH_ICMP_IN_PACKETS                0
+SAI_ENI_STAT_LB_FAST_PATH_ICMP_IN_BYTES                  0
+
+--- Inline / timed flow sync ---
+SAI_ENI_STAT_INLINE_SYNC_PACKET_RX_PACKETS               0
+SAI_ENI_STAT_INLINE_SYNC_PACKET_RX_BYTES                 0
+SAI_ENI_STAT_INLINE_SYNC_PACKET_TX_PACKETS               0
+SAI_ENI_STAT_INLINE_SYNC_PACKET_TX_BYTES                 0
+SAI_ENI_STAT_INLINE_SYNC_REQ_TX                          0
+SAI_ENI_STAT_INLINE_SYNC_REQ_RX                          0
+SAI_ENI_STAT_INLINE_SYNC_ACK_TX                          0
+SAI_ENI_STAT_INLINE_SYNC_ACK_RX                          0
+SAI_ENI_STAT_INLINE_SYNC_REDIRECT_PACKETS_TX             0
+SAI_ENI_STAT_INLINE_SYNC_REDIRECT_PACKETS_RX             0
+SAI_ENI_STAT_INLINE_FLOW_CREATE_REQ_SENT                 0
+SAI_ENI_STAT_INLINE_FLOW_CREATE_REQ_RECV                 0
+SAI_ENI_STAT_INLINE_FLOW_CREATE_REQ_FAILED               0
+SAI_ENI_STAT_INLINE_FLOW_CREATE_ACK_RECV                 0
+SAI_ENI_STAT_INLINE_FLOW_CREATE_ACK_FAILED               0
+SAI_ENI_STAT_INLINE_FLOW_CREATE_ACK_IGNORED              0
+SAI_ENI_STAT_INLINE_FLOW_DELETE_REQ_SENT                 0
+SAI_ENI_STAT_INLINE_FLOW_DELETE_REQ_RECV                 0
+SAI_ENI_STAT_INLINE_FLOW_DELETE_REQ_FAILED               0

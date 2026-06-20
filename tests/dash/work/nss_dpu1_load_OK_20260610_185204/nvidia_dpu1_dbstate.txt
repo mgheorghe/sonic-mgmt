@@ -1,0 +1,8 @@
+Debian GNU/Linux 13 \n \l
+
+DPU_APPL_DB DBSIZE:
+64008
+ENI HLEN:
+1
+ENI MAP:
+{'eni-1032': 'oid:0x7008000000021'}

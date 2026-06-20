@@ -1,0 +1,62 @@
+{
+  "captured_utc": "2026-06-20T04:34:57Z",
+  "duration_s": 456,
+  "npu": {
+    "Ethernet0": {
+      "rx": 6785696,
+      "tx": 17
+    },
+    "Ethernet8": {
+      "rx": 0,
+      "tx": 6149557
+    },
+    "Ethernet224": {
+      "rx": 6149545,
+      "tx": 6785719
+    }
+  },
+  "dpu": {
+    "Ethernet0": {
+      "rx": 6800572,
+      "tx": 6163006
+    }
+  },
+  "ixia": {
+    "tx": 1229774,
+    "rx": 702728
+  },
+  "ixia_inbound": {
+    "tx": 0,
+    "rx": 0
+  },
+  "nasa_delta": {
+    "SAI_PORT_STAT_PORT_LB_FAST_PATH_ICMP_IN_BYTES": 0,
+    "SAI_PORT_STAT_PORT_LB_FAST_PATH_ICMP_IN_PACKETS": 0,
+    "SAI_PORT_STAT_ENI_MISS_DROP_PACKETS": 0,
+    "SAI_PORT_STAT_VIP_MISS_DROP_PACKETS": 27112,
+    "SAI_PORT_STAT_PORT_LB_FAST_PATH_ENI_MISS_DROP_BYTES": 0,
+    "SAI_PORT_STAT_PORT_LB_FAST_PATH_ENI_MISS_DROP_PACKETS": 0
+  },
+  "dominant_drop": {
+    "counter": "SAI_PORT_STAT_VIP_MISS_DROP_PACKETS",
+    "packets": 27112
+  },
+  "uhd": {
+    "Port 1": {
+      "rx": 18,
+      "tx": 6884574
+    },
+    "Port 2": {
+      "rx": 6239166,
+      "tx": 0
+    },
+    "Port 4": {
+      "rx": 0,
+      "tx": 0
+    },
+    "Port 3": {
+      "rx": 0,
+      "tx": 0
+    }
+  }
+}

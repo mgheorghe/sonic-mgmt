@@ -1,0 +1,103 @@
+Debian GNU/Linux 13 \n \l
+
+Oct 29 13:44:48 sonic sudo[85201]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/logger -t nss_load 'NSS_LOAD_START dpu1'
+Oct 29 13:44:48 sonic sudo[85201]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:48 sonic nss_load[85203]: NSS_LOAD_START dpu1
+Oct 29 13:44:48 sonic sudo[85201]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:48 sonic sshd-session[85200]: Received disconnect from 10.36.78.150 port 37620:11: disconnected by user
+Oct 29 13:44:48 sonic sshd-session[85200]: Disconnected from user admin 10.36.78.150 port 37620
+Oct 29 13:44:48 sonic sshd-session[85191]: pam_unix(sshd:session): session closed for user admin
+Oct 29 13:44:48 sonic systemd[1]: session-30.scope: Deactivated successfully.
+Oct 29 13:44:48 sonic systemd-logind[1131]: Session 30 logged out. Waiting for processes to exit.
+Oct 29 13:44:48 sonic systemd-logind[1131]: Removed session 30.
+Oct 29 13:44:49 sonic sshd-session[85209]: Connection from 10.36.78.150 port 37628 on 169.254.200.2 port 22 rdomain ""
+Oct 29 13:44:49 sonic unix_chkpwd[85213]: account admin has password changed in future
+Oct 29 13:44:49 sonic sshd-session[85209]: Accepted password for admin from 10.36.78.150 port 37628 ssh2
+Oct 29 13:44:49 sonic sshd-session[85209]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+Oct 29 13:44:49 sonic systemd-logind[1131]: New session 31 of user admin.
+Oct 29 13:44:49 sonic systemd[1]: Started session-31.scope - Session 31 of User admin.
+Oct 29 13:44:49 sonic sshd-session[85209]: User child is on pid 85218
+Oct 29 13:44:49 sonic sshd-session[85218]: Starting session: command for admin from 10.36.78.150 port 37628 id 0
+Oct 29 13:44:49 sonic unix_chkpwd[85220]: account admin has password changed in future
+Oct 29 13:44:49 sonic sudo[85219]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/sonic-db-cli COUNTERS_DB HLEN COUNTERS_ENI_NAME_MAP
+Oct 29 13:44:49 sonic sudo[85219]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:49 sonic sudo[85219]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:49 sonic sshd-session[85218]: Close session: user admin from 10.36.78.150 port 37628 id 0
+Oct 29 13:44:49 sonic sshd-session[85218]: Received disconnect from 10.36.78.150 port 37628:11: disconnected by user
+Oct 29 13:44:49 sonic sshd-session[85218]: Disconnected from user admin 10.36.78.150 port 37628
+Oct 29 13:44:49 sonic sshd-session[85209]: pam_unix(sshd:session): session closed for user admin
+Oct 29 13:44:49 sonic systemd-logind[1131]: Session 31 logged out. Waiting for processes to exit.
+Oct 29 13:44:49 sonic systemd[1]: session-31.scope: Deactivated successfully.
+Oct 29 13:44:49 sonic systemd-logind[1131]: Removed session 31.
+Oct 29 13:44:53 sonic sshd-session[85235]: Connection from 10.36.78.150 port 42012 on 169.254.200.2 port 22 rdomain ""
+Oct 29 13:44:53 sonic unix_chkpwd[85240]: account admin has password changed in future
+Oct 29 13:44:53 sonic sshd-session[85235]: Accepted password for admin from 10.36.78.150 port 42012 ssh2
+Oct 29 13:44:53 sonic sshd-session[85235]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+Oct 29 13:44:53 sonic systemd-logind[1131]: New session 32 of user admin.
+Oct 29 13:44:53 sonic systemd[1]: Started session-32.scope - Session 32 of User admin.
+Oct 29 13:44:53 sonic sshd-session[85235]: User child is on pid 85245
+Oct 29 13:44:53 sonic sshd-session[85245]: Starting session: command for admin from 10.36.78.150 port 42012 id 0
+Oct 29 13:44:53 sonic unix_chkpwd[85249]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85248]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/find /var/lib/docker/containers -name *-json.log
+Oct 29 13:44:53 sonic sudo[85248]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85248]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85252]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85251]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/42c35365c0cc691cf78f4f806c76930bb8e5ae59c577fd4459b69b3c57de0f4a/42c35365c0cc691cf78f4f806c76930bb8e5ae59c577fd4459b69b3c57de0f4a-json.log
+Oct 29 13:44:53 sonic sudo[85251]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85251]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85255]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85254]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/70a8b75fc678a40ac316873a0a5967597fa40757f27b580e40376bdf920ff00e/70a8b75fc678a40ac316873a0a5967597fa40757f27b580e40376bdf920ff00e-json.log
+Oct 29 13:44:53 sonic sudo[85254]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85254]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85258]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85257]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/2564788df92d1766ea947ca7a65e583814d3bfa66363acd186c41bbbd3efd680/2564788df92d1766ea947ca7a65e583814d3bfa66363acd186c41bbbd3efd680-json.log
+Oct 29 13:44:53 sonic sudo[85257]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85257]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85261]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85260]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/87234ec74df7ce7a4144b457cda14c7267f77b19316798a4589a86344458fbc2/87234ec74df7ce7a4144b457cda14c7267f77b19316798a4589a86344458fbc2-json.log
+Oct 29 13:44:53 sonic sudo[85260]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85260]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85265]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85264]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/8abd5b75959cd9f8a3d01c20d184f6bf6a89af9e70fd5ae68afa9264d29d3b92/8abd5b75959cd9f8a3d01c20d184f6bf6a89af9e70fd5ae68afa9264d29d3b92-json.log
+Oct 29 13:44:53 sonic sudo[85264]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85264]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85268]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85267]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/0767d2815fdaee6c4be870e974308f2b5f68106395388712efd3d2f353b3caa2/0767d2815fdaee6c4be870e974308f2b5f68106395388712efd3d2f353b3caa2-json.log
+Oct 29 13:44:53 sonic sudo[85267]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85267]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85271]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85270]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/1a5c8fcbf1f19b2f8af41023739cf80e44f6f3fe94f6a6a43c55e303fc570388/1a5c8fcbf1f19b2f8af41023739cf80e44f6f3fe94f6a6a43c55e303fc570388-json.log
+Oct 29 13:44:53 sonic sudo[85270]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85270]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85274]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85273]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/e1145b1018eff57766b87709cc1c4e4f69f8e1ffeca7b9ac61af21cac706a866/e1145b1018eff57766b87709cc1c4e4f69f8e1ffeca7b9ac61af21cac706a866-json.log
+Oct 29 13:44:53 sonic sudo[85273]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85273]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85277]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85276]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/5508947f616e93776172a18c69a3275700ffb7d9090a4b6360cf3052100f37de/5508947f616e93776172a18c69a3275700ffb7d9090a4b6360cf3052100f37de-json.log
+Oct 29 13:44:53 sonic sudo[85276]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85276]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic unix_chkpwd[85280]: account admin has password changed in future
+Oct 29 13:44:53 sonic sudo[85279]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/truncate -s 0 /var/lib/docker/containers/c3be670a03524f1ea6000202c683f612fab2bf8a35f63357ef90310193e3ecc4/c3be670a03524f1ea6000202c683f612fab2bf8a35f63357ef90310193e3ecc4-json.log
+Oct 29 13:44:53 sonic sudo[85279]: pam_unix(sudo:session): session opened for user root(uid=0) by admin(uid=1000)
+Oct 29 13:44:53 sonic sudo[85279]: pam_unix(sudo:session): session closed for user root
+Oct 29 13:44:53 sonic sshd-session[85245]: Received disconnect from 10.36.78.150 port 42012:11: disconnected by user
+Oct 29 13:44:53 sonic sshd-session[85245]: Disconnected from user admin 10.36.78.150 port 42012
+Oct 29 13:44:53 sonic sshd-session[85235]: pam_unix(sshd:session): session closed for user admin
+Oct 29 13:44:53 sonic systemd-logind[1131]: Session 32 logged out. Waiting for processes to exit.
+Oct 29 13:44:53 sonic systemd[1]: session-32.scope: Deactivated successfully.
+Oct 29 13:44:53 sonic systemd-logind[1131]: Removed session 32.
+Oct 29 13:45:01 sonic unix_chkpwd[85313]: account root has password changed in future
+Oct 29 13:45:01 sonic CRON[85312]: pam_unix(cron:session): session opened for user root(uid=0) by root(uid=0)
+Oct 29 13:45:01 sonic CRON[85314]: (root) CMD (command -v debian-sa1 > /dev/null && debian-sa1 1 1)
+Oct 29 13:45:01 sonic CRON[85312]: pam_unix(cron:session): session closed for user root
+Oct 29 13:45:10 sonic sshd-session[85350]: Connection from 10.36.78.150 port 41266 on 169.254.200.2 port 22 rdomain ""
+Oct 29 13:45:11 sonic unix_chkpwd[85356]: account admin has password changed in future
+Oct 29 13:45:11 sonic sshd-session[85350]: Accepted password for admin from 10.36.78.150 port 41266 ssh2
+Oct 29 13:45:11 sonic sshd-session[85350]: pam_unix(sshd:session): session opened for user admin(uid=1000) by admin(uid=0)
+Oct 29 13:45:11 sonic systemd-logind[1131]: New session 34 of user admin.
+Oct 29 13:45:11 sonic systemd[1]: Started session-34.scope - Session 34 of User admin.
+Oct 29 13:45:11 sonic sshd-session[85350]: User child is on pid 85361
+Oct 29 13:45:11 sonic sshd-session[85361]: Starting session: command for admin from 10.36.78.150 port 41266 id 0
+Oct 29 13:45:11 sonic unix_chkpwd[85363]: account admin has password changed in future
+Oct 29 13:45:11 sonic sudo[85362]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/logger -t nss_load 'NSS_LOAD_END dpu1'

@@ -1,0 +1,43 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(git commit -s -m ' *)",
+      "Bash(sshpass -p 'wrinkle#B52' ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null root@10.36.78.76 \"lspci | grep -i ethernet; echo '---'; ls /sys/bus/vmbus/devices/; echo '---'; ip -br link show\")",
+      "PowerShell(Get-Command sshpass -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command plink -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command putty -ErrorAction SilentlyContinue)",
+      "PowerShell(Get-Command ssh -ErrorAction SilentlyContinue)",
+      "PowerShell(& plink.exe -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"hostname; uname -a; lspci | grep -i ethernet\")",
+      "PowerShell(& plink.exe -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"echo '=== lspci all ==='; lspci; echo '=== vmbus devices ==='; ls /sys/bus/vmbus/devices/; echo '=== ip -br link ==='; ip -br link show; echo '=== ip -br addr ==='; ip -br addr show; echo '=== existing yaml ==='; cat /root/ixiac/kengcontrller.yaml\")",
+      "Bash(plink.exe -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"bash -s\")",
+      "PowerShell(Get-Command pscp.exe -ErrorAction SilentlyContinue)",
+      "Read(//c/Program Files/PuTTY/**)",
+      "PowerShell(& 'C:\\\\Program Files\\\\PuTTY\\\\pscp.exe' -batch -pw 'wrinkle#B52' 'C:\\\\Users\\\\mgheorgh\\\\AppData\\\\Local\\\\Temp\\\\README-rdma57.md' 'root@10.36.78.76:/root/ixiac/README-rdma57.md')",
+      "Bash(plink.exe -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"ls -l /root/ixiac/README-rdma57.md && head -5 /root/ixiac/README-rdma57.md && echo '...' && wc -l /root/ixiac/README-rdma57.md\")",
+      "PowerShell(Get-Command ssh, plink, sshpass, python -ErrorAction SilentlyContinue)",
+      "PowerShell($cmds = @\\('ssh','plink','sshpass','python','py'\\); foreach \\($c in $cmds\\) { try { $g = Get-Command $c -ErrorAction Stop; \"$\\($g.Name\\) -> $\\($g.Source\\)\" } catch { \"$c -> NOT FOUND\" } })",
+      "PowerShell(Test-NetConnection -ComputerName 10.36.78.56 -Port 8295 -InformationLevel Quiet -WarningAction SilentlyContinue)",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -ssh -P 8295 -batch -no-antispoof -pw admin admin@10.36.78.56)",
+      "Bash(echo \"--- exit code: $? ---\")",
+      "Bash(python -c \"import pexpect; print\\(pexpect.__version__\\)\")",
+      "Bash(python C:/Users/mgheorgh/AppData/Local/Temp/bmc_sol.py)",
+      "Bash(python C:/Users/mgheorgh/AppData/Local/Temp/bmc_sol.py \"?\")",
+      "Bash(python C:/Users/mgheorgh/AppData/Local/Temp/bmc_sol.py \"hostname\" \"ip -4 addr show | grep -E 'inet ' | head -20\" \"uname -a\")",
+      "Bash(python C:/Users/mgheorgh/AppData/Local/Temp/bmc_sol.py \"ip -4 addr show\" \"cat /sys/class/dmi/id/product_name 2>/dev/null; cat /sys/class/dmi/id/board_name 2>/dev/null; cat /proc/device-tree/model 2>/dev/null; echo\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"ls -la /root/ixiac/otg-flows.py && md5sum /root/ixiac/otg-flows.py\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"ip -o link | grep -i '00:15:5d:4e:41:01' || echo 'no exact match'; echo '---'; ip -br link\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"ss -ltnp | grep -E ':5551|:8443|:8444' ; echo '---'; docker ps --format '{{.Names}}: {{.Status}}' | grep -i keng\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"cd /root/ixiac && ls -la *.yaml && docker compose -f kengcontrller-rdma57.yaml ps 2>&1 ; echo '---ens2 state---'; ip -br link show ens2; echo '---hugepages---'; cat /proc/meminfo | grep -i huge | head -5\")",
+      "Bash(\"/c/Program Files/PuTTY/pscp.exe\" -batch -pw 'wrinkle#B52' '/c/Users/mgheorgh/AppData/Local/Temp/scp30027/root/ixiac/otg-flows.py' root@10.36.78.76:/root/ixiac/otg-flows.py)",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"chmod +x /root/ixiac/otg-flows.py && python3 -c 'import ast; ast.parse\\(open\\(\\\\\"/root/ixiac/otg-flows.py\\\\\"\\).read\\(\\)\\); print\\(\\\\\"syntax OK\\\\\"\\)' && wc -l /root/ixiac/otg-flows.py\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"cd /root/ixiac && ./te-preflight.sh\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"cd /root/ixiac && docker compose -f kengcontrller-rdma57.yaml up -d 2>&1 | tail -40\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"docker ps -a --filter name=keng --filter name=ixiac --format '{{.Names}}\\\\t{{.Status}}\\\\t{{.Image}}'\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"cat /root/ixiac/kengcontrller-rdma57.yaml\")",
+      "Bash(\"/c/Program Files/PuTTY/plink.exe\" -batch -ssh -pw 'wrinkle#B52' root@10.36.78.76 \"set -x; cd /root/ixiac; docker compose -f kengcontrller-rdma57.yaml -p keng-hw-r57 down 2>&1 | tail -10; docker compose -f kengcontrller-rdma57.yaml -p ixiac down 2>&1 | tail -10; docker rm -f keng_controller_sw keng_controller_hw keng-license-server 2>&1 | tail -10; docker ps -a --filter name=keng --filter name=ixiac --format '{{.Names}}\\\\t{{.Status}}'\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\mgheorgh\\AppData\\Local\\Temp"
+    ]
+  }
+}

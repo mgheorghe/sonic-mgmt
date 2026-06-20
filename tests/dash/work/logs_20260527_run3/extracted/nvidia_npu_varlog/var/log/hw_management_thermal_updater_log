@@ -1,0 +1,126 @@
+2026-03-22 20:48:17,763 - NOTICE - hw-management-thermal-updater: load config (HI160)
+2026-03-22 20:48:17,764 - NOTICE - hw-management-thermal-updater: start main loop
+2026-03-22 20:48:17,764 - NOTICE - asic not ready
+2026-03-22 20:48:17,764 - NOTICE - asic1 not ready
+2026-03-22 20:48:17,764 - WARNING - /sys/module/sx_core/asic0/module0/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module0/present'
+2026-03-22 20:48:17,765 - WARNING - /sys/module/sx_core/asic0/module1/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module1/present'
+2026-03-22 20:48:17,766 - WARNING - /sys/module/sx_core/asic0/module2/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module2/present'
+2026-03-22 20:48:17,767 - WARNING - /sys/module/sx_core/asic0/module3/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module3/present'
+2026-03-22 20:48:17,767 - WARNING - /sys/module/sx_core/asic0/module4/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module4/present'
+2026-03-22 20:48:17,768 - WARNING - /sys/module/sx_core/asic0/module5/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module5/present'
+2026-03-22 20:48:17,769 - WARNING - /sys/module/sx_core/asic0/module6/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module6/present'
+2026-03-22 20:48:17,769 - WARNING - /sys/module/sx_core/asic0/module7/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module7/present'
+2026-03-22 20:48:17,770 - WARNING - /sys/module/sx_core/asic0/module8/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module8/present'
+2026-03-22 20:48:17,771 - WARNING - /sys/module/sx_core/asic0/module9/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module9/present'
+2026-03-22 20:48:17,771 - WARNING - /sys/module/sx_core/asic0/module10/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module10/present'
+2026-03-22 20:48:17,772 - WARNING - /sys/module/sx_core/asic0/module11/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module11/present'
+2026-03-22 20:48:17,773 - WARNING - /sys/module/sx_core/asic0/module12/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module12/present'
+2026-03-22 20:48:17,773 - WARNING - /sys/module/sx_core/asic0/module13/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module13/present'
+2026-03-22 20:48:17,774 - WARNING - /sys/module/sx_core/asic0/module14/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module14/present'
+2026-03-22 20:48:17,775 - WARNING - /sys/module/sx_core/asic0/module15/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module15/present'
+2026-03-22 20:48:17,775 - WARNING - /sys/module/sx_core/asic0/module16/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module16/present'
+2026-03-22 20:48:17,776 - WARNING - /sys/module/sx_core/asic0/module17/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module17/present'
+2026-03-22 20:48:17,777 - WARNING - /sys/module/sx_core/asic0/module18/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module18/present'
+2026-03-22 20:48:17,777 - WARNING - /sys/module/sx_core/asic0/module19/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module19/present'
+2026-03-22 20:48:17,778 - WARNING - /sys/module/sx_core/asic0/module20/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module20/present'
+2026-03-22 20:48:17,779 - WARNING - /sys/module/sx_core/asic0/module21/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module21/present'
+2026-03-22 20:48:17,780 - WARNING - /sys/module/sx_core/asic0/module22/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module22/present'
+2026-03-22 20:48:17,780 - WARNING - /sys/module/sx_core/asic0/module23/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module23/present'
+2026-03-22 20:48:17,781 - WARNING - /sys/module/sx_core/asic0/module24/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module24/present'
+2026-03-22 20:48:17,782 - WARNING - /sys/module/sx_core/asic0/module25/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module25/present'
+2026-03-22 20:48:17,782 - WARNING - /sys/module/sx_core/asic0/module26/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module26/present'
+2026-03-22 20:48:17,783 - WARNING - /sys/module/sx_core/asic0/module27/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module27/present'
+2026-03-22 20:48:20,784 - NOTICE - asic not ready
+2026-03-22 20:48:20,784 - NOTICE - asic1 not ready
+2026-03-22 20:48:23,785 - WARNING - asic ASIC_NOT_READY
+2026-03-22 20:48:23,785 - WARNING - asic1 ASIC_NOT_READY
+2026-03-22 20:48:26,787 - WARNING - asic ASIC_NOT_READY
+2026-03-22 20:48:26,787 - WARNING - asic1 ASIC_NOT_READY
+2026-03-22 20:48:37,793 - WARNING - /sys/module/sx_core/asic0/module0/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module0/present'
+2026-03-22 20:48:37,794 - WARNING - /sys/module/sx_core/asic0/module1/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module1/present'
+2026-03-22 20:48:37,795 - WARNING - /sys/module/sx_core/asic0/module2/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module2/present'
+2026-03-22 20:48:37,795 - WARNING - /sys/module/sx_core/asic0/module3/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module3/present'
+2026-03-22 20:48:37,796 - WARNING - /sys/module/sx_core/asic0/module4/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module4/present'
+2026-03-22 20:48:37,797 - WARNING - /sys/module/sx_core/asic0/module5/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module5/present'
+2026-03-22 20:48:37,798 - WARNING - /sys/module/sx_core/asic0/module6/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module6/present'
+2026-03-22 20:48:37,798 - WARNING - /sys/module/sx_core/asic0/module7/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module7/present'
+2026-03-22 20:48:37,799 - WARNING - /sys/module/sx_core/asic0/module8/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module8/present'
+2026-03-22 20:48:37,800 - WARNING - /sys/module/sx_core/asic0/module9/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module9/present'
+2026-03-22 20:48:37,800 - WARNING - /sys/module/sx_core/asic0/module10/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module10/present'
+2026-03-22 20:48:37,801 - WARNING - /sys/module/sx_core/asic0/module11/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module11/present'
+2026-03-22 20:48:37,802 - WARNING - /sys/module/sx_core/asic0/module12/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module12/present'
+2026-03-22 20:48:37,803 - WARNING - /sys/module/sx_core/asic0/module13/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module13/present'
+2026-03-22 20:48:37,803 - WARNING - /sys/module/sx_core/asic0/module14/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module14/present'
+2026-03-22 20:48:37,804 - WARNING - /sys/module/sx_core/asic0/module15/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module15/present'
+2026-03-22 20:48:37,805 - WARNING - /sys/module/sx_core/asic0/module16/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module16/present'
+2026-03-22 20:48:37,805 - WARNING - /sys/module/sx_core/asic0/module17/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module17/present'
+2026-03-22 20:48:37,806 - WARNING - /sys/module/sx_core/asic0/module18/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module18/present'
+2026-03-22 20:48:37,807 - WARNING - /sys/module/sx_core/asic0/module19/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module19/present'
+2026-03-22 20:48:37,808 - WARNING - /sys/module/sx_core/asic0/module20/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module20/present'
+2026-03-22 20:48:37,808 - WARNING - /sys/module/sx_core/asic0/module21/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module21/present'
+2026-03-22 20:48:37,809 - WARNING - /sys/module/sx_core/asic0/module22/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module22/present'
+2026-03-22 20:48:37,810 - WARNING - /sys/module/sx_core/asic0/module23/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module23/present'
+2026-03-22 20:48:37,811 - WARNING - /sys/module/sx_core/asic0/module24/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module24/present'
+2026-03-22 20:48:37,811 - WARNING - /sys/module/sx_core/asic0/module25/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module25/present'
+2026-03-22 20:48:37,812 - WARNING - /sys/module/sx_core/asic0/module26/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module26/present'
+2026-03-22 20:48:37,813 - WARNING - /sys/module/sx_core/asic0/module27/present [Errno 2] No such file or directory: '/sys/module/sx_core/asic0/module27/present'
+2026-03-22 20:49:05,847 - INFO - message repeated 16 times: [ asic not ready ] and stopped
+2026-03-22 20:49:05,847 - INFO - message repeated 14 times: [ asic ASIC_NOT_READY ] and stopped
+2026-03-22 20:49:05,848 - INFO - message repeated 16 times: [ asic1 not ready ] and stopped
+2026-03-22 20:49:05,848 - INFO - message repeated 14 times: [ asic1 ASIC_NOT_READY ] and stopped
+2026-03-22 20:49:17,857 - NOTICE - module1 independent mode
+2026-03-22 20:49:17,857 - NOTICE - module2 independent mode
+2026-03-22 20:49:17,858 - NOTICE - module3 independent mode
+2026-03-22 20:49:17,858 - NOTICE - module4 independent mode
+2026-03-22 20:49:17,858 - NOTICE - module5 independent mode
+2026-03-22 20:49:17,858 - NOTICE - module6 independent mode
+2026-03-22 20:49:17,858 - NOTICE - module7 independent mode
+2026-03-22 20:49:17,859 - NOTICE - module8 independent mode
+2026-03-22 20:49:17,859 - NOTICE - module9 independent mode
+2026-03-22 20:49:17,859 - NOTICE - module10 independent mode
+2026-03-22 20:49:17,859 - NOTICE - module11 independent mode
+2026-03-22 20:49:17,859 - NOTICE - module12 independent mode
+2026-03-22 20:49:17,860 - NOTICE - module13 independent mode
+2026-03-22 20:49:17,860 - NOTICE - module14 independent mode
+2026-03-22 20:49:17,860 - NOTICE - module15 independent mode
+2026-03-22 20:49:17,860 - NOTICE - module16 independent mode
+2026-03-22 20:49:17,860 - NOTICE - module17 independent mode
+2026-03-22 20:49:17,861 - NOTICE - module18 independent mode
+2026-03-22 20:49:17,861 - NOTICE - module19 independent mode
+2026-03-22 20:49:17,861 - NOTICE - module20 independent mode
+2026-03-22 20:49:17,861 - NOTICE - module21 independent mode
+2026-03-22 20:49:17,861 - NOTICE - module22 independent mode
+2026-03-22 20:49:17,862 - NOTICE - module23 independent mode
+2026-03-22 20:49:17,862 - NOTICE - module24 independent mode
+2026-03-22 20:49:17,862 - NOTICE - module25 independent mode
+2026-03-22 20:49:17,862 - NOTICE - module26 independent mode
+2026-03-22 20:49:17,862 - NOTICE - module27 independent mode
+2026-03-22 20:49:17,863 - NOTICE - module28 independent mode
+2026-03-22 20:49:37,876 - NOTICE - module1 independent mode
+2026-03-22 20:49:37,877 - NOTICE - module2 independent mode
+2026-03-22 20:49:37,877 - NOTICE - module3 independent mode
+2026-03-22 20:49:37,877 - NOTICE - module4 independent mode
+2026-03-22 20:49:37,877 - NOTICE - module5 independent mode
+2026-03-22 20:49:37,877 - NOTICE - module6 independent mode
+2026-03-22 20:49:37,878 - NOTICE - module7 independent mode
+2026-03-22 20:49:37,878 - NOTICE - module8 independent mode
+2026-03-22 20:49:37,878 - NOTICE - module9 independent mode
+2026-03-22 20:49:37,878 - NOTICE - module10 independent mode
+2026-03-22 20:49:37,878 - NOTICE - module11 independent mode
+2026-03-22 20:49:37,879 - NOTICE - module12 independent mode
+2026-03-22 20:49:37,879 - NOTICE - module13 independent mode
+2026-03-22 20:49:37,879 - NOTICE - module14 independent mode
+2026-03-22 20:49:37,879 - NOTICE - module15 independent mode
+2026-03-22 20:49:37,879 - NOTICE - module16 independent mode
+2026-03-22 20:49:37,880 - NOTICE - module17 independent mode
+2026-03-22 20:49:37,880 - NOTICE - module18 independent mode
+2026-03-22 20:49:37,880 - NOTICE - module19 independent mode
+2026-03-22 20:49:37,880 - NOTICE - module20 independent mode
+2026-03-22 20:49:37,880 - NOTICE - module21 independent mode
+2026-03-22 20:49:37,881 - NOTICE - module22 independent mode
+2026-03-22 20:49:37,881 - NOTICE - module23 independent mode
+2026-03-22 20:49:37,881 - NOTICE - module24 independent mode
+2026-03-22 20:49:37,881 - NOTICE - module25 independent mode
+2026-03-22 20:49:37,881 - NOTICE - module26 independent mode
+2026-03-22 20:49:37,882 - NOTICE - module27 independent mode
+2026-03-22 20:49:37,882 - NOTICE - module28 independent mode

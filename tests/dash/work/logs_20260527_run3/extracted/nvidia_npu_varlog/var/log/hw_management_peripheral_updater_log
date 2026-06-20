@@ -1,0 +1,8 @@
+2026-03-22 20:48:17,761 - NOTICE - hw-management-peripheral-updater: load config (HI160)
+2026-03-22 20:48:17,762 - NOTICE - hw-management-peripheral-updater: module_counter initialized (28)
+2026-03-22 20:48:17,762 - NOTICE - hw-management-peripheral-updater: init attributes
+2026-03-22 20:48:17,762 - INFO - init_attr: {'fin': '/var/run/hw-management/config/thermal_enforced_full_spped', 'fn': 'run_cmd', 'arg': ['if [[ -f /var/run/hw-management/config/thermal_enforced_full_spped && $(</var/run/hw-management/config/thermal_enforced_full_spped) == "1" ]]; then /usr/bin/hw-management-user-dump; fi'], 'poll': 5, 'ts': 0}
+2026-03-22 20:48:17,763 - INFO - init_attr: {'fin': None, 'fn': 'asic_temp_populate', 'poll': 3, 'ts': 0, 'arg': {'asic': {'fin': '/sys/module/sx_core/asic0/'}, 'asic1': {'fin': '/sys/module/sx_core/asic0/'}}}
+2026-03-22 20:48:17,763 - INFO - init_attr: {'fin': None, 'fn': 'monitor_asic_chipup_status', 'poll': 5, 'ts': 0, 'arg': {'asic': {'fin': '/sys/module/sx_core/asic0/'}, 'asic1': {'fin': '/sys/module/sx_core/asic0/'}}}
+2026-03-22 20:48:17,763 - INFO - init_attr: {'fin': None, 'fn': 'module_temp_populate', 'poll': 20, 'ts': 0, 'arg': {'fin': '/sys/module/sx_core/asic0/module{}/', 'fout_idx_offset': 1, 'module_count': 28}}
+2026-03-22 20:48:17,763 - NOTICE - hw-management-peripheral-updater: start main loop

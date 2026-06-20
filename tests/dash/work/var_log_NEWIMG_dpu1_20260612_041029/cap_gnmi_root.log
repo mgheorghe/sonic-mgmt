@@ -1,0 +1,91 @@
+ERROR: logging before flag.Parse: W0414 00:27:28.813192  336623 util.go:314] [CVL] : [libyang Error] Unable to use search directory "schema/" (No such file or directory) (path: )
+ERROR: logging before flag.Parse: I0414 00:27:28.814503  336623 util.go:312] [CVL] : Could not read platform schema location or no platform specific schema exists. <nil>
+ERROR: logging before flag.Parse: W0414 00:27:28.814785  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: I0414 00:27:28.814800  336623 db_redis_opts.go:175] _DBRedisOptsConfig:reconfigure: Handling signal.
+ERROR: logging before flag.Parse: W0414 00:27:28.814819  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.815663  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.815928  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.816187  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.816459  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.816722  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.816996  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.817255  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.817550  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.817579  336623 db_redis_opts.go:119] Database instance not present for the Db name: ERROR_DB
+ERROR: logging before flag.Parse: W0414 00:27:28.820505  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: W0414 00:27:28.820799  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: I0414 00:27:28.821166  336623 db_lock.go:234] ConfigDBClearLock:
+ERROR: logging before flag.Parse: W0414 00:27:28.821181  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: I0414 00:27:28.821584  336623 db_lock.go:134] unlock: Already Unlocked
+ERROR: logging before flag.Parse: I0414 00:27:28.821617  336623 db_lock.go:242] ConfigDBClearLock: Lock Absent
+ERROR: logging before flag.Parse: W0414 00:27:28.821643  336623 db_redis_opts.go:165] _DBRedisOptsConfig:reconfigure: flags not parsed!
+ERROR: logging before flag.Parse: I0414 00:27:28.823134  336623 emitjson_select.go:68] Marker file /var/run/telemetry/use_ygot_emitjson not found (err = stat /var/run/telemetry/use_ygot_emitjson: no such file or directory). Will use internal EmitJSON
+ERROR: logging before flag.Parse: I0414 00:27:28.937935  336623 xlate_utils.go:1366] [transformer.go:92]init.2 Yang model List: [sonic-acl.yang sonic-extensions.yang sonic-interface.yang sonic-mclag.yang sonic-port.yang sonic-portchannel.yang sonic-sflow.yang sonic-show-techsupport.yang sonic-showtech-annot.yang sonic-types.yang sonic-vlan.yang sonic-vrf.yang openconfig-acl-annot.yang openconfig-acl.yang openconfig-if-aggregate.yang openconfig-if-ethernet.yang openconfig-if-ip.yang openconfig-interfaces-annot.yang openconfig-interfaces.yang openconfig-mclag-annot.yang openconfig-mclag.yang openconfig-sampling-sflow-annot.yang openconfig-sampling-sflow.yang openconfig-system-annot.yang openconfig-vlan.yang gnsi-authz.yang gnsi-pathz.yang gnsi-certz.yang gnsi-credentialz.yang]
+ERROR: logging before flag.Parse: I0414 00:27:29.038914  336623 xlate_utils.go:1366] [transformer.go:151]loadYangModules Couldn't read yang annotation openconfig-system-annot.yang due to /usr/models/yang/openconfig-system-annot.yang:60:15: /oc-sys:system/oc-sys:aaa/oc-sys:authorization/oc-sys:state: syntax error
+/usr/models/yang/openconfig-system-annot.yang:60:75: {: not an identifier
+/usr/models/yang/openconfig-system-annot.yang:61:6:  deviate: syntax error
+/usr/models/yang/openconfig-system-annot.yang:62:6:  : syntax error
+/usr/models/yang/openconfig-system-annot.yang:63:6:  : syntax error
+/usr/models/yang/openconfig-system-annot.yang:64:6:  : syntax error
+/usr/models/yang/openconfig-system-annot.yang:65:5: }: syntax error
+ERROR: logging before flag.Parse: I0414 00:27:29.047300  336623 xspec.go:150] xspec init done ...
+ERROR: logging before flag.Parse: I0414 00:27:29.047379  336623 app_interface.go:117] Registering for path =/openconfig-acl:acl
+ERROR: logging before flag.Parse: I0414 00:27:29.047394  336623 app_interface.go:117] Registering for path =/sonic-
+ERROR: logging before flag.Parse: I0414 00:27:29.047404  336623 app_interface.go:117] Registering for path =*
+ERROR: logging before flag.Parse: I0414 00:27:29.047426  336623 lldp_app.go:62] Init called for LLDP modules module
+ERROR: logging before flag.Parse: I0414 00:27:29.047436  336623 app_interface.go:117] Registering for path =/openconfig-lldp:lldp
+ERROR: logging before flag.Parse: I0414 00:27:29.047447  336623 pfm_app.go:42] Init called for Platform module
+ERROR: logging before flag.Parse: I0414 00:27:29.047457  336623 app_interface.go:117] Registering for path =/openconfig-platform:components
+ERROR: logging before flag.Parse: I0414 00:27:29.047484  336623 sys_app.go:54] SysApp: Init called for System module
+ERROR: logging before flag.Parse: I0414 00:27:29.047493  336623 app_interface.go:117] Registering for path =/openconfig-system:system
+ERROR: logging before flag.Parse: I0414 00:27:29.047643  336623 version.go:144] *** Yang bundle version = 1.0.0
+ERROR: logging before flag.Parse: I0414 00:27:29.047665  336623 version.go:145] *** Yang base version   = 1.0.0
+ERROR: logging before flag.Parse: I0414 00:27:29.047676  336623 app_interface.go:117] Registering for path =/ietf-yang-library:modules-state
+I0414 00:27:29.051498  336623 telemetry.go:227] client_auth not provided, using defaults.
+I0414 00:27:29.052410  336623 telemetry.go:347] Begin cert monitoring on /etc/sonic/telemetry
+I0414 00:27:29.081223  336623 gnsi_authz.go:54] gnsi: loading authz metadata from /keys/authz-version.json
+I0414 00:27:29.081258  336623 gnsi_authz.go:55] gnsi: loading authz policy from /keys/authorization_policy.json
+I0414 00:27:29.081266  336623 gnsi_authz.go:286] load authz metadata from file: /keys/authz-version.json
+I0414 00:27:29.081282  336623 gnsi_authz.go:57] open /keys/authz-version.json: no such file or directory
+I0414 00:27:29.082217  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|AUTHZ_POLICY|p4rt', fld:'authz_version', val:'unknown']
+I0414 00:27:29.082881  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|AUTHZ_POLICY|gnxi', fld:'authz_version', val:'unknown']
+I0414 00:27:29.083518  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|AUTHZ_POLICY|p4rt', fld:'authz_created_on', val:'0']
+I0414 00:27:29.084086  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|AUTHZ_POLICY|gnxi', fld:'authz_created_on', val:'0']
+I0414 00:27:29.084135  336623 gnsi_pathz.go:76] open : no such file or directory
+I0414 00:27:29.084148  336623 gnsi_pathz.go:125] Writing pathz metadata to DB: ACTIVE Version: unknown CreatedOn: 0
+I0414 00:27:29.084687  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|PATHZ_POLICY|ACTIVE', fld:'pathz_version', val:'unknown']
+I0414 00:27:29.085241  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|PATHZ_POLICY|ACTIVE', fld:'pathz_created_on', val:'0']
+W0414 00:27:29.085317  336623 whitelist.go:24] No whitelist found at path '/etc/sonic/command_whitelist.yaml', using default whitelists: open /etc/sonic/command_whitelist.yaml: no such file or directory
+I0414 00:27:29.085363  336623 gnsi_certz.go:115] Starting gNSI Certz Server
+I0414 00:27:29.085372  336623 gnsi_certz.go:124] Integrity Manifest File: /mbm/boot_manifest.cbor
+I0414 00:27:29.085380  336623 gnsi_certz.go:728] Loading metadata from `/keys/grpc-version.json`...
+I0414 00:27:29.085394  336623 gnsi_certz.go:127] open /keys/grpc-version.json: no such file or directory
+I0414 00:27:29.085410  336623 gnsi_certz.go:179] Bootstrapping default profile
+I0414 00:27:29.085478  336623 gnsi_certz.go:689] Writing gnxi profile to DB: &{EType:Certificate CreatedOn:1776126449085414590 Version:V1 CertPath:/etc/sonic/telemetry/gnmiserver.crt KeyPath:/etc/sonic/telemetry/gnmiserver.key Final:true}
+I0414 00:27:29.086051  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'certificate_created_on', val:'1776126449085414590000000000']
+I0414 00:27:29.086610  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'certificate_version', val:'V1']
+I0414 00:27:29.086648  336623 gnsi_certz.go:689] Writing gnxi profile to DB: &{EType:TrustBundle CreatedOn:1776126449085414590 Version:V1 CertPath:/etc/sonic/telemetry/gnmiCA.pem KeyPath: Final:true}
+I0414 00:27:29.087172  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'ca_trust_bundle_created_on', val:'1776126449085414590000000000']
+I0414 00:27:29.087740  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'ca_trust_bundle_version', val:'V1']
+I0414 00:27:29.087779  336623 gnsi_certz.go:689] Writing gnxi profile to DB: &{EType:CRLBundle CreatedOn:1776126449085414590 Version:V1 CertPath:/mtls/crl KeyPath: Final:true}
+I0414 00:27:29.088310  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'certificate_revocation_list_bundle_created_on', val:'1776126449085414590000000000']
+I0414 00:27:29.088864  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'certificate_revocation_list_bundle_version', val:'V1']
+I0414 00:27:29.088902  336623 gnsi_certz.go:689] Writing gnxi profile to DB: &{EType:AuthPolicy CreatedOn:1776126449085414590 Version:V1 CertPath: KeyPath: Final:true}
+I0414 00:27:29.089459  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'authentication_policy_created_on', val:'1776126449085414590000000000']
+I0414 00:27:29.090032  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|CERT|gnxi', fld:'authentication_policy_version', val:'V1']
+I0414 00:27:29.090070  336623 gnsi_certz.go:718] Saving gRPC credentials metadata.
+I0414 00:27:29.090194  336623 gnsi_certz.go:723] Certz Metadata:
+{"gnxi":{"profile_id":"gnxi","active":{"certificate":{"EType":0,"CreatedOn":1776126449085414590,"Version":"V1","CertPath":"/etc/sonic/telemetry/gnmiserver.crt","KeyPath":"/etc/sonic/telemetry/gnmiserver.key","Final":true},"trust_bundle":{"EType":1,"CreatedOn":1776126449085414590,"Version":"V1","CertPath":"/etc/sonic/telemetry/gnmiCA.pem","KeyPath":"","Final":true},"crl_bundle":{"EType":2,"CreatedOn":1776126449085414590,"Version":"V1","CertPath":"/mtls/crl","KeyPath":"","Final":true},"auth_policy":{"EType":3,"CreatedOn":1776126449085414590,"Version":"V1","CertPath":"","KeyPath":"","Final":true}},"last_active":{"certificate":{"EType":0,"CreatedOn":0,"Version":"","CertPath":"","KeyPath":"","Final":false},"trust_bundle":{"EType":0,"CreatedOn":0,"Version":"","CertPath":"","KeyPath":"","Final":false},"crl_bundle":{"EType":0,"CreatedOn":0,"Version":"","CertPath":"","KeyPath":"","Final":false},"auth_policy":{"EType":0,"CreatedOn":0,"Version":"","CertPath":"","KeyPath":"","Final":false}}}}
+I0414 00:27:29.090244  336623 gnsi_certz.go:158] Certz Server Ready
+I0414 00:27:29.090711  336623 gnsi_credentialz.go:94] srv.config.SshCredMetaFile= error=open : no such file or directory
+I0414 00:27:29.090736  336623 gnsi_credentialz.go:97] srv.config.ConsoleCredMetaFile= error=open : no such file or directory
+I0414 00:27:29.091283  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|SSH_HOST', fld:'ca_keys_version', val:'unknown']
+I0414 00:27:29.091846  336623 gnsi_certz.go:1057] Successfully wrote credentials metadata to the DB. [path:'CREDENTIALS|SSH_HOST', fld:'ca_keys_created_on', val:'0']
+I0414 00:27:29.092492  336623 server.go:659] Created Server on localhost:50052, /var/run/gnmi/gnmi.sock, read-only: true
+I0414 00:27:29.092509  336623 telemetry.go:591] Auth Modes:
+I0414 00:27:29.092525  336623 telemetry.go:592] Starting RPC server on address: localhost:50052, /var/run/gnmi/gnmi.sock
+I0414 00:27:29.092549  336623 telemetry.go:595] GNMI Server started serving
+I0414 00:27:29.092584  336623 server.go:696] Starting UDS server on /var/run/gnmi/gnmi.sock
+I0414 00:27:29.092611  336623 server.go:681] Starting TCP server on [::]:50052
+I0414 00:29:02.301508  336623 telemetry.go:411] Sending signal stop to server because of syscall received
+I0414 00:29:02.301567  336623 telemetry.go:602] Received signal for gnmi server to close

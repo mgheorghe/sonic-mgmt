@@ -1,0 +1,1150 @@
+POST https://10.36.78.39/connect/api/v1/config HTTP/1.1
+content-type: application/json
+
+{
+    "profiles": {
+        "layer_1_profiles": [
+            { "name": "autoneg"          , "link_speed": "speed_100_gbps", "choice": "autonegotiation"                                         },
+            { "name": "manual_RS"        , "link_speed": "speed_100_gbps", "choice": "manual"         , "manual": {"fec_mode": "reed_solomon"} },
+            { "name": "manual_NONE"      , "link_speed": "speed_100_gbps", "choice": "manual"         , "manual": {"fec_mode": "none"        } },
+            { "name": "autoneg_400"      , "link_speed": "speed_400_gbps", "choice": "autonegotiation"                                         },
+            { "name": "manual_RS_400"    , "link_speed": "speed_400_gbps", "choice": "manual"         , "manual": {"fec_mode": "reed_solomon"} }
+        ]
+    },
+    "front_panel_ports": [
+        { "name": "l47_port_1s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  9, "channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_1c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  9, "channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_2s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  9, "channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_2c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  9, "channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_3s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 10, "channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_3c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 10, "channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_4s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 10, "channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_4c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 10, "channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_5s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 11, "channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_5c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 11, "channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_6s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 11, "channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_6c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 11, "channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_7s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 12, "channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_7c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 12, "channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_8s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 12, "channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_8c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 12, "channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_9s" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 13, "channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_9c" , "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 13, "channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_10s", "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 13, "channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_10c", "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 13, "channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_11s", "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 14, "channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_11c", "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 14, "channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_12s", "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 14, "channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+        { "name": "l47_port_12c", "choice": "front_panel_port", "front_panel_port": {"front_panel_port": 14, "channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"  } },
+
+        {"name": "ixnetwork_port_1A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 29,"channel": 1, "num_channels": 2,"layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_2A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 29,"channel": 3, "num_channels": 2,"layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_3A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 29,"channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_4A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 29,"channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+
+        {"name": "ixnetwork_port_1B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 30,"channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_2B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 30,"channel": 3,"num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_3B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 30,"channel": 5,"num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_4B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 30,"channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+
+        {"name": "ixnetwork_port_5A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 31,"channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_6A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 31,"channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_7A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 31,"channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_8A","choice": "front_panel_port","front_panel_port": {"front_panel_port": 31,"channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+
+        {"name": "ixnetwork_port_5B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 32,"channel": 1, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_6B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 32,"channel": 3, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_7B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 32,"channel": 5, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+        {"name": "ixnetwork_port_8B","choice": "front_panel_port","front_panel_port": {"front_panel_port": 32,"channel": 7, "num_channels": 2, "layer_1_profile_name": "manual_RS"}},
+
+        { "name": "dpu_port_1"  , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  1,                                  "layer_1_profile_name": "manual_RS_400"} },
+        { "name": "dpu_port_2"  , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  2,                                  "layer_1_profile_name": "manual_RS_400"} },
+        { "name": "dpu_port_3"  , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  3,                                  "layer_1_profile_name": "manual_RS_400"} },
+        { "name": "dpu_port_4"  , "choice": "front_panel_port", "front_panel_port": {"front_panel_port":  4,                                  "layer_1_profile_name": "manual_RS_400"} }
+    ],
+    "connections": [
+        {
+            "name": "ARP Bypass 1",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1001, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_1c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1001, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 2",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1033, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_2c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1033, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 3",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1065, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_3c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1065, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 4",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1097, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_4c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1097, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 5",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1129, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_5c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1129, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 6",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1161, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_6c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1161, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 7",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1193, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_7c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1193, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 8",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_9c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1225, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_8c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1225, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "l47 Server 1",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                            },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                            },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.0", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                   "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:3e8::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_1s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                          }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 1",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                            },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                            },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.0", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                   "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1000},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "1.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_1c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1001, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "l47 Server 2",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.32", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:408::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_2s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 33, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                           }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 2",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.32", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1000},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "9.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_2c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1033, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "l47 Server 3",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.64", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:428::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_3s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 65, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                           }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 3",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.64", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1064},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "17.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_3c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1065, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "l47 Server 4",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.96", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:448::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_4s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 97, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                           }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 4",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.96", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1064},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "25.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_4c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1097, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "l47 Server 5",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.128", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:468::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_5s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 129, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 5",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.128", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1128},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "33.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_5c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1129, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "l47 Server 6",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.160", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:488::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_6s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 161, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 6",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.160", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1128},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "41.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_6c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1161, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "l47 Server 7",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.192", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:4a8::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_7s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 193, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 7",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.192", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1192},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "49.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_7c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1193, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "l47 Server 8",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.224", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:4c8::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_8s", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 225, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "l47 Client 8",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.224", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1192},
+                            "protocols": { "accept": ["tcp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "57.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "l47_port_8c", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1225, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+        {"name": "ARP Bypass 1N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1001, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 2N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_2A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 33, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_2B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1033, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 3N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_3A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 65, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_3B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1065, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 4N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_4A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 97, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_4B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1097, "count": 32, "step": 1} } } }
+            ]
+        },
+        {
+            "name": "ARP Bypass 5N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_5A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 129, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_5B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1129, "count": 32, "step": 1} } } }
+            ]
+        },
+
+        {
+            "name": "ARP Bypass 6N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_6A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 161, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_6B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1161, "count": 32, "step": 1} } } }
+            ]
+        },
+
+    {
+            "name": "ARP Bypass 7N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_7A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 193, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_7B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1193, "count": 32, "step": 1} } } }
+            ]
+        },
+
+        {
+            "name": "ARP Bypass 8N",
+            "functions": [ {"choice": "connect_arp", "connect_arp": {}} ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_8A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 125, "count": 32, "step": 1} } } },
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_8B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1225, "count": 32, "step": 1} } } }
+            ]
+        },
+
+
+
+
+            {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 1",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                            },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                            },
+                                "src_ip" : { "choice": "ipv4_range",  "ipv4_range": {"start": "221.2.0.0", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,    "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:3e8::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                          }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 1",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                            },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                            },
+                                "src_ip" : { "choice": "ipv4_range",  "ipv4_range": {"start": "221.1.0.0", "count": 32, "step": "0.0.0.1"}},
+                                "dst_ip" : { "choice": "ipv4"      , "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1000 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "1.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_1B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1001, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+
+
+
+        {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 2",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",  "ipv4_range": {"start": "221.2.0.32", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,   "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:408::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_2A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 33, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"                                                                                           }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 2",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.32", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,  "ipv4": "221.0.0.1" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1000 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "9.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_2B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1033, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_1"    }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 3",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.64", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:428::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_3A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 65, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                           }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 3",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.64", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1064 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "17.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_3B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1065, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 4",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.96", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:448::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_4A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 97, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                           }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 4",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                             },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                             },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.96", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                    "ipv4": "221.0.0.2" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                             "vni": { "choice": "vni", "vni": 1064 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "25.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_4B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1097, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_2"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 5",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.128", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:468::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_5A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 129, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 5",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.128", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                             "vni": { "choice": "vni", "vni": 1128 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "33.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_5B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1129, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 6",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.160", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:488::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_6A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 161, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 6",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.160", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.3" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                             "vni": { "choice": "vni", "vni": 1128 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "41.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_6B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1161, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_3"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 7",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.192", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:4a8::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_7A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 193, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 7",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.192", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                             "vni": { "choice": "vni", "vni": 1192 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "49.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_7B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1193, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT NVGRE ASIC Server 8",
+            "functions": [
+                {
+                    "choice": "connect_vlan_nvgre",
+                    "connect_vlan_nvgre": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_nvgre_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:01"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.2.0.224", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "nvgre_endpoint_settings": {
+                            "vsid": {"choice": "vsid", "vsid": 100},
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv6_range", "ipv6_range": {"start": "2603:100:4c8::", "subnet_bits": 48, "count": 32, "step": "0:0:1::"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_8A", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 225, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                            }, "tags": ["nvgre"] }
+            ]
+        },
+        {
+            "name": "IxNetwork VLAN to DUT VXLAN ASIC Client 8",
+            "functions": [
+                {
+                    "choice": "connect_vlan_vxlan",
+                    "connect_vlan_vxlan": {
+                        "vlan_endpoint_settings": {
+                            "outgoing_vxlan_header": {
+                                "src_mac": { "choice": "mac"       , "mac": "80:09:02:01:00:02"                                                                                              },
+                                "dst_mac": { "choice": "mac"       , "mac": "2c:5e:ab:1b:70:00"                                                                                              },
+                                "src_ip" : { "choice": "ipv4_range",                             "ipv4_range": {"start": "221.1.0.224", "count": 32, "step": "0.0.0.1"}                      },
+                                "dst_ip" : { "choice": "ipv4"      ,                                                                                                     "ipv4": "221.0.0.4" }
+                            }
+                        },
+                        "vxlan_endpoint_settings": {
+                            "vni": { "choice": "vni", "vni": 1192 },
+                            "protocols": { "accept": ["udp"] },
+                            "routing_method": "ip_routing",
+                            "ip_routing": { "destination_ips": { "choice": "ipv4_range", "ipv4_range": {"start": "57.1.0.1", "count": 32, "step": "0.64.0.0"} } }
+                        }
+                    }
+                }
+            ],
+            "endpoints": [
+                { "choice": "front_panel", "front_panel": { "port_name": "ixnetwork_port_8B", "vlan": { "choice": "vlan_range", "vlan_range": {"start": 1225, "count": 32, "step": 1} } }, "tags": ["vlan" ] },
+                { "choice": "front_panel", "front_panel": { "port_name": "dpu_port_4"                                                                                             }, "tags": ["vxlan"] }
+            ]
+        }
+
+    ]
+}

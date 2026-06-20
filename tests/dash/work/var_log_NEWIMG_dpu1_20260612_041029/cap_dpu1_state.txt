@@ -1,0 +1,78 @@
+### show version
+SONiC Software Version: SONiC.internal.167426684-dfd1f4ecaa
+SONiC OS Version: 13
+Distribution: Debian 13.5
+Kernel: 6.12.41+deb13-sonic-arm64
+Build commit: dfd1f4ecaa
+Build date: Wed Jun 10 06:50:47 UTC 2026
+Built by: azureuser@a99b2ea4c000002
+
+Platform: arm64-nvda_bf-bf3comdpu
+HwSKU: Nvidia-bf3-com-dpu
+ASIC: nvidia-bluefield
+ASIC Count: 1
+Serial Number: MT2443XZ001M
+Model Number: SA004902
+Hardware Revision: A4
+Uptime: 00:56:44 up  5:18,  2 users,  load average: 0.96, 0.70, 0.62
+Date: Tue 14 Apr 2026 00:56:44
+
+Docker images:
+REPOSITORY                      TAG                             IMAGE ID       SIZE
+docker-sonic-bmp                internal.167426684-dfd1f4ecaa   8dc0c3344e1f   348MB
+docker-sonic-bmp                latest                          8dc0c3344e1f   348MB
+docker-eventd                   internal.167426684-dfd1f4ecaa   cca75db9540b   346MB
+docker-eventd                   latest                          cca75db9540b   346MB
+docker-bmp-watchdog             internal.167426684-dfd1f4ecaa   89484fd81746   346MB
+docker-bmp-watchdog             latest                          89484fd81746   346MB
+docker-acms                     internal.167426684-dfd1f4ecaa   900158838ffe   360MB
+docker-acms                     latest                          900158838ffe   360MB
+docker-acms-watchdog            internal.167426684-dfd1f4ecaa   99a71fbae560   346MB
+docker-acms-watchdog            latest                          99a71fbae560   346MB
+docker-sysmgr                   internal.167426684-dfd1f4ecaa   0d722bc760eb   351MB
+docker-sysmgr                   latest                          0d722bc760eb   351MB
+docker-orchagent                internal.167426684-dfd1f4ecaa   f6391363f776   399MB
+docker-orchagent                latest                          f6391363f776   399MB
+docker-acms-sidecar             internal.167426684-dfd1f4ecaa   3dc6779dd909   346MB
+docker-acms-sidecar             latest                          3dc6779dd909   346MB
+docker-fpm-frr                  internal.167426684-dfd1f4ecaa   9ef7d225b944   444MB
+docker-fpm-frr                  latest                          9ef7d225b944   444MB
+docker-restapi-sidecar          internal.167426684-dfd1f4ecaa   c46941ce58f2   346MB
+docker-restapi-sidecar          latest                          c46941ce58f2   346MB
+docker-platform-monitor         internal.167426684-dfd1f4ecaa   88242c9a745b   629MB
+docker-platform-monitor         latest                          88242c9a745b   629MB
+docker-restapi-watchdog         internal.167426684-dfd1f4ecaa   50529c12aea3   353MB
+docker-restapi-watchdog         latest                          50529c12aea3   353MB
+docker-sonic-gnmi               internal.167426684-dfd1f4ecaa   f189db07df5f   458MB
+docker-sonic-gnmi               latest                          f189db07df5f   458MB
+docker-database                 internal.167426684-dfd1f4ecaa   9eef8c3b3bef   353MB
+docker-database                 latest                          9eef8c3b3bef   353MB
+docker-gnmi-watchdog            internal.167426684-dfd1f4ecaa   25070768698d   353MB
+docker-gnmi-watchdog            latest                          25070768698d   353MB
+docker-syncd-bluefield          internal.167426684-dfd1f4ecaa   db4f7ca20493   858MB
+docker-syncd-bluefield          latest                          db4f7ca20493   858MB
+docker-auditd                   internal.167426684-dfd1f4ecaa   3537fc05e8ee   346MB
+docker-auditd                   latest                          3537fc05e8ee   346MB
+docker-auditd-watchdog          internal.167426684-dfd1f4ecaa   4371bbfa2f20   348MB
+docker-auditd-watchdog          latest                          4371bbfa2f20   348MB
+docker-gnmi-sidecar             internal.167426684-dfd1f4ecaa   ea98bb4b0397   346MB
+docker-gnmi-sidecar             latest                          ea98bb4b0397   346MB
+docker-sonic-telemetry          internal.167426684-dfd1f4ecaa   57362ab0ca77   459MB
+docker-sonic-telemetry          latest                          57362ab0ca77   459MB
+docker-sonic-otel               internal.167426684-dfd1f4ecaa   6711aa177389   660MB
+docker-sonic-otel               latest                          6711aa177389   660MB
+docker-sonic-profiler           internal.167426684-dfd1f4ecaa   70a800da716c   419MB
+docker-sonic-profiler           latest                          70a800da716c   419MB
+docker-profiler-watchdog        internal.167426684-dfd1f4ecaa   330d5b940177   412MB
+docker-profiler-watchdog        latest                          330d5b940177   412MB
+docker-dummyk8s                 internal.167426684-dfd1f4ecaa   f8cf74f2cffd   412MB
+docker-dummyk8s                 latest                          f8cf74f2cffd   412MB
+publicmirror.azurecr.io/pause   3.5                             f7ff3c404263   484kB
+### DPU_APPL_DB DBSIZE
+10000
+### COUNTERS_ENI_NAME_MAP HLEN
+0
+### swss/syncd up?
+bash: line 1: syncd: command not found
+### date
+Tue Apr 14 12:56:45 AM UTC 2026

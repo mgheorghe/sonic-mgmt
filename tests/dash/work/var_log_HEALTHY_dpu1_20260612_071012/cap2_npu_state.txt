@@ -1,0 +1,29 @@
+### date
+Thu Jun 11 11:56:09 PM PDT 2026
+### show version
+SONiC Software Version: SONiC.internal.167426684-dfd1f4ecaa
+Build date: Wed Jun 10 08:44:07 UTC 2026
+Platform: x86_64-nvidia_sn4280-r0
+HwSKU: Mellanox-SN4280-O28
+docker-platform-monitor         internal.167426684-dfd1f4ecaa   96fa6b182a7c   584MB
+docker-platform-monitor         latest                          96fa6b182a7c   584MB
+### sonic-installer list
+Current: SONiC-OS-internal.167426684-dfd1f4ecaa
+Next: SONiC-OS-internal.167426684-dfd1f4ecaa
+Available:
+SONiC-OS-internal.167426684-dfd1f4ecaa
+### chronyc tracking
+Reference ID    : D8EF2304 (216.239.35.4)
+Stratum         : 2
+Ref time (UTC)  : Fri Jun 12 06:56:00 2026
+System time     : 0.000032355 seconds slow of NTP time
+Last offset     : -0.000018654 seconds
+RMS offset      : 0.000131389 seconds
+### chassis modules
+Name             Description    Physical-Slot    Oper-Status    Admin-Status        Serial
+  DPU0  NVIDIA BlueField-3 DPU              N/A         Online              up  MT2443XZ001E
+  DPU1  NVIDIA BlueField-3 DPU              N/A         Online              up  MT2443XZ001M
+  DPU2  NVIDIA BlueField-3 DPU              N/A         Online              up  MT2443XZ001H
+  DPU3  NVIDIA BlueField-3 DPU              N/A         Online              up  MT2443XZ0004
+### databasedpu1 DBSIZE
+64008

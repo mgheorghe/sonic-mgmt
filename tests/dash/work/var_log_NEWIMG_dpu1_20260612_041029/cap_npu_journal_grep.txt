@@ -1,0 +1,400 @@
+Apr 14 00:50:52 sonic memory_checker[360365]: [memory_checker] The memory usage of container 'telemetry' is '119726080' Bytes!
+Apr 14 00:50:52 sonic memory_checker[360365]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:50:52 sonic memory_checker[360365]: [memory_checker] Total memory usage of container 'telemetry' is '119713792' Bytes!
+Apr 14 00:50:52 sonic memory_checker[360366]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:50:52 sonic memory_checker[360366]: [memory_checker] The memory usage of container 'snmp' is '54136832' Bytes!
+Apr 14 00:50:52 sonic memory_checker[360366]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:50:52 sonic memory_checker[360366]: [memory_checker] Total memory usage of container 'snmp' is '54095872' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361424]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:51:52 sonic memory_checker[361423]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:51:52 sonic memory_checker[361426]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:51:52 sonic memory_checker[361421]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:51:52 sonic memory_checker[361425]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:51:52 sonic memory_checker[361421]: [memory_checker] The memory usage of container 'telemetry' is '119480320' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361425]: [memory_checker] The memory usage of container 'gnmi' is '163577856' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361421]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361421]: [memory_checker] Total memory usage of container 'telemetry' is '119468032' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361425]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361425]: [memory_checker] Total memory usage of container 'gnmi' is '163528704' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361422]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:51:52 sonic memory_checker[361422]: [memory_checker] The memory usage of container 'snmp' is '52830208' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361422]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:51:52 sonic memory_checker[361422]: [memory_checker] Total memory usage of container 'snmp' is '52789248' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362397]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:52:52 sonic memory_checker[362400]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:52:52 sonic memory_checker[362398]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:52:52 sonic memory_checker[362395]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:52:52 sonic memory_checker[362395]: [memory_checker] The memory usage of container 'telemetry' is '119730176' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362395]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362395]: [memory_checker] Total memory usage of container 'telemetry' is '119717888' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362396]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:52:52 sonic memory_checker[362396]: [memory_checker] The memory usage of container 'snmp' is '52781056' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362396]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362396]: [memory_checker] Total memory usage of container 'snmp' is '52740096' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362399]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:52:52 sonic memory_checker[362399]: [memory_checker] The memory usage of container 'gnmi' is '164769792' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362399]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:52:52 sonic memory_checker[362399]: [memory_checker] Total memory usage of container 'gnmi' is '164720640' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363310]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:53:52 sonic memory_checker[363311]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:53:52 sonic memory_checker[363313]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:53:52 sonic memory_checker[363308]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:53:52 sonic memory_checker[363308]: [memory_checker] The memory usage of container 'telemetry' is '119513088' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363308]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363308]: [memory_checker] Total memory usage of container 'telemetry' is '119500800' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363309]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:53:52 sonic memory_checker[363309]: [memory_checker] The memory usage of container 'snmp' is '52830208' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363309]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363309]: [memory_checker] Total memory usage of container 'snmp' is '52789248' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363312]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:53:52 sonic memory_checker[363312]: [memory_checker] The memory usage of container 'gnmi' is '165376000' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363312]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:53:52 sonic memory_checker[363312]: [memory_checker] Total memory usage of container 'gnmi' is '165326848' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364245]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:54:52 sonic memory_checker[364247]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:54:52 sonic memory_checker[364244]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:54:52 sonic memory_checker[364243]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:54:52 sonic memory_checker[364243]: [memory_checker] The memory usage of container 'snmp' is '52879360' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364243]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364243]: [memory_checker] Total memory usage of container 'snmp' is '52838400' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364242]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:54:52 sonic memory_checker[364242]: [memory_checker] The memory usage of container 'telemetry' is '119963648' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364242]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364242]: [memory_checker] Total memory usage of container 'telemetry' is '119951360' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364246]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:54:52 sonic memory_checker[364246]: [memory_checker] The memory usage of container 'gnmi' is '165416960' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364246]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:54:52 sonic memory_checker[364246]: [memory_checker] Total memory usage of container 'gnmi' is '165367808' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365182]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:55:52 sonic memory_checker[365179]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:55:52 sonic memory_checker[365178]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:55:52 sonic memory_checker[365177]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:55:52 sonic memory_checker[365177]: [memory_checker] The memory usage of container 'snmp' is '52932608' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365177]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365177]: [memory_checker] Total memory usage of container 'snmp' is '52891648' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365180]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:55:52 sonic memory_checker[365180]: [memory_checker] The memory usage of container 'gnmi' is '165425152' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365180]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365180]: [memory_checker] Total memory usage of container 'gnmi' is '165376000' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365176]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:55:52 sonic memory_checker[365176]: [memory_checker] The memory usage of container 'telemetry' is '119963648' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365176]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:55:52 sonic memory_checker[365176]: [memory_checker] Total memory usage of container 'telemetry' is '119951360' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366168]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:56:52 sonic memory_checker[366166]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:56:52 sonic memory_checker[366165]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:56:52 sonic memory_checker[366162]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:56:52 sonic memory_checker[366162]: [memory_checker] The memory usage of container 'telemetry' is '120078336' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366162]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366162]: [memory_checker] Total memory usage of container 'telemetry' is '120066048' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366164]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:56:52 sonic memory_checker[366164]: [memory_checker] The memory usage of container 'snmp' is '52981760' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366167]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:56:52 sonic memory_checker[366164]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366164]: [memory_checker] Total memory usage of container 'snmp' is '52940800' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366167]: [memory_checker] The memory usage of container 'gnmi' is '164769792' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366167]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:56:52 sonic memory_checker[366167]: [memory_checker] Total memory usage of container 'gnmi' is '164720640' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367091]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:57:53 sonic memory_checker[367094]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:57:53 sonic memory_checker[367092]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:57:53 sonic memory_checker[367089]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:57:53 sonic memory_checker[367090]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:57:53 sonic memory_checker[367090]: [memory_checker] The memory usage of container 'snmp' is '53035008' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367089]: [memory_checker] The memory usage of container 'telemetry' is '120082432' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367089]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367090]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367089]: [memory_checker] Total memory usage of container 'telemetry' is '120070144' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367090]: [memory_checker] Total memory usage of container 'snmp' is '52994048' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367093]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:57:53 sonic memory_checker[367093]: [memory_checker] The memory usage of container 'gnmi' is '164773888' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367093]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:57:53 sonic memory_checker[367093]: [memory_checker] Total memory usage of container 'gnmi' is '164724736' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368032]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:58:53 sonic memory_checker[368033]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:58:53 sonic memory_checker[368035]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:58:53 sonic memory_checker[368031]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:58:53 sonic memory_checker[368034]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:58:53 sonic memory_checker[368031]: [memory_checker] The memory usage of container 'snmp' is '53075968' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368031]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368031]: [memory_checker] Total memory usage of container 'snmp' is '53035008' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368034]: [memory_checker] The memory usage of container 'gnmi' is '164765696' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368034]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368034]: [memory_checker] Total memory usage of container 'gnmi' is '164716544' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368030]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:58:53 sonic memory_checker[368030]: [memory_checker] The memory usage of container 'telemetry' is '120082432' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368030]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:58:53 sonic memory_checker[368030]: [memory_checker] Total memory usage of container 'telemetry' is '120070144' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368944]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 00:59:53 sonic memory_checker[368947]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 00:59:53 sonic memory_checker[368945]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 00:59:53 sonic memory_checker[368946]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 00:59:53 sonic memory_checker[368943]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 00:59:53 sonic memory_checker[368942]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 00:59:53 sonic memory_checker[368946]: [memory_checker] The memory usage of container 'gnmi' is '164499456' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368946]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368946]: [memory_checker] Total memory usage of container 'gnmi' is '164450304' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368942]: [memory_checker] The memory usage of container 'telemetry' is '120082432' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368943]: [memory_checker] The memory usage of container 'snmp' is '53129216' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368943]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368942]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368943]: [memory_checker] Total memory usage of container 'snmp' is '53088256' Bytes!
+Apr 14 00:59:53 sonic memory_checker[368942]: [memory_checker] Total memory usage of container 'telemetry' is '120070144' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369886]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:00:53 sonic memory_checker[369889]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:00:53 sonic memory_checker[369885]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:00:53 sonic memory_checker[369883]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:00:53 sonic memory_checker[369884]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:00:53 sonic memory_checker[369883]: [memory_checker] The memory usage of container 'telemetry' is '120082432' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369884]: [memory_checker] The memory usage of container 'snmp' is '53178368' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369883]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369883]: [memory_checker] Total memory usage of container 'telemetry' is '120070144' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369884]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369884]: [memory_checker] Total memory usage of container 'snmp' is '53137408' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369887]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:00:53 sonic memory_checker[369887]: [memory_checker] The memory usage of container 'gnmi' is '164745216' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369887]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:00:53 sonic memory_checker[369887]: [memory_checker] Total memory usage of container 'gnmi' is '164696064' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370935]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:01:53 sonic memory_checker[370934]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:01:53 sonic memory_checker[370937]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:01:53 sonic memory_checker[370932]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:01:53 sonic memory_checker[370932]: [memory_checker] The memory usage of container 'telemetry' is '120332288' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370932]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370932]: [memory_checker] Total memory usage of container 'telemetry' is '120320000' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370933]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:01:53 sonic memory_checker[370933]: [memory_checker] The memory usage of container 'snmp' is '53219328' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370933]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370933]: [memory_checker] Total memory usage of container 'snmp' is '53178368' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370936]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:01:53 sonic memory_checker[370936]: [memory_checker] The memory usage of container 'gnmi' is '164507648' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370936]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:01:53 sonic memory_checker[370936]: [memory_checker] Total memory usage of container 'gnmi' is '164458496' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371869]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:02:53 sonic memory_checker[371871]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:02:53 sonic memory_checker[371868]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:02:53 sonic memory_checker[371870]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:02:53 sonic memory_checker[371870]: [memory_checker] The memory usage of container 'gnmi' is '164503552' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371870]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371870]: [memory_checker] Total memory usage of container 'gnmi' is '164454400' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371867]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:02:53 sonic memory_checker[371867]: [memory_checker] The memory usage of container 'snmp' is '53268480' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371867]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371867]: [memory_checker] Total memory usage of container 'snmp' is '53227520' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371866]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:02:53 sonic memory_checker[371866]: [memory_checker] The memory usage of container 'telemetry' is '120082432' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371866]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:02:53 sonic memory_checker[371866]: [memory_checker] Total memory usage of container 'telemetry' is '120070144' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372785]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:03:53 sonic memory_checker[372787]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:03:53 sonic memory_checker[372784]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:03:53 sonic memory_checker[372782]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:03:53 sonic memory_checker[372782]: [memory_checker] The memory usage of container 'telemetry' is '120336384' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372782]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372782]: [memory_checker] Total memory usage of container 'telemetry' is '120324096' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372786]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:03:53 sonic memory_checker[372786]: [memory_checker] The memory usage of container 'gnmi' is '164737024' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372786]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372786]: [memory_checker] Total memory usage of container 'gnmi' is '164687872' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372783]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:03:53 sonic memory_checker[372783]: [memory_checker] The memory usage of container 'snmp' is '53317632' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372783]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:03:53 sonic memory_checker[372783]: [memory_checker] Total memory usage of container 'snmp' is '53276672' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373720]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:04:53 sonic memory_checker[373718]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:04:53 sonic memory_checker[373717]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:04:53 sonic memory_checker[373716]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:04:53 sonic memory_checker[373716]: [memory_checker] The memory usage of container 'snmp' is '53370880' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373716]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373716]: [memory_checker] Total memory usage of container 'snmp' is '53329920' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373715]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:04:53 sonic memory_checker[373715]: [memory_checker] The memory usage of container 'telemetry' is '120094720' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373715]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373715]: [memory_checker] Total memory usage of container 'telemetry' is '120082432' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373719]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:04:53 sonic memory_checker[373719]: [memory_checker] The memory usage of container 'gnmi' is '165007360' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373719]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:04:53 sonic memory_checker[373719]: [memory_checker] Total memory usage of container 'gnmi' is '164958208' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374641]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:05:53 sonic memory_checker[374640]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:05:53 sonic memory_checker[374644]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:05:53 sonic memory_checker[374642]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:05:53 sonic memory_checker[374642]: [memory_checker] The memory usage of container 'gnmi' is '164495360' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374642]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374642]: [memory_checker] Total memory usage of container 'gnmi' is '164446208' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374639]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:05:53 sonic memory_checker[374639]: [memory_checker] The memory usage of container 'snmp' is '53420032' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374639]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374639]: [memory_checker] Total memory usage of container 'snmp' is '53379072' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374638]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:05:53 sonic memory_checker[374638]: [memory_checker] The memory usage of container 'telemetry' is '120090624' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374638]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:05:53 sonic memory_checker[374638]: [memory_checker] Total memory usage of container 'telemetry' is '120078336' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375651]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:06:54 sonic memory_checker[375654]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:06:54 sonic memory_checker[375652]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:06:54 sonic memory_checker[375649]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:06:54 sonic memory_checker[375649]: [memory_checker] The memory usage of container 'telemetry' is '120549376' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375649]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375649]: [memory_checker] Total memory usage of container 'telemetry' is '120537088' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375650]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:06:54 sonic memory_checker[375653]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:06:54 sonic memory_checker[375650]: [memory_checker] The memory usage of container 'snmp' is '53465088' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375653]: [memory_checker] The memory usage of container 'gnmi' is '164495360' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375650]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375650]: [memory_checker] Total memory usage of container 'snmp' is '53424128' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375653]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:06:54 sonic memory_checker[375653]: [memory_checker] Total memory usage of container 'gnmi' is '164446208' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376626]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:07:54 sonic memory_checker[376625]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:07:54 sonic memory_checker[376628]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:07:54 sonic memory_checker[376623]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:07:54 sonic memory_checker[376623]: [memory_checker] The memory usage of container 'telemetry' is '120549376' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376623]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376623]: [memory_checker] Total memory usage of container 'telemetry' is '120537088' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376624]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:07:54 sonic memory_checker[376624]: [memory_checker] The memory usage of container 'snmp' is '53518336' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376624]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376624]: [memory_checker] Total memory usage of container 'snmp' is '53477376' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376627]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:07:54 sonic memory_checker[376627]: [memory_checker] The memory usage of container 'gnmi' is '164503552' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376627]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:07:54 sonic memory_checker[376627]: [memory_checker] Total memory usage of container 'gnmi' is '164454400' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377539]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:08:54 sonic memory_checker[377541]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:08:54 sonic memory_checker[377538]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:08:54 sonic memory_checker[377536]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:08:54 sonic memory_checker[377536]: [memory_checker] The memory usage of container 'telemetry' is '120811520' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377536]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377536]: [memory_checker] Total memory usage of container 'telemetry' is '120799232' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377537]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:08:54 sonic memory_checker[377540]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:08:54 sonic memory_checker[377537]: [memory_checker] The memory usage of container 'snmp' is '53567488' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377537]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377537]: [memory_checker] Total memory usage of container 'snmp' is '53526528' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377540]: [memory_checker] The memory usage of container 'gnmi' is '164503552' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377540]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:08:54 sonic memory_checker[377540]: [memory_checker] Total memory usage of container 'gnmi' is '164454400' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378453]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:09:54 sonic memory_checker[378455]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:09:54 sonic memory_checker[378452]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:09:54 sonic memory_checker[378451]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:09:54 sonic memory_checker[378451]: [memory_checker] The memory usage of container 'snmp' is '53620736' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378451]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378451]: [memory_checker] Total memory usage of container 'snmp' is '53579776' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378454]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:09:54 sonic memory_checker[378454]: [memory_checker] The memory usage of container 'gnmi' is '164515840' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378454]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378454]: [memory_checker] Total memory usage of container 'gnmi' is '164466688' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378450]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:09:54 sonic memory_checker[378450]: [memory_checker] The memory usage of container 'telemetry' is '120594432' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378450]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:09:54 sonic memory_checker[378450]: [memory_checker] Total memory usage of container 'telemetry' is '120582144' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379458]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:10:54 sonic memory_checker[379454]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:10:54 sonic memory_checker[379455]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:10:54 sonic memory_checker[379453]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:10:54 sonic memory_checker[379453]: [memory_checker] The memory usage of container 'snmp' is '53669888' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379453]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379453]: [memory_checker] Total memory usage of container 'snmp' is '53628928' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379456]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:10:54 sonic memory_checker[379456]: [memory_checker] The memory usage of container 'gnmi' is '164519936' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379456]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379456]: [memory_checker] Total memory usage of container 'gnmi' is '164470784' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379452]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:10:54 sonic memory_checker[379452]: [memory_checker] The memory usage of container 'telemetry' is '120594432' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379452]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:10:54 sonic memory_checker[379452]: [memory_checker] Total memory usage of container 'telemetry' is '120582144' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380512]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:11:54 sonic memory_checker[380509]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:11:54 sonic memory_checker[380510]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:11:54 sonic memory_checker[380508]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:11:54 sonic memory_checker[380508]: [memory_checker] The memory usage of container 'snmp' is '53723136' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380508]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380508]: [memory_checker] Total memory usage of container 'snmp' is '53682176' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380507]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:11:54 sonic memory_checker[380507]: [memory_checker] The memory usage of container 'telemetry' is '120602624' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380507]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380507]: [memory_checker] Total memory usage of container 'telemetry' is '120590336' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380511]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:11:54 sonic memory_checker[380511]: [memory_checker] The memory usage of container 'gnmi' is '164528128' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380511]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:11:54 sonic memory_checker[380511]: [memory_checker] Total memory usage of container 'gnmi' is '164478976' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381583]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:12:54 sonic memory_checker[381582]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:12:54 sonic memory_checker[381586]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:12:54 sonic memory_checker[381579]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:12:54 sonic memory_checker[381579]: [memory_checker] The memory usage of container 'telemetry' is '121024512' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381579]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381579]: [memory_checker] Total memory usage of container 'telemetry' is '121012224' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381580]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:12:54 sonic memory_checker[381580]: [memory_checker] The memory usage of container 'snmp' is '53764096' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381580]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381580]: [memory_checker] Total memory usage of container 'snmp' is '53723136' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381585]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:12:54 sonic memory_checker[381585]: [memory_checker] The memory usage of container 'gnmi' is '164540416' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381585]: [memory_checker] The cache usage of container 'gnmi' is '49152' Bytes!
+Apr 14 01:12:54 sonic memory_checker[381585]: [memory_checker] Total memory usage of container 'gnmi' is '164491264' Bytes!
+Apr 14 01:13:22 sonic sudo[381885]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker logs --tail 20 gnmi
+Apr 14 01:13:46 sonic sudo[382027]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker exec gnmi ps aux
+Apr 14 01:13:46 sonic sudo[382091]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker exec gnmi ps aux
+Apr 14 01:13:47 sonic sudo[382416]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker exec gnmi bash -c 'ls -la /var/log/ 2>/dev/null | grep -iE "gnmi|telemetry"; find / -name "*.log" -path "*gnmi*" 2>/dev/null | head'
+Apr 14 01:13:54 sonic memory_checker[382835]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:13:54 sonic memory_checker[382836]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:13:54 sonic memory_checker[382838]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:13:54 sonic memory_checker[382833]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:13:54 sonic memory_checker[382833]: [memory_checker] The memory usage of container 'telemetry' is '121028608' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382833]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382833]: [memory_checker] Total memory usage of container 'telemetry' is '121016320' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382837]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:13:54 sonic memory_checker[382837]: [memory_checker] The memory usage of container 'gnmi' is '953585664' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382837]: [memory_checker] The cache usage of container 'gnmi' is '24862720' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382837]: [memory_checker] Total memory usage of container 'gnmi' is '928722944' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382837]: :- publish: EVENT_PUBLISHED: {"sonic-events-host:mem-threshold-exceeded":{"ctr_name":"gnmi","mem_usage":"928722944.00","threshold":"419430400","timestamp":"2026-04-14T01:13:54.836695Z"}}
+Apr 14 01:13:54 sonic memory_checker[382834]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:13:54 sonic memory_checker[382834]: [memory_checker] The memory usage of container 'snmp' is '53809152' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382834]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:13:54 sonic memory_checker[382834]: [memory_checker] Total memory usage of container 'snmp' is '53768192' Bytes!
+Apr 14 01:13:57 sonic sudo[382953]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker exec gnmi bash -c 'ls -la /var/log/ 2>/dev/null | grep -iE "gnmi|telemetry"; find / -name "*.log" -path "*gnmi*" 2>/dev/null | head'
+Apr 14 01:14:05 sonic systemd[1]: session-87.scope: Consumed 1.319s CPU time, 20.1M memory peak.
+Apr 14 01:14:54 sonic monit[2666]: 'container_memory_gnmi' status failed (3) -- [gnmi]: Memory usage (928722944 Bytes) is larger than the threshold (419430400 Bytes)!
+Apr 14 01:14:54 sonic memory_checker[383880]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:14:54 sonic memory_checker[383879]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:14:54 sonic memory_checker[383882]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:14:54 sonic memory_checker[383877]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:14:54 sonic memory_checker[383877]: [memory_checker] The memory usage of container 'telemetry' is '121028608' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383877]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383877]: [memory_checker] Total memory usage of container 'telemetry' is '121016320' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383881]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:14:54 sonic memory_checker[383881]: [memory_checker] The memory usage of container 'gnmi' is '978890752' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383881]: [memory_checker] The cache usage of container 'gnmi' is '24973312' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383881]: [memory_checker] Total memory usage of container 'gnmi' is '953917440' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383881]: :- publish: EVENT_PUBLISHED: {"sonic-events-host:mem-threshold-exceeded":{"ctr_name":"gnmi","mem_usage":"953917440.00","threshold":"419430400","timestamp":"2026-04-14T01:14:54.949918Z"}}
+Apr 14 01:14:54 sonic memory_checker[383878]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:14:54 sonic memory_checker[383878]: [memory_checker] The memory usage of container 'snmp' is '54112256' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383878]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:14:54 sonic memory_checker[383878]: [memory_checker] Total memory usage of container 'snmp' is '54071296' Bytes!
+Apr 14 01:14:55 sonic sudo[384050]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker stats --no-stream --format {{.MemUsage}} gnmi
+Apr 14 01:14:57 sonic sudo[384071]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/tail -40 /var/log/gnmi.log
+Apr 14 01:15:54 sonic monit[2666]: 'container_memory_gnmi' status failed (3) -- [gnmi]: Memory usage (953917440 Bytes) is larger than the threshold (419430400 Bytes)!
+Apr 14 01:15:55 sonic memory_checker[384890]: [memory_checker] Container ID of 'telemetry' is: 'fb674391fa960e86aa443569ce13600208c35c4f5d3c870c80818ab21ea72878'.
+Apr 14 01:15:55 sonic memory_checker[384890]: [memory_checker] The memory usage of container 'telemetry' is '121028608' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384890]: [memory_checker] The cache usage of container 'telemetry' is '12288' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384890]: [memory_checker] Total memory usage of container 'telemetry' is '121016320' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384893]: [memory_checker] Exits without checking memory usage since container 'otel' is not running!
+Apr 14 01:15:55 sonic memory_checker[384892]: [memory_checker] Exits without checking memory usage since container 'profiler' is not running!
+Apr 14 01:15:55 sonic memory_checker[384896]: [memory_checker] Exits without checking memory usage since container 'bmp' is not running!
+Apr 14 01:15:55 sonic memory_checker[384894]: [memory_checker] Container ID of 'gnmi' is: '088aa96c70419cf6942a84ad5ff6e1e55d89ed91d90a760c934543a058022c2a'.
+Apr 14 01:15:55 sonic memory_checker[384894]: [memory_checker] The memory usage of container 'gnmi' is '978386944' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384894]: [memory_checker] The cache usage of container 'gnmi' is '24973312' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384894]: [memory_checker] Total memory usage of container 'gnmi' is '953413632' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384894]: :- publish: EVENT_PUBLISHED: {"sonic-events-host:mem-threshold-exceeded":{"ctr_name":"gnmi","mem_usage":"953413632.00","threshold":"419430400","timestamp":"2026-04-14T01:15:55.78533Z"}}
+Apr 14 01:15:55 sonic memory_checker[384891]: [memory_checker] Container ID of 'snmp' is: 'e8c0ba85e0a843f59181724fbc73c6e1b28c35bedf0bd7883bb6e73d36ef208b'.
+Apr 14 01:15:55 sonic memory_checker[384891]: [memory_checker] The memory usage of container 'snmp' is '53903360' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384891]: [memory_checker] The cache usage of container 'snmp' is '40960' Bytes!
+Apr 14 01:15:55 sonic memory_checker[384891]: [memory_checker] Total memory usage of container 'snmp' is '53862400' Bytes!
+Apr 14 01:16:09 sonic sudo[385256]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker stats --no-stream gnmi
+Apr 14 01:16:11 sonic sudo[385307]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker exec gnmi ps aux
+Apr 14 01:16:11 sonic sudo[385355]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/docker exec gnmi bash -c 'cat /root/gnmi.log 2>/dev/null'
+Apr 14 01:16:11 sonic sudo[385394]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/cp /var/log/gnmi.log /home/admin/cap_gnmi_var.log
+Apr 14 01:16:11 sonic sudo[385397]:    admin : PWD=/home/admin ; USER=root ; COMMAND=/usr/bin/chown admin: /home/admin/cap_gnmi_var.log

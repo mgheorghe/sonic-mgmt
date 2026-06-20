@@ -1,0 +1,120 @@
+Debian GNU/Linux 13 \n \l
+
+2026 Apr  5 15:38:43.093595 sonic INFO gnmi#supervisord: gnmi-native gnmi args:  -logtostderr --noTLS --port 50052 -v=2 -zmq_port=8100 --threshold 100 --idle_conn_duration 5
+2026 Apr  5 15:38:43.169825 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.169471   35599 util.go:312] [CVL] : Could not read platform schema location or no platform specific schema exists. <nil>
+2026 Apr  5 15:38:43.169948 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 15:38:43.169749   35599 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-types)
+2026 Apr  5 15:38:43.169948 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 15:38:43.169759   35599 util.go:314] [CVL] : Unable to get schema details for sonic-types.yin
+2026 Apr  5 15:38:43.169977 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 15:38:43.169800   35599 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-extension)
+2026 Apr  5 15:38:43.169977 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 15:38:43.169808   35599 util.go:314] [CVL] : Unable to get schema details for sonic-extension.yin
+2026 Apr  5 15:38:43.170043 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 15:38:43.169945   35599 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-common)
+2026 Apr  5 15:38:43.170043 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse:
+2026 Apr  5 15:38:43.170121 sonic INFO gnmi#supervisord: gnmi-native W0405 15:38:43.169954   35599 util.go:314] [CVL] : Unable to get schema details for sonic-common.yin
+2026 Apr  5 15:38:43.174348 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.174060   35599 db_lock.go:234] ConfigDBClearLock:
+2026 Apr  5 15:38:43.174348 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 15:38:43.174083   35599 db_redis_opts.go:164] _DBRedisOptsConfig:reconfigure: flags not parsed!
+2026 Apr  5 15:38:43.174348 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.174092   35599 db_redis_opts.go:174] _DBRedisOptsConfig:reconfigure: Handling signal.
+2026 Apr  5 15:38:43.175400 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.175282   35599 db_lock.go:134] unlock: Already Unlocked
+2026 Apr  5 15:38:43.175491 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.175309   35599 db_lock.go:242] ConfigDBClearLock: Lock Absent
+2026 Apr  5 15:38:43.178153 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.178009   35599 emitjson_select.go:68] Marker file /var/run/telemetry/use_ygot_emitjson not found (err = stat /var/run/telemetry/use_ygot_emitjson: no such file or directory). Will use internal EmitJSON
+2026 Apr  5 15:38:43.285192 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.284820   35599 xlate_utils.go:1384] [transformer.go:92]init.2 Yang model List: [sonic-acl.yang sonic-extensions.yang sonic-interface.yang sonic-mclag.yang sonic-port.yang sonic-portchannel.yang sonic-sflow.yang sonic-show-techsupport.yang sonic-showtech-annot.yang sonic-types.yang sonic-vlan.yang sonic-vrf.yang openconfig-acl.yang openconfig-acl-annot.yang openconfig-sampling-sflow.yang openconfig-sampling-sflow-annot.yang openconfig-if-ethernet.yang openconfig-interfaces.yang openconfig-interfaces-annot.yang openconfig-if-ip.yang openconfig-if-aggregate.yang openconfig-mclag.yang openconfig-mclag-annot.yang openconfig-vlan.yang gnsi-authz.yang gnsi-pathz.yang gnsi-certz.yang gnsi-credentialz.yang]
+2026 Apr  5 15:38:43.391168 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.390834   35599 xspec.go:150] xspec init done ...
+2026 Apr  5 15:38:43.391396 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391294   35599 app_interface.go:117] Registering for path =/openconfig-acl:acl
+2026 Apr  5 15:38:43.391396 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391307   35599 app_interface.go:117] Registering for path =/sonic-
+2026 Apr  5 15:38:43.391417 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse:
+2026 Apr  5 15:38:43.391627 sonic INFO gnmi#supervisord: gnmi-native I0405 15:38:43.391314   35599 app_interface.go:117] Registering for path =*
+2026 Apr  5 15:38:43.391836 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391674   35599 lldp_app.go:62] Init called for LLDP modules module
+2026 Apr  5 15:38:43.391875 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391687   35599 app_interface.go:117] Registering for path =/openconfig-lldp:lldp
+2026 Apr  5 15:38:43.391875 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391695   35599 pfm_app.go:42] Init called for Platform module
+2026 Apr  5 15:38:43.391908 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391702   35599 app_interface.go:117] Registering for path =/openconfig-platform:components
+2026 Apr  5 15:38:43.392621 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391901   35599 sys_app.go:54] SysApp: Init called for System module
+2026 Apr  5 15:38:43.392651 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.391913   35599 app_interface.go:117] Registering for path =/openconfig-system:system
+2026 Apr  5 15:38:43.392651 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.392223   35599 version.go:144] *** Yang bundle version = 1.0.0
+2026 Apr  5 15:38:43.392651 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.392241   35599 version.go:145] *** Yang base version   = 1.0.0
+2026 Apr  5 15:38:43.392671 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 15:38:43.392250   35599 app_interface.go:117] Registering for path =/ietf-yang-library:modules-state
+2026 Apr  5 15:38:43.400380 sonic INFO gnmi#supervisord: gnmi-native I0405 15:38:43.400107   35599 telemetry.go:197] client_auth not provided, using defaults.
+2026 Apr  5 15:38:43.401842 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 15:38:43 INFO: [core] [Server #1]Server created
+2026 Apr  5 15:38:43.402692 sonic INFO gnmi#supervisord: gnmi-native W0405 15:38:43.402548   35599 whitelist.go:24] No whitelist found at path '/etc/sonic/command_whitelist.yaml', using default whitelists: open /etc/sonic/command_whitelist.yaml: no such file or directory
+2026 Apr  5 15:38:43.402949 sonic INFO gnmi#supervisord: gnmi-native I0405 15:38:43.402832   35599 server.go:333] Created Server on localhost:50052, read-only: true
+2026 Apr  5 15:38:43.403200 sonic INFO gnmi#supervisord: gnmi-native I0405 15:38:43.403073   35599 telemetry.go:509] Auth Modes:
+2026 Apr  5 15:38:43.403200 sonic INFO gnmi#supervisord: gnmi-native I0405 15:38:43.403090   35599 telemetry.go:510] Starting RPC server on address: localhost:50052
+2026 Apr  5 15:38:43.403271 sonic INFO gnmi#supervisord: gnmi-native I0405 15:38:43.403105   35599 telemetry.go:513] GNMI Server started serving
+2026 Apr  5 15:38:43.403542 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 15:38:43 INFO: [core] [Server #1 ListenSocket #2]ListenSocket created
+2026 Apr  5 16:04:00.153255 sonic INFO gnmi#supervisord: gnmi-native I0405 16:04:00.152961   35599 telemetry.go:520] Received signal for gnmi server to close
+2026 Apr  5 16:04:00.153551 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:04:00 INFO: [core] [Server #1 ListenSocket #2]ListenSocket deleted
+2026 Apr  5 16:06:10.170490 sonic INFO gnmi#supervisord: gnmi-native gnmi args:  -logtostderr --noTLS --port 50052 -v=2 -zmq_port=8100 --threshold 100 --idle_conn_duration 5
+2026 Apr  5 16:06:10.212726 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.212386  141827 util.go:312] [CVL] : Could not read platform schema location or no platform specific schema exists. <nil>
+2026 Apr  5 16:06:10.212834 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:06:10.212558  141827 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-extension)
+2026 Apr  5 16:06:10.212834 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:06:10.212568  141827 util.go:314] [CVL] : Unable to get schema details for sonic-extension.yin
+2026 Apr  5 16:06:10.212862 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:06:10.212660  141827 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-types)
+2026 Apr  5 16:06:10.212862 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:06:10.212669  141827 util.go:314] [CVL] : Unable to get schema details for sonic-types.yin
+2026 Apr  5 16:06:10.213042 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:06:10.212910  141827 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-common)
+2026 Apr  5 16:06:10.213042 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:06:10.212920  141827 util.go:314] [CVL] : Unable to get schema details for sonic-common.yin
+2026 Apr  5 16:06:10.215266 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.215117  141827 db_lock.go:234] ConfigDBClearLock:
+2026 Apr  5 16:06:10.215266 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:06:10.215131  141827 db_redis_opts.go:164] _DBRedisOptsConfig:reconfigure: flags not parsed!
+2026 Apr  5 16:06:10.215289 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.215139  141827 db_redis_opts.go:174] _DBRedisOptsConfig:reconfigure: Handling signal.
+2026 Apr  5 16:06:10.215802 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.215679  141827 db_lock.go:134] unlock: Already Unlocked
+2026 Apr  5 16:06:10.215906 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.215709  141827 db_lock.go:242] ConfigDBClearLock: Lock Absent
+2026 Apr  5 16:06:10.216900 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.216752  141827 emitjson_select.go:68] Marker file /var/run/telemetry/use_ygot_emitjson not found (err = stat /var/run/telemetry/use_ygot_emitjson: no such file or directory). Will use internal EmitJSON
+2026 Apr  5 16:06:10.314526 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.314208  141827 xlate_utils.go:1384] [transformer.go:92]init.2 Yang model List: [sonic-acl.yang sonic-extensions.yang sonic-interface.yang sonic-mclag.yang sonic-port.yang sonic-portchannel.yang sonic-sflow.yang sonic-show-techsupport.yang sonic-showtech-annot.yang sonic-types.yang sonic-vlan.yang sonic-vrf.yang openconfig-acl.yang openconfig-acl-annot.yang openconfig-sampling-sflow.yang openconfig-sampling-sflow-annot.yang openconfig-if-ethernet.yang openconfig-interfaces.yang openconfig-interfaces-annot.yang openconfig-if-ip.yang openconfig-if-aggregate.yang openconfig-mclag.yang openconfig-mclag-annot.yang openconfig-vlan.yang gnsi-authz.yang gnsi-pathz.yang gnsi-certz.yang gnsi-credentialz.yang]
+2026 Apr  5 16:06:10.415893 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415546  141827 xspec.go:150] xspec init done ...
+2026 Apr  5 16:06:10.415952 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415629  141827 app_interface.go:117] Registering for path =/openconfig-acl:acl
+2026 Apr  5 16:06:10.415977 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415641  141827 app_interface.go:117] Registering for path =/sonic-
+2026 Apr  5 16:06:10.415977 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415648  141827 app_interface.go:117] Registering for path =*
+2026 Apr  5 16:06:10.416030 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415664  141827 lldp_app.go:62] Init called for LLDP modules module
+2026 Apr  5 16:06:10.416030 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415672  141827 app_interface.go:117] Registering for path =/openconfig-lldp:lldp
+2026 Apr  5 16:06:10.416030 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415678  141827 pfm_app.go:42] Init called for Platform module
+2026 Apr  5 16:06:10.416066 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415685  141827 app_interface.go:117] Registering for path =/openconfig-platform:components
+2026 Apr  5 16:06:10.416066 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415694  141827 sys_app.go:54] SysApp: Init called for System module
+2026 Apr  5 16:06:10.416066 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415702  141827 app_interface.go:117] Registering for path =/openconfig-system:system
+2026 Apr  5 16:06:10.416103 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415865  141827 version.go:144] *** Yang bundle version = 1.0.0
+2026 Apr  5 16:06:10.416114 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415883  141827 version.go:145] *** Yang base version   = 1.0.0
+2026 Apr  5 16:06:10.416133 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:06:10.415891  141827 app_interface.go:117] Registering for path =/ietf-yang-library:modules-state
+2026 Apr  5 16:06:10.420323 sonic INFO gnmi#supervisord: gnmi-native I0405 16:06:10.420183  141827 telemetry.go:197] client_auth not provided, using defaults.
+2026 Apr  5 16:06:10.421172 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:06:10 INFO: [core] [Server #1]Server created
+2026 Apr  5 16:06:10.421254 sonic INFO gnmi#supervisord: gnmi-native W0405 16:06:10.421112  141827 whitelist.go:24] No whitelist found at path '/etc/sonic/command_whitelist.yaml', using default whitelists: open /etc/sonic/command_whitelist.yaml: no such file or directory
+2026 Apr  5 16:06:10.421505 sonic INFO gnmi#supervisord: gnmi-native I0405 16:06:10.421403  141827 server.go:333] Created Server on localhost:50052, read-only: true
+2026 Apr  5 16:06:10.421579 sonic INFO gnmi#supervisord: gnmi-native I0405 16:06:10.421420  141827 telemetry.go:509] Auth Modes:
+2026 Apr  5 16:06:10.421579 sonic INFO gnmi#supervisord: gnmi-native I0405 16:06:10.421432  141827 telemetry.go:510] Starting RPC server on address: localhost:50052
+2026 Apr  5 16:06:10.421602 sonic INFO gnmi#supervisord: gnmi-native I0405 16:06:10.421450  141827 telemetry.go:513] GNMI Server started serving
+2026 Apr  5 16:06:10.421655 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:06:10 INFO: [core] [Server #1 ListenSocket #2]ListenSocket created
+2026 Apr  5 16:08:22.517252 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:08:22 INFO: [transport] [server-transport 0xc000261200] Closing: EOF
+2026 Apr  5 16:08:22.517252 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:08:22 INFO: [transport] [server-transport 0xc000261200] loopyWriter exiting with error: transport closed by client
+2026 Apr  5 16:09:35.755955 sonic INFO gnmi#supervisord: gnmi-native I0405 16:09:35.755687  141827 telemetry.go:520] Received signal for gnmi server to close
+2026 Apr  5 16:09:35.756331 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:09:35 INFO: [core] [Server #1 ListenSocket #2]ListenSocket deleted
+2026 Apr  5 16:11:45.621825 sonic INFO gnmi#supervisord: gnmi-native gnmi args:  -logtostderr --noTLS --port 50052 -v=2 -zmq_port=8100 --threshold 100 --idle_conn_duration 5
+2026 Apr  5 16:11:45.663222 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.662893  165511 util.go:312] [CVL] : Could not read platform schema location or no platform specific schema exists. <nil>
+2026 Apr  5 16:11:45.663335 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:11:45.663102  165511 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-types)
+2026 Apr  5 16:11:45.663362 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:11:45.663113  165511 util.go:314] [CVL] : Unable to get schema details for sonic-types.yin
+2026 Apr  5 16:11:45.663362 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:11:45.663167  165511 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-common)
+2026 Apr  5 16:11:45.663398 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:11:45.663177  165511 util.go:314] [CVL] : Unable to get schema details for sonic-common.yin
+2026 Apr  5 16:11:45.663398 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:11:45.663222  165511 util.go:314] [CVL] : [libyang Error] Schema node not found. (path: /sonic-extension)
+2026 Apr  5 16:11:45.663398 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse:
+2026 Apr  5 16:11:45.663451 sonic INFO gnmi#supervisord: gnmi-native W0405 16:11:45.663229  165511 util.go:314] [CVL] : Unable to get schema details for sonic-extension.yin
+2026 Apr  5 16:11:45.665673 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.665516  165511 db_lock.go:234] ConfigDBClearLock:
+2026 Apr  5 16:11:45.665673 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: W0405 16:11:45.665530  165511 db_redis_opts.go:164] _DBRedisOptsConfig:reconfigure: flags not parsed!
+2026 Apr  5 16:11:45.665673 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.665538  165511 db_redis_opts.go:174] _DBRedisOptsConfig:reconfigure: Handling signal.
+2026 Apr  5 16:11:45.666281 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.666152  165511 db_lock.go:134] unlock: Already Unlocked
+2026 Apr  5 16:11:45.666346 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.666178  165511 db_lock.go:242] ConfigDBClearLock: Lock Absent
+2026 Apr  5 16:11:45.667537 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.667402  165511 emitjson_select.go:68] Marker file /var/run/telemetry/use_ygot_emitjson not found (err = stat /var/run/telemetry/use_ygot_emitjson: no such file or directory). Will use internal EmitJSON
+2026 Apr  5 16:11:45.767358 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.767040  165511 xlate_utils.go:1384] [transformer.go:92]init.2 Yang model List: [sonic-acl.yang sonic-extensions.yang sonic-interface.yang sonic-mclag.yang sonic-port.yang sonic-portchannel.yang sonic-sflow.yang sonic-show-techsupport.yang sonic-showtech-annot.yang sonic-types.yang sonic-vlan.yang sonic-vrf.yang openconfig-acl.yang openconfig-acl-annot.yang openconfig-sampling-sflow.yang openconfig-sampling-sflow-annot.yang openconfig-if-ethernet.yang openconfig-interfaces.yang openconfig-interfaces-annot.yang openconfig-if-ip.yang openconfig-if-aggregate.yang openconfig-mclag.yang openconfig-mclag-annot.yang openconfig-vlan.yang gnsi-authz.yang gnsi-pathz.yang gnsi-certz.yang gnsi-credentialz.yang]
+2026 Apr  5 16:11:45.871986 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871629  165511 xspec.go:150] xspec init done ...
+2026 Apr  5 16:11:45.872045 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871708  165511 app_interface.go:117] Registering for path =/openconfig-acl:acl
+2026 Apr  5 16:11:45.872045 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871719  165511 app_interface.go:117] Registering for path =/sonic-
+2026 Apr  5 16:11:45.872082 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871725  165511 app_interface.go:117] Registering for path =*
+2026 Apr  5 16:11:45.872082 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871741  165511 lldp_app.go:62] Init called for LLDP modules module
+2026 Apr  5 16:11:45.872082 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871749  165511 app_interface.go:117] Registering for path =/openconfig-lldp:lldp
+2026 Apr  5 16:11:45.872082 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871755  165511 pfm_app.go:42] Init called for Platform module
+2026 Apr  5 16:11:45.872127 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871761  165511 app_interface.go:117] Registering for path =/openconfig-platform:components
+2026 Apr  5 16:11:45.872127 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871771  165511 sys_app.go:54] SysApp: Init called for System module
+2026 Apr  5 16:11:45.872127 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871779  165511 app_interface.go:117] Registering for path =/openconfig-system:system
+2026 Apr  5 16:11:45.872127 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse:
+2026 Apr  5 16:11:45.872205 sonic INFO gnmi#supervisord: gnmi-native I0405 16:11:45.871925  165511 version.go:144] *** Yang bundle version = 1.0.0
+2026 Apr  5 16:11:45.872205 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871952  165511 version.go:145] *** Yang base version   = 1.0.0
+2026 Apr  5 16:11:45.872221 sonic INFO gnmi#supervisord: gnmi-native ERROR: logging before flag.Parse: I0405 16:11:45.871961  165511 app_interface.go:117] Registering for path =/ietf-yang-library:modules-state
+2026 Apr  5 16:11:45.876295 sonic INFO gnmi#supervisord: gnmi-native I0405 16:11:45.876154  165511 telemetry.go:197] client_auth not provided, using defaults.
+2026 Apr  5 16:11:45.877311 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:11:45 INFO: [core] [Server #1]Server created
+2026 Apr  5 16:11:45.877442 sonic INFO gnmi#supervisord: gnmi-native W0405 16:11:45.877143  165511 whitelist.go:24] No whitelist found at path '/etc/sonic/command_whitelist.yaml', using default whitelists: open /etc/sonic/command_whitelist.yaml: no such file or directory
+2026 Apr  5 16:11:45.877554 sonic INFO gnmi#supervisord: gnmi-native I0405 16:11:45.877441  165511 server.go:333] Created Server on localhost:50052, read-only: true
+2026 Apr  5 16:11:45.877663 sonic INFO gnmi#supervisord: gnmi-native I0405 16:11:45.877460  165511 telemetry.go:509] Auth Modes:
+2026 Apr  5 16:11:45.877663 sonic INFO gnmi#supervisord: gnmi-native I0405 16:11:45.877474  165511 telemetry.go:510] Starting RPC server on address: localhost:50052
+2026 Apr  5 16:11:45.877691 sonic INFO gnmi#supervisord: gnmi-native I0405 16:11:45.877486  165511 telemetry.go:513] GNMI Server started serving
+2026 Apr  5 16:11:45.877691 sonic INFO gnmi#supervisord: gnmi-native 2026/04/05 16:11:45 INFO: [core] [Server #1 ListenSocket #2]ListenSocket created

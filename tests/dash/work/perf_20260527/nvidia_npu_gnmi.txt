@@ -1,0 +1,2002 @@
+Debian GNU/Linux 13 \n \l
+
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0x87 in position 130: invalid start byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 153: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 154: invalid continuation byte
+2026-03-08 12:08:01,628 WARN received SIGTERM indicating exit request
+2026-03-08 12:08:01,629 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-08 12:08:01,659 INFO stopped: gnmi-native (exit status 0)
+2026-03-08 12:08:02,662 INFO stopped: rsyslogd (exit status 0)
+2026-03-08 12:08:02,664 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-08 12:11:17,299 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-08 12:11:17,299 INFO Set uid to user 0 succeeded
+2026-03-08 12:11:17,303 INFO RPC interface 'supervisor' initialized
+2026-03-08 12:11:17,303 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-08 12:11:17,304 INFO supervisord started with pid 34374
+2026-03-08 12:11:17,306 INFO spawned: 'dependent-startup' with pid 34576
+2026-03-08 12:11:17,308 INFO spawned: 'supervisor-proc-exit-listener' with pid 34577
+2026-03-08 12:11:17,322 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 12:11:18,534 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:11:18,536 INFO spawned: 'supervisor-proc-exit-listener' with pid 34800
+2026-03-08 12:11:18,543 INFO spawned: 'rsyslogd' with pid 34802
+2026-03-08 12:11:18,549 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 12:11:19,572 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:11:20,574 INFO spawned: 'supervisor-proc-exit-listener' with pid 35272
+2026-03-08 12:11:20,583 INFO spawned: 'start' with pid 35273
+2026-03-08 12:11:20,584 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-08 12:11:20,694 INFO exited: start (exit status 0; expected)
+2026-03-08 12:11:21,695 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:11:21,704 INFO spawned: 'gnmi-native' with pid 35427
+2026-03-08 12:11:22,718 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:11:22,770 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-08 12:29:28,420 WARN received SIGTERM indicating exit request
+2026-03-08 12:29:28,421 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-08 12:29:29,428 INFO stopped: gnmi-native (exit status 0)
+2026-03-08 12:29:30,432 INFO stopped: rsyslogd (exit status 0)
+2026-03-08 12:29:30,433 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-08 12:32:37,519 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-08 12:32:37,519 INFO Set uid to user 0 succeeded
+2026-03-08 12:32:37,523 INFO RPC interface 'supervisor' initialized
+2026-03-08 12:32:37,524 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-08 12:32:37,524 INFO supervisord started with pid 34550
+2026-03-08 12:32:37,526 INFO spawned: 'dependent-startup' with pid 34705
+2026-03-08 12:32:37,529 INFO spawned: 'supervisor-proc-exit-listener' with pid 34706
+2026-03-08 12:32:37,542 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 12:32:38,751 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:32:38,754 INFO spawned: 'supervisor-proc-exit-listener' with pid 34882
+2026-03-08 12:32:38,761 INFO spawned: 'rsyslogd' with pid 34884
+2026-03-08 12:32:38,766 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 12:32:39,788 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:32:40,792 INFO spawned: 'supervisor-proc-exit-listener' with pid 35386
+2026-03-08 12:32:40,801 INFO spawned: 'start' with pid 35387
+2026-03-08 12:32:40,802 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-08 12:32:40,911 INFO exited: start (exit status 0; expected)
+2026-03-08 12:32:41,913 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:32:41,921 INFO spawned: 'gnmi-native' with pid 35541
+2026-03-08 12:32:42,920 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 12:32:42,971 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-08 19:46:48,384 WARN received SIGTERM indicating exit request
+2026-03-08 19:46:48,384 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-08 19:46:48,401 INFO stopped: gnmi-native (exit status 0)
+2026-03-08 19:46:49,404 INFO stopped: rsyslogd (exit status 0)
+2026-03-08 19:46:49,406 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-08 19:50:08,611 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-08 19:50:08,611 INFO Set uid to user 0 succeeded
+2026-03-08 19:50:08,616 INFO RPC interface 'supervisor' initialized
+2026-03-08 19:50:08,616 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-08 19:50:08,616 INFO supervisord started with pid 34570
+2026-03-08 19:50:08,618 INFO spawned: 'dependent-startup' with pid 34727
+2026-03-08 19:50:08,621 INFO spawned: 'supervisor-proc-exit-listener' with pid 34728
+2026-03-08 19:50:08,634 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 19:50:09,846 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 19:50:09,849 INFO spawned: 'supervisor-proc-exit-listener' with pid 34900
+2026-03-08 19:50:09,857 INFO spawned: 'rsyslogd' with pid 34904
+2026-03-08 19:50:09,862 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 19:50:10,887 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 19:50:11,890 INFO spawned: 'supervisor-proc-exit-listener' with pid 35425
+2026-03-08 19:50:11,900 INFO spawned: 'start' with pid 35426
+2026-03-08 19:50:11,900 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-08 19:50:12,006 INFO exited: start (exit status 0; expected)
+2026-03-08 19:50:13,007 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 19:50:13,016 INFO spawned: 'gnmi-native' with pid 35587
+2026-03-08 19:50:14,019 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 19:50:14,062 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-08 21:22:28,273 WARN received SIGTERM indicating exit request
+2026-03-08 21:22:28,273 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-08 21:22:29,286 INFO stopped: gnmi-native (exit status 0)
+2026-03-08 21:22:30,290 INFO stopped: rsyslogd (exit status 0)
+2026-03-08 21:22:30,292 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-08 21:23:49,377 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-08 21:23:49,377 INFO Set uid to user 0 succeeded
+2026-03-08 21:23:49,381 INFO RPC interface 'supervisor' initialized
+2026-03-08 21:23:49,381 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-08 21:23:49,381 INFO supervisord started with pid 547117
+2026-03-08 21:23:49,383 INFO spawned: 'dependent-startup' with pid 547260
+2026-03-08 21:23:49,386 INFO spawned: 'supervisor-proc-exit-listener' with pid 547261
+2026-03-08 21:23:49,400 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 21:23:50,627 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 21:23:50,630 INFO spawned: 'supervisor-proc-exit-listener' with pid 547522
+2026-03-08 21:23:50,638 INFO spawned: 'rsyslogd' with pid 547524
+2026-03-08 21:23:50,644 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-08 21:23:51,666 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 21:23:52,670 INFO spawned: 'supervisor-proc-exit-listener' with pid 548077
+2026-03-08 21:23:52,679 INFO spawned: 'start' with pid 548078
+2026-03-08 21:23:52,680 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-08 21:23:52,783 INFO exited: start (exit status 0; expected)
+2026-03-08 21:23:53,784 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 21:23:53,793 INFO spawned: 'gnmi-native' with pid 548231
+2026-03-08 21:23:55,751 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-08 21:23:56,803 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-09 10:45:59,011 WARN received SIGTERM indicating exit request
+2026-03-09 10:45:59,012 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-09 10:45:59,023 INFO stopped: gnmi-native (exit status 0)
+2026-03-09 10:46:00,026 INFO stopped: rsyslogd (exit status 0)
+2026-03-09 10:46:00,028 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-09 10:49:15,175 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-09 10:49:15,175 INFO Set uid to user 0 succeeded
+2026-03-09 10:49:15,180 INFO RPC interface 'supervisor' initialized
+2026-03-09 10:49:15,180 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-09 10:49:15,181 INFO supervisord started with pid 34090
+2026-03-09 10:49:15,183 INFO spawned: 'dependent-startup' with pid 34288
+2026-03-09 10:49:15,186 INFO spawned: 'supervisor-proc-exit-listener' with pid 34290
+2026-03-09 10:49:15,199 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-09 10:49:16,411 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 10:49:16,413 INFO spawned: 'supervisor-proc-exit-listener' with pid 34472
+2026-03-09 10:49:16,421 INFO spawned: 'rsyslogd' with pid 34475
+2026-03-09 10:49:16,426 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-09 10:49:17,449 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 10:49:18,452 INFO spawned: 'supervisor-proc-exit-listener' with pid 34963
+2026-03-09 10:49:18,462 INFO spawned: 'start' with pid 34964
+2026-03-09 10:49:18,462 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-09 10:49:18,566 INFO exited: start (exit status 0; expected)
+2026-03-09 10:49:19,568 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 10:49:19,576 INFO spawned: 'gnmi-native' with pid 35118
+2026-03-09 10:49:20,583 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 10:49:20,626 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-09 13:20:48,689 WARN received SIGTERM indicating exit request
+2026-03-09 13:20:48,689 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-09 13:20:48,709 INFO stopped: gnmi-native (exit status 0)
+2026-03-09 13:20:49,719 INFO stopped: rsyslogd (exit status 0)
+2026-03-09 13:20:49,720 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-09 13:24:01,309 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-09 13:24:01,309 INFO Set uid to user 0 succeeded
+2026-03-09 13:24:01,314 INFO RPC interface 'supervisor' initialized
+2026-03-09 13:24:01,314 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-09 13:24:01,314 INFO supervisord started with pid 34316
+2026-03-09 13:24:01,316 INFO spawned: 'dependent-startup' with pid 34453
+2026-03-09 13:24:01,319 INFO spawned: 'supervisor-proc-exit-listener' with pid 34458
+2026-03-09 13:24:01,332 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-09 13:24:02,545 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:24:02,548 INFO spawned: 'supervisor-proc-exit-listener' with pid 34645
+2026-03-09 13:24:02,555 INFO spawned: 'rsyslogd' with pid 34646
+2026-03-09 13:24:02,561 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-09 13:24:03,584 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:24:04,588 INFO spawned: 'supervisor-proc-exit-listener' with pid 35196
+2026-03-09 13:24:04,597 INFO spawned: 'start' with pid 35197
+2026-03-09 13:24:04,598 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-09 13:24:04,701 INFO exited: start (exit status 0; expected)
+2026-03-09 13:24:05,703 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:24:05,711 INFO spawned: 'gnmi-native' with pid 35350
+2026-03-09 13:24:06,717 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:24:06,761 INFO exited: dependent-startup (exit status 0; expected)
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 149: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 149: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 149: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 150: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 149: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 149: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 152: invalid continuation byte
+Traceback (most recent call last):
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 370, in emit
+    params = record.asdict()
+             ^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/loggers.py", line 292, in asdict
+    msg = as_string(self.msg)
+          ^^^^^^^^^^^^^^^^^^^
+  File "/usr/local/lib/python3.11/dist-packages/supervisor/compat.py", line 60, in as_string
+    return s.decode(encoding)
+           ^^^^^^^^^^^^^^^^^^
+UnicodeDecodeError: 'utf-8' codec can't decode byte 0xdd in position 151: invalid continuation byte
+2026-03-09 13:47:55,700 WARN received SIGTERM indicating exit request
+2026-03-09 13:47:55,700 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-09 13:47:55,721 INFO stopped: gnmi-native (exit status 0)
+2026-03-09 13:47:56,739 INFO stopped: rsyslogd (exit status 0)
+2026-03-09 13:47:56,741 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-09 13:51:15,396 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-09 13:51:15,396 INFO Set uid to user 0 succeeded
+2026-03-09 13:51:15,401 INFO RPC interface 'supervisor' initialized
+2026-03-09 13:51:15,401 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-09 13:51:15,401 INFO supervisord started with pid 34585
+2026-03-09 13:51:15,403 INFO spawned: 'dependent-startup' with pid 34741
+2026-03-09 13:51:15,406 INFO spawned: 'supervisor-proc-exit-listener' with pid 34742
+2026-03-09 13:51:15,419 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-09 13:51:16,631 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:51:16,633 INFO spawned: 'supervisor-proc-exit-listener' with pid 34924
+2026-03-09 13:51:16,640 INFO spawned: 'rsyslogd' with pid 34926
+2026-03-09 13:51:16,645 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-09 13:51:17,668 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:51:18,671 INFO spawned: 'supervisor-proc-exit-listener' with pid 35423
+2026-03-09 13:51:18,681 INFO spawned: 'start' with pid 35424
+2026-03-09 13:51:18,681 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-09 13:51:18,784 INFO exited: start (exit status 0; expected)
+2026-03-09 13:51:19,785 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:51:19,794 INFO spawned: 'gnmi-native' with pid 35577
+2026-03-09 13:51:20,793 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-09 13:51:20,844 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-22 19:29:39,243 WARN received SIGTERM indicating exit request
+2026-03-22 19:29:39,243 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-22 19:29:40,262 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 19:29:41,265 INFO stopped: rsyslogd (exit status 0)
+2026-03-22 19:29:41,267 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-22 19:33:52,148 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-22 19:33:52,148 INFO Set uid to user 0 succeeded
+2026-03-22 19:33:52,152 INFO RPC interface 'supervisor' initialized
+2026-03-22 19:33:52,153 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-22 19:33:52,153 INFO supervisord started with pid 33121
+2026-03-22 19:33:52,155 INFO spawned: 'dependent-startup' with pid 33310
+2026-03-22 19:33:52,158 INFO spawned: 'supervisor-proc-exit-listener' with pid 33311
+2026-03-22 19:33:52,170 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-22 19:33:53,381 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 19:33:53,384 INFO spawned: 'supervisor-proc-exit-listener' with pid 33521
+2026-03-22 19:33:53,391 INFO spawned: 'rsyslogd' with pid 33532
+2026-03-22 19:33:53,396 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-22 19:33:54,419 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 19:33:55,423 INFO spawned: 'supervisor-proc-exit-listener' with pid 34058
+2026-03-22 19:33:55,433 INFO spawned: 'start' with pid 34059
+2026-03-22 19:33:55,433 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-22 19:33:55,537 INFO exited: start (exit status 0; expected)
+2026-03-22 19:33:56,539 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 19:33:56,548 INFO spawned: 'gnmi-native' with pid 34149
+2026-03-22 19:33:57,548 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 19:33:57,599 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-22 20:01:13,209 INFO waiting for gnmi-native to stop
+2026-03-22 20:01:13,216 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:07:22,683 INFO spawned: 'gnmi-native' with pid 168960
+2026-03-22 20:07:24,623 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:13:16,730 INFO waiting for gnmi-native to stop
+2026-03-22 20:13:16,737 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:15:29,001 INFO spawned: 'gnmi-native' with pid 201723
+2026-03-22 20:15:30,954 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:17:17,148 INFO waiting for gnmi-native to stop
+2026-03-22 20:17:17,156 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:19:28,519 INFO spawned: 'gnmi-native' with pid 218208
+2026-03-22 20:19:30,468 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:21:27,849 INFO waiting for gnmi-native to stop
+2026-03-22 20:21:27,860 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:23:40,251 INFO spawned: 'gnmi-native' with pid 236239
+2026-03-22 20:23:42,207 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:27:38,228 INFO waiting for gnmi-native to stop
+2026-03-22 20:27:38,238 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:29:50,191 INFO spawned: 'gnmi-native' with pid 261124
+2026-03-22 20:29:52,138 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:46:35,418 WARN received SIGTERM indicating exit request
+2026-03-22 20:46:35,419 INFO waiting for supervisor-proc-exit-listener, rsyslogd, gnmi-native to die
+2026-03-22 20:46:36,432 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:46:37,436 INFO stopped: rsyslogd (exit status 0)
+2026-03-22 20:46:38,438 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2026-03-22 20:49:38,425 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2026-03-22 20:49:38,425 INFO Set uid to user 0 succeeded
+2026-03-22 20:49:38,430 INFO RPC interface 'supervisor' initialized
+2026-03-22 20:49:38,430 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2026-03-22 20:49:38,430 INFO supervisord started with pid 34294
+2026-03-22 20:49:38,432 INFO spawned: 'dependent-startup' with pid 34493
+2026-03-22 20:49:38,435 INFO spawned: 'supervisor-proc-exit-listener' with pid 34494
+2026-03-22 20:49:38,449 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-22 20:49:39,659 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:49:39,661 INFO spawned: 'supervisor-proc-exit-listener' with pid 34665
+2026-03-22 20:49:39,668 INFO spawned: 'rsyslogd' with pid 34668
+2026-03-22 20:49:39,674 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2026-03-22 20:49:40,696 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:49:41,699 INFO spawned: 'supervisor-proc-exit-listener' with pid 35164
+2026-03-22 20:49:41,709 INFO spawned: 'start' with pid 35165
+2026-03-22 20:49:41,709 INFO success: start entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2026-03-22 20:49:41,815 INFO exited: start (exit status 0; expected)
+2026-03-22 20:49:42,816 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:49:42,824 INFO spawned: 'gnmi-native' with pid 35330
+2026-03-22 20:49:43,823 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:49:43,866 INFO exited: dependent-startup (exit status 0; expected)
+2026-03-22 20:52:12,416 INFO waiting for gnmi-native to stop
+2026-03-22 20:52:12,423 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:54:25,128 INFO spawned: 'gnmi-native' with pid 56356
+2026-03-22 20:54:27,079 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 20:55:58,108 INFO waiting for gnmi-native to stop
+2026-03-22 20:55:58,118 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 20:58:10,318 INFO spawned: 'gnmi-native' with pid 72106
+2026-03-22 20:58:12,266 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2026-03-22 21:08:34,621 INFO waiting for gnmi-native to stop
+2026-03-22 21:08:34,636 INFO stopped: gnmi-native (exit status 0)
+2026-03-22 21:10:45,467 INFO spawned: 'gnmi-native' with pid 121629
+2026-03-22 21:10:47,411 INFO success: gnmi-native entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)

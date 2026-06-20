@@ -1,0 +1,31 @@
+=== Driver Version Information ===
+Version: 4.8.3412
+Compiled for Palladium: No
+Compiled as 64bit: Yes (sizeof(long)=8)
+CTRL_CMD_MAX_VAL: 0x7f (127)
+CTRL_CMD_ACCESS_REG_MAX: 0x143 (323)
+
+=== Compiler Information ===
+Compiler: GCC 14.2.0
+GCC version string: 14.2.0
+
+Structure sizes:
+  ku_dev_info:            432 bytes
+  ku_access_common:       32 bytes
+  ku_write:               48 bytes
+
+
+=== SDK Version Information ===
+Version: 4.8.3412
+Compiled for Palladium: No
+Compiled as 64bit: Yes (sizeof(long)=8)
+CTRL_CMD_MAX_VAL: 0x7f
+CTRL_CMD_ACCESS_REG_MAX: 0x143
+
+=== Compiler Information ===
+Compiler: GCC 12.2.0
+
+Structure sizes:
+  ku_dev_info:            432 bytes
+  ku_access_common:       32 bytes
+  ku_write:               48 bytes

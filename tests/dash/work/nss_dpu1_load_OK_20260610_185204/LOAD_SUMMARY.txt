@@ -1,0 +1,5 @@
+Nvidia keysight-nss01 DPU1 — 1-ENI pl_100 load via extracted pygnmi client (insecure :50052)
+Files: pl_100.dpu1.000apl.json + 032eni.json + 032map.json (64001 ops)
+TOTAL 1-ENI push: 11.621s  (000apl 0.299s, 032eni 0.287s, 032map 11.022s)
+Result: databasedpu1 DPU_APPL_DB DBSIZE=64008 ; DPU1 COUNTERS_ENI_NAME_MAP=1
+Method: gnmi_agent_extracted/gnmi_client.py --batch_val 3000 (plaintext gRPC, --noTLS server)

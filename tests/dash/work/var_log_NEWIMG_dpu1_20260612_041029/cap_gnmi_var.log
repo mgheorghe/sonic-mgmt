@@ -1,0 +1,2 @@
+2026 Apr 14 01:15:11.434649 sonic INFO gnmi#supervisord: gnmi-native 2026/04/14 01:15:11 INFO: [transport] [server-transport 0xc003c30900] Closing: EOF
+2026 Apr 14 01:15:11.434760 sonic INFO gnmi#supervisord: gnmi-native 2026/04/14 01:15:11 INFO: [transport] [server-transport 0xc003c30900] loopyWriter exiting with error: transport closed by client

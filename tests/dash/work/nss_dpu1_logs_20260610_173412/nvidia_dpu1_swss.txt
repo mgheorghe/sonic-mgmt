@@ -1,0 +1,168 @@
+Debian GNU/Linux 13 \n \l
+
+2025-10-29 11:27:25,479 WARN received SIGTERM indicating exit request
+2025-10-29 11:27:25,480 INFO waiting for supervisor-proc-exit-listener, rsyslogd, portsyncd, orchagent, coppmgrd, neighsyncd, vlanmgrd, intfmgrd, fabricmgrd, portmgrd, buffermgrd, vrfmgrd, nbrmgrd, vxlanmgrd, fdbsyncd, tunnelmgrd, countersyncd to die
+2025-10-29 11:27:25,483 WARN stopped: countersyncd (terminated by SIGTERM)
+2025-10-29 11:27:25,485 WARN stopped: tunnelmgrd (terminated by SIGTERM)
+2025-10-29 11:27:25,487 WARN stopped: fdbsyncd (terminated by SIGTERM)
+2025-10-29 11:27:25,489 WARN stopped: vxlanmgrd (terminated by SIGTERM)
+2025-10-29 11:27:25,491 WARN stopped: nbrmgrd (terminated by SIGTERM)
+2025-10-29 11:27:25,493 WARN stopped: vrfmgrd (terminated by SIGTERM)
+2025-10-29 11:27:26,496 WARN stopped: buffermgrd (terminated by SIGTERM)
+2025-10-29 11:27:26,498 WARN stopped: portmgrd (terminated by SIGTERM)
+2025-10-29 11:27:26,500 WARN stopped: fabricmgrd (terminated by SIGTERM)
+2025-10-29 11:27:26,502 WARN stopped: intfmgrd (terminated by SIGTERM)
+2025-10-29 11:27:26,505 WARN stopped: vlanmgrd (terminated by SIGTERM)
+2025-10-29 11:27:26,506 WARN stopped: neighsyncd (terminated by SIGTERM)
+2025-10-29 11:27:27,510 WARN stopped: coppmgrd (terminated by SIGTERM)
+2025-10-29 11:27:28,511 INFO waiting for supervisor-proc-exit-listener, rsyslogd, portsyncd, orchagent to die
+2025-10-29 11:27:28,587 WARN stopped: orchagent (terminated by SIGTERM)
+2025-10-29 11:27:28,589 WARN stopped: portsyncd (terminated by SIGTERM)
+2025-10-29 11:27:29,594 INFO stopped: rsyslogd (exit status 0)
+2025-10-29 11:27:29,596 WARN stopped: supervisor-proc-exit-listener (terminated by SIGTERM)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2025-10-29 11:45:25,066 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2025-10-29 11:45:25,066 INFO Set uid to user 0 succeeded
+2025-10-29 11:45:25,075 INFO RPC interface 'supervisor' initialized
+2025-10-29 11:45:25,075 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2025-10-29 11:45:25,076 INFO supervisord started with pid 1
+2025-10-29 11:45:25,079 INFO spawned: 'dependent-startup' with pid 40
+2025-10-29 11:45:25,082 INFO spawned: 'supervisor-proc-exit-listener' with pid 41
+2025-10-29 11:45:25,097 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:45:26,536 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:26,540 INFO spawned: 'supervisor-proc-exit-listener' with pid 42
+2025-10-29 11:45:26,561 INFO spawned: 'rsyslogd' with pid 43
+2025-10-29 11:45:26,564 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:45:27,796 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:28,806 INFO spawned: 'supervisor-proc-exit-listener' with pid 47
+2025-10-29 11:45:28,884 INFO spawned: 'gearsyncd' with pid 50
+2025-10-29 11:45:28,885 INFO success: gearsyncd entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:45:28,894 INFO spawned: 'portsyncd' with pid 51
+2025-10-29 11:45:28,968 INFO exited: gearsyncd (exit status 0; expected)
+2025-10-29 11:45:29,058 INFO spawned: 'gearsyncd' with pid 54
+2025-10-29 11:45:29,059 INFO success: gearsyncd entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:45:29,097 INFO exited: gearsyncd (exit status 0; expected)
+2025-10-29 11:45:30,332 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:30,332 INFO success: portsyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:30,411 INFO spawned: 'orchagent' with pid 56
+2025-10-29 11:45:31,452 INFO success: orchagent entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:32,496 INFO spawned: 'swssconfig' with pid 99
+2025-10-29 11:45:32,497 INFO success: swssconfig entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:45:32,503 INFO spawned: 'coppmgrd' with pid 100
+2025-10-29 11:45:32,504 INFO success: coppmgrd entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:45:37,023 INFO exited: swssconfig (exit status 0; expected)
+2025-10-29 11:45:38,072 INFO spawned: 'restore_neighbors' with pid 123
+2025-10-29 11:45:38,073 INFO success: restore_neighbors entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:45:38,081 INFO spawned: 'neighsyncd' with pid 124
+2025-10-29 11:45:38,090 INFO spawned: 'vlanmgrd' with pid 125
+2025-10-29 11:45:38,103 INFO spawned: 'intfmgrd' with pid 127
+2025-10-29 11:45:38,115 INFO spawned: 'fabricmgrd' with pid 129
+2025-10-29 11:45:38,129 INFO spawned: 'portmgrd' with pid 130
+2025-10-29 11:45:38,141 INFO spawned: 'buffermgrd' with pid 132
+2025-10-29 11:45:38,153 INFO spawned: 'enable_counters' with pid 134
+2025-10-29 11:45:38,165 INFO spawned: 'vrfmgrd' with pid 138
+2025-10-29 11:45:38,179 INFO spawned: 'nbrmgrd' with pid 141
+2025-10-29 11:45:38,194 INFO spawned: 'vxlanmgrd' with pid 143
+2025-10-29 11:45:38,214 INFO spawned: 'fdbsyncd' with pid 148
+2025-10-29 11:45:38,245 INFO spawned: 'tunnelmgrd' with pid 154
+2025-10-29 11:45:38,262 INFO spawned: 'countersyncd' with pid 158
+2025-10-29 11:45:39,342 INFO success: neighsyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,342 INFO success: vlanmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,342 INFO success: intfmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,342 INFO success: fabricmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: portmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: buffermgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: enable_counters entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: vrfmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: nbrmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: vxlanmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: fdbsyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: tunnelmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,343 INFO success: countersyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:45:39,642 INFO exited: restore_neighbors (exit status 0; expected)
+2025-10-29 11:45:40,384 INFO exited: dependent-startup (exit status 0; expected)
+2025-10-29 11:46:10,849 WARN exited: orchagent (terminated by SIGABRT (core dumped); not expected)
+2025-10-29 11:46:11,856 INFO exited: supervisor-proc-exit-listener (exit status 0; expected)
+2025-10-29 11:46:11,856 WARN received SIGTERM indicating exit request
+2025-10-29 11:46:11,859 INFO waiting for rsyslogd, portsyncd, coppmgrd, neighsyncd, vlanmgrd, intfmgrd, fabricmgrd, portmgrd, buffermgrd, enable_counters, vrfmgrd, nbrmgrd, vxlanmgrd, fdbsyncd, tunnelmgrd, countersyncd to die
+2025-10-29 11:46:11,860 WARN stopped: countersyncd (terminated by SIGTERM)
+2025-10-29 11:46:11,862 WARN stopped: tunnelmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,864 WARN stopped: fdbsyncd (terminated by SIGTERM)
+2025-10-29 11:46:11,866 WARN stopped: vxlanmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,869 WARN stopped: nbrmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,871 WARN stopped: vrfmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,874 WARN stopped: enable_counters (terminated by SIGTERM)
+2025-10-29 11:46:11,876 WARN stopped: buffermgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,878 WARN stopped: portmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,881 WARN stopped: fabricmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,886 WARN stopped: intfmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,889 WARN stopped: vlanmgrd (terminated by SIGTERM)
+2025-10-29 11:46:11,891 WARN stopped: neighsyncd (terminated by SIGTERM)
+2025-10-29 11:46:12,894 WARN stopped: coppmgrd (terminated by SIGTERM)
+2025-10-29 11:46:14,897 INFO waiting for rsyslogd, portsyncd to die
+2025-10-29 11:46:14,899 WARN stopped: portsyncd (terminated by SIGTERM)
+2025-10-29 11:46:15,903 INFO stopped: rsyslogd (exit status 0)
+/usr/local/lib/python3.11/dist-packages/supervisor/options.py:474: UserWarning: Supervisord is running as root and it is searching for its configuration file in default locations (including its current working directory); you probably want to specify a "-c" argument specifying an absolute path to a configuration file for improved security.
+  self.warnings.warn(
+2025-10-29 11:48:27,224 INFO Included extra file "/etc/supervisor/conf.d/supervisord.conf" during parsing
+2025-10-29 11:48:27,224 INFO Set uid to user 0 succeeded
+2025-10-29 11:48:27,232 INFO RPC interface 'supervisor' initialized
+2025-10-29 11:48:27,232 CRIT Server 'unix_http_server' running without any HTTP authentication checking
+2025-10-29 11:48:27,233 INFO supervisord started with pid 1
+2025-10-29 11:48:27,236 INFO spawned: 'dependent-startup' with pid 39
+2025-10-29 11:48:27,239 INFO spawned: 'supervisor-proc-exit-listener' with pid 40
+2025-10-29 11:48:27,253 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:48:28,669 INFO success: dependent-startup entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:28,672 INFO spawned: 'supervisor-proc-exit-listener' with pid 41
+2025-10-29 11:48:28,683 INFO spawned: 'rsyslogd' with pid 42
+2025-10-29 11:48:28,687 WARN exited: supervisor-proc-exit-listener (exit status 1; not expected)
+2025-10-29 11:48:29,901 INFO success: rsyslogd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:30,905 INFO spawned: 'supervisor-proc-exit-listener' with pid 46
+2025-10-29 11:48:30,951 INFO spawned: 'gearsyncd' with pid 49
+2025-10-29 11:48:30,952 INFO success: gearsyncd entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:48:30,960 INFO spawned: 'portsyncd' with pid 50
+2025-10-29 11:48:30,988 INFO exited: gearsyncd (exit status 0; expected)
+2025-10-29 11:48:31,047 INFO spawned: 'gearsyncd' with pid 53
+2025-10-29 11:48:31,049 INFO success: gearsyncd entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:48:31,076 INFO exited: gearsyncd (exit status 0; expected)
+2025-10-29 11:48:32,268 INFO success: supervisor-proc-exit-listener entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:32,268 INFO success: portsyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:32,343 INFO spawned: 'orchagent' with pid 55
+2025-10-29 11:48:33,388 INFO success: orchagent entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:34,432 INFO spawned: 'swssconfig' with pid 98
+2025-10-29 11:48:34,433 INFO success: swssconfig entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:48:34,440 INFO spawned: 'coppmgrd' with pid 99
+2025-10-29 11:48:34,441 INFO success: coppmgrd entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:48:38,968 INFO exited: swssconfig (exit status 0; expected)
+2025-10-29 11:48:40,013 INFO spawned: 'restore_neighbors' with pid 122
+2025-10-29 11:48:40,014 INFO success: restore_neighbors entered RUNNING state, process has stayed up for > than 0 seconds (startsecs)
+2025-10-29 11:48:40,020 INFO spawned: 'neighsyncd' with pid 123
+2025-10-29 11:48:40,028 INFO spawned: 'vlanmgrd' with pid 124
+2025-10-29 11:48:40,035 INFO spawned: 'intfmgrd' with pid 126
+2025-10-29 11:48:40,046 INFO spawned: 'fabricmgrd' with pid 128
+2025-10-29 11:48:40,058 INFO spawned: 'portmgrd' with pid 130
+2025-10-29 11:48:40,067 INFO spawned: 'buffermgrd' with pid 132
+2025-10-29 11:48:40,076 INFO spawned: 'enable_counters' with pid 133
+2025-10-29 11:48:40,085 INFO spawned: 'vrfmgrd' with pid 136
+2025-10-29 11:48:40,094 INFO spawned: 'nbrmgrd' with pid 138
+2025-10-29 11:48:40,109 INFO spawned: 'vxlanmgrd' with pid 143
+2025-10-29 11:48:40,128 INFO spawned: 'fdbsyncd' with pid 147
+2025-10-29 11:48:40,140 INFO spawned: 'tunnelmgrd' with pid 149
+2025-10-29 11:48:40,149 INFO spawned: 'countersyncd' with pid 150
+2025-10-29 11:48:41,209 INFO success: neighsyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,210 INFO success: vlanmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,211 INFO success: intfmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,211 INFO success: fabricmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,212 INFO success: portmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,213 INFO success: buffermgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,213 INFO success: enable_counters entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,214 INFO success: vrfmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,215 INFO success: nbrmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,215 INFO success: vxlanmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,216 INFO success: fdbsyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,217 INFO success: tunnelmgrd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,217 INFO success: countersyncd entered RUNNING state, process has stayed up for > than 1 seconds (startsecs)
+2025-10-29 11:48:41,277 INFO exited: restore_neighbors (exit status 0; expected)
+2025-10-29 11:48:42,089 INFO exited: dependent-startup (exit status 0; expected)
+2025-10-29 11:51:40,396 INFO exited: enable_counters (exit status 0; expected)
