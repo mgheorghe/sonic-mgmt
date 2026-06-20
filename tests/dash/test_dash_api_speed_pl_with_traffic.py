@@ -137,6 +137,12 @@ PORT_UP_TIMEOUT_S = 90       # wait for IxNetwork<->UHD L1 link-up after AssignP
 BASELINE_WINDOW_S = 8        # pre-program continuous-traffic window (expect ~100% loss)
 POST_PROGRAM_SETTLE_S = 300  # full-scale x 64 ENIs: orchagent processing is ~minutes/ENI
 PUSH_STATS_POLL_S = 4        # interval for the background IxN flow-stats poller (decoupled from load)
+# CRM (Critical Resource Monitoring) polling interval to set on the DPU for the run.
+# CRM refreshes by calling SAI get_availability every interval; under the full-scale
+# push that contends with the install pipeline (5s polling collapsed throughput).
+# Park it past the run length (2h) so CRM never perturbs the install. Default is 300s;
+# restored at teardown. Platform-independent (`crm config polling interval`).
+CRM_POLLING_INTERVAL_S = 7200
 STEADY_WINDOW_S = 15         # clean all-ENIs-up window for the final loss number
 NASA_RECHECK_SETTLE_S = 5    # re-read NASA after this to prove counters are stable
 SETTLE_LOSS_PCT = 1.0        # pass/fail threshold on the steady-state window
@@ -775,6 +781,21 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
     dpu_pre_config(dpuhost, dpu_dataplane_ip)
     npu_pre_config(duthost, dpu_midplane_ip, dpu_dataplane_ip)
 
+    # Park CRM polling past the run length so its periodic SAI get_availability
+    # calls don't contend with the install pipeline during the push (5s polling
+    # collapsed throughput). Restored in the finally block. Platform-independent.
+    crm_interval_orig = None
+    try:
+        _crm = dpuhost.shell("crm show summary", module_ignore_errors=True).get("stdout", "")
+        _m = re.search(r"Polling Interval:\s*(\d+)", _crm)
+        crm_interval_orig = _m.group(1) if _m else None
+    except Exception:
+        logger.debug("could not read original CRM polling interval", exc_info=True)
+    dpuhost.shell("crm config polling interval %d" % CRM_POLLING_INTERVAL_S,
+                  module_ignore_errors=True)
+    logger.info("CRM polling interval set to %ds for the run (was %s)",
+                CRM_POLLING_INTERVAL_S, crm_interval_orig)
+
     # ── IxNetwork: build the target DPU's outbound traffic live (no .ixncfg) ─
     session, ixnetwork = _ix_connect()
     timings = {}
@@ -932,6 +953,12 @@ def test_dash_api_load_speed_pl_with_traffic(localhost, duthost, dpuhosts, dpu_i
             session.Session.remove()
         except Exception:
             logger.debug("IxNetwork: session handle release skipped (non-fatal)")
+
+        # Restore the DPU's original CRM polling interval (it also reverts on reboot).
+        if crm_interval_orig:
+            dpuhost.shell("crm config polling interval %s" % crm_interval_orig,
+                          module_ignore_errors=True)
+            logger.info("Restored CRM polling interval to %ss", crm_interval_orig)
 
         shutil.rmtree(render_output_dir, ignore_errors=True)
         logger.info("Cleaned up rendered config dir: %s", render_output_dir)
