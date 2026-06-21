@@ -53,10 +53,17 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_
     # Render configs under the repo so the host docker daemon can bind-mount them (/tmp isn't shared).
     render_output_dir = tempfile.mkdtemp(prefix="dash_cfg_", dir=os.path.dirname(os.path.abspath(__file__)))
     logger.info("Rendering DASH configs into %s", render_output_dir)
-    # Nvidia SN4280 smartswitch: 4 DPUs, 64 ENIs each (256 total). enis_per_dpu =
-    # ENI_COUNT // DPUS, so DPUS=4 yields 64 ENIs per DPU (dpu0 = eni 000..063).
+    # 1 ENI with the full private-link per-ENI scale on DPU0: 64 000 VNet mappings
+    # plus ~500 outbound routes, isolated to a single ENI. MINIMAL_SINGLE_ENTRY
+    # stays False so the map template emits ACL_NSG_COUNT*2 * ACL_RULES_NSG/2 =
+    # 10 * 6400 = 64 000 mappings; ENI_COUNT=1 / DPUS=1 generates exactly one ENI,
+    # and TOTAL_OUTBOUND_ROUTES caps that ENI's route table at ~500 (per-ENI scale,
+    # not the 128k full-table figure that ENI_COUNT=1 would otherwise imply).
     render_params = dict(render.DEFAULTS)
-    render_params["DPUS"] = 4
+    render_params["DPUS"] = 1
+    render_params["ENI_COUNT"] = 1
+    render_params["MINIMAL_SINGLE_ENTRY"] = False
+    render_params["TOTAL_OUTBOUND_ROUTES"] = 500
     render.generate(render_params, render_output_dir, prefix="pl_100")
 
     config_dir = os.path.join(render_output_dir, f"dpu{dpuhost.dpu_index}")
@@ -143,20 +150,32 @@ def test_dash_api_load_speed_pl(localhost, duthost, dpuhosts, dpu_index, config_
     _ENI_EXPECTED = (len(files) - 1) // 2  # 2 files per ENI (eni, map) + apl per DPU
     if _ENI_EXPECTED < 1:
         _ENI_EXPECTED = 1
-    _ENI_POLL_INTERVAL = 4   # seconds between polls
-    _ENI_TIMEOUT = 15        # 15 seconds total
-    logger.info("DPU: waiting for %d ENIs in COUNTERS_ENI_NAME_MAP (timeout %ds)...", _ENI_EXPECTED, _ENI_TIMEOUT)
+    _ENI_POLL_INTERVAL = 5   # seconds between polls
+    _ENI_TIMEOUT = 120       # 2 minutes (64k mappings can keep syncd busy)
+    # COUNTERS_ENI_NAME_MAP is the historical signal but does NOT populate on the
+    # Cisco/Pensando DPU (the flex-counter ENI map stays empty there even when the
+    # ENI is fully programmed). The authoritative cross-platform signal is the SAI
+    # ENI object count in ASIC_DB, so gate on max(COUNTERS, ASIC_DB).
+    logger.info("DPU: waiting for %d ENIs programmed in hardware (timeout %ds)...", _ENI_EXPECTED, _ENI_TIMEOUT)
     deadline = time.time() + _ENI_TIMEOUT
     eni_count = 0
     while time.time() < deadline:
-        eni_out = dpuhost.shell('sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"', module_ignore_errors=True)
-        eni_stdout = eni_out.get("stdout", "")
+        cmap = dpuhost.shell('sonic-db-cli COUNTERS_DB HGETALL "COUNTERS_ENI_NAME_MAP"',
+                             module_ignore_errors=True).get("stdout", "")
         # sonic-db-cli returns a Python-repr dict; count keys via 'eni-' occurrences.
-        eni_count = eni_stdout.count("eni-")
-        logger.info("DPU: ENIs found: %d / %d", eni_count, _ENI_EXPECTED)
-        logger.info("DPU: COUNTERS_ENI_NAME_MAP raw output:\n%s", eni_stdout or "(empty)")
+        counters_count = cmap.count("eni-")
+        asic_out = dpuhost.shell("sonic-db-cli ASIC_DB KEYS 'ASIC_STATE:SAI_OBJECT_TYPE_ENI:*' | wc -l",
+                                 module_ignore_errors=True).get("stdout", "").strip()
+        try:
+            asic_count = int(asic_out or "0")
+        except ValueError:
+            asic_count = 0
+        eni_count = max(counters_count, asic_count)
+        logger.info("DPU: ENIs found: %d / %d (COUNTERS_ENI_NAME_MAP=%d, ASIC_DB ENI=%d)",
+                    eni_count, _ENI_EXPECTED, counters_count, asic_count)
         if eni_count >= _ENI_EXPECTED:
             break
         time.sleep(_ENI_POLL_INTERVAL)
     assert eni_count >= _ENI_EXPECTED, \
-        "Expected %d ENIs in COUNTERS_ENI_NAME_MAP but found %d after %ds" % (_ENI_EXPECTED, eni_count, _ENI_TIMEOUT)
+        "Expected %d ENIs programmed (COUNTERS_ENI_NAME_MAP or ASIC_DB) but found %d after %ds" % (
+            _ENI_EXPECTED, eni_count, _ENI_TIMEOUT)
