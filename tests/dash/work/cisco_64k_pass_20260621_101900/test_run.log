@@ -1,0 +1,639 @@
+============================= test session starts ==============================
+platform linux -- Python 3.12.3, pytest-9.0.2, pluggy-1.6.0 -- /opt/venv/bin/python3
+cachedir: .pytest_cache
+metadata: {'Python': '3.12.3', 'Platform': 'Linux-6.8.0-111-generic-x86_64-with-glibc2.39', 'Packages': {'pytest': '9.0.2', 'pluggy': '1.6.0'}, 'Plugins': {'cov': '7.1.0', 'ansible': '26.2.0', 'metadata': '3.1.1', 'xdist': '3.8.0', 'allure-pytest': '2.15.3', 'html': '4.2.0', 'repeat': '0.9.4', 'stress': '1.0.1'}}
+ansible: 2.18.14
+rootdir: /home/dash/sonic-mgmt/sonic-mgmt/tests
+configfile: pytest.ini
+plugins: cov-7.1.0, ansible-26.2.0, metadata-3.1.1, xdist-3.8.0, allure-pytest-2.15.3, html-4.2.0, repeat-0.9.4, stress-1.0.1
+collecting ...
+----------------------------- live log collection ------------------------------
+21/06/2026 10:16:14 __init__.load_basic_facts                L0386 INFO   | Loading basic facts for DUT: keysight-css01
+21/06/2026 10:16:15 __init__.load_dut_basic_facts            L0156 INFO   | Getting dut basic facts: keysight-css01
+21/06/2026 10:16:18 __init__.load_minigraph_facts            L0244 INFO   | Getting minigraph basic facts: keysight-css01
+21/06/2026 10:16:20 __init__.load_minigraph_facts            L0261 ERROR  | Failed to load minigraph basic facts, exception: CalledProcessError(2, ['ansible', '-M', '/home/dash/sonic-mgmt/sonic-mgmt/ansible/library', '-m', 'minigraph_facts', '-i', '../ansible/lab', 'keysight-css01', '-a', 'host=keysight-css01'])
+21/06/2026 10:16:20 __init__.load_config_facts               L0279 INFO   | Getting config basic facts: keysight-css01
+21/06/2026 10:16:22 __init__.load_switch_capabilities_facts  L0323 INFO   | Getting switch capabilities basic facts: keysight-css01
+21/06/2026 10:16:23 __init__.load_config_facts               L0279 INFO   | Getting config basic facts: keysight-css01
+21/06/2026 10:16:25 __init__.pytest_collection_modifyitems   L0689 INFO   | Available basic facts that can be used in conditional skip:
+{
+  "topo_type": "smartswitch",
+  "topo_name": "smartswitch-cisco",
+  "testbed": "keysight-css01",
+  "asic_subtype": "cisco-8000",
+  "asic_type": "cisco-8000",
+  "branch": "internal",
+  "build_date": "Wed Jun 10 08:56:24 UTC 2026",
+  "build_number": 167426684,
+  "build_version": "internal.167426684-dfd1f4ecaa",
+  "built_by": "azureuser@6eadeb77c000000",
+  "commit_id": "dfd1f4ecaa",
+  "debian_version": "13.5",
+  "feature_status": {
+    "acms": "enabled",
+    "bgp": "enabled",
+    "database": "always_enabled",
+    "dhcp_relay": "enabled",
+    "dhcp_server": "enabled",
+    "eventd": "enabled",
+    "gnmi": "enabled",
+    "lldp": "enabled",
+    "macsec": "disabled",
+    "mux": "always_disabled",
+    "otel": "disabled",
+    "pmon": "enabled",
+    "profiler": "disabled",
+    "radv": "enabled",
+    "restapi": "enabled",
+    "session-monitor": "always_disabled",
+    "snmp": "enabled",
+    "swss": "enabled",
+    "syncd": "enabled",
+    "teamd": "enabled",
+    "telemetry": "enabled",
+    "vnet-monitor": "enabled"
+  },
+  "hwsku": "Cisco-8102-28FH-DPU-O",
+  "is_chassis": false,
+  "is_chassis_config_absent": false,
+  "is_dpu": false,
+  "is_mgmt_ipv6_only": false,
+  "is_multi_asic": false,
+  "is_smartswitch": true,
+  "is_supervisor": false,
+  "kernel_version": "6.12.41+deb13",
+  "libswsscommon": "1.0.0",
+  "num_asic": 1,
+  "platform": "x86_64-8102_28fh_dpu_o-r0",
+  "release": "unknown",
+  "secure_boot_image": "no",
+  "sonic-ctrmgrd-rs": "1.0.0",
+  "sonic-host-services-rs": "1.0.0",
+  "sonic_os_version": 13,
+  "sonic_utilities": 1.2,
+  "asic_gen": "unknown",
+  "VOQ_INBAND_INTERFACE": {},
+  "BGP_VOQ_CHASSIS_NEIGHBOR": {},
+  "INTERFACE": {
+    "Ethernet0": {
+      "220.0.1.1/24": {}
+    },
+    "Ethernet16": {
+      "220.0.3.1/24": {}
+    },
+    "Ethernet224": {
+      "18.0.202.0/31": {}
+    },
+    "Ethernet232": {
+      "18.1.202.0/31": {}
+    },
+    "Ethernet24": {
+      "220.0.4.1/24": {}
+    },
+    "Ethernet240": {
+      "18.2.202.0/31": {}
+    },
+    "Ethernet248": {
+      "18.3.202.0/31": {}
+    },
+    "Ethernet256": {
+      "18.4.202.0/31": {}
+    },
+    "Ethernet264": {
+      "18.5.202.0/31": {}
+    },
+    "Ethernet272": {
+      "18.6.202.0/31": {}
+    },
+    "Ethernet280": {
+      "18.7.202.0/31": {}
+    },
+    "Ethernet8": {
+      "220.0.2.1/24": {}
+    }
+  },
+  "switch_type": "",
+  "type": "LeafRouter",
+  "switch": {
+    "ACL_ACTION|PACKET_ACTION": "COPY,DROP,FORWARD",
+    "ASIC_SDK_HEALTH_EVENT": "true",
+    "ECMP_HASH_ALGORITHM": "CRC,CRC_CCITT",
+    "ECMP_HASH_ALGORITHM_CAPABLE": "true",
+    "ECMP_HASH_CAPABLE": "true",
+    "FAST_LINKUP_CAPABLE": "false",
+    "HASH|NATIVE_HASH_FIELD_LIST": "SRC_IP,DST_IP,VLAN_ID,IP_PROTOCOL,L4_SRC_PORT,L4_DST_PORT,SRC_MAC,DST_MAC,IPV6_FLOW_LABEL",
+    "ICMP_OFFLOAD_CAPABLE": "true",
+    "LAG_HASH_ALGORITHM": "CRC,CRC_CCITT",
+    "LAG_HASH_ALGORITHM_CAPABLE": "true",
+    "LAG_HASH_CAPABLE": "true",
+    "LAG_TPID_CAPABLE": "true",
+    "MAX_NEXTHOP_GROUP_COUNT": "16384",
+    "MIRROR": "true",
+    "MIRRORV6": "true",
+    "ORDERED_ECMP_CAPABLE": "true",
+    "PATH_TRACING_CAPABLE": "false",
+    "PFC_DLR_INIT_CAPABLE": "true",
+    "PORT_EGRESS_MIRROR_CAPABLE": "true",
+    "PORT_EGRESS_SAMPLE_CAPABLE": "true",
+    "PORT_INGRESS_MIRROR_CAPABLE": "true",
+    "PORT_TPID_CAPABLE": "true",
+    "REG_FATAL_ASIC_SDK_HEALTH_CATEGORY": "true",
+    "REG_NOTICE_ASIC_SDK_HEALTH_CATEGORY": "true",
+    "REG_WARNING_ASIC_SDK_HEALTH_CATEGORY": "true",
+    "SWITCH_TRIMMING_CAPABLE": "false",
+    "SWITCH|NUMBER_OF_TRAFFIC_CLASSES": "8",
+    "SWITCH|NUMBER_OF_UNICAST_QUEUES": "8",
+    "SWITCH|PACKET_TRIMMING_DSCP_RESOLUTION_MODE": "N/A",
+    "SWITCH|PACKET_TRIMMING_QUEUE_RESOLUTION_MODE": "N/A"
+  },
+  "macsec_en": false
+}
+collected 1 item
+
+dash/test_dash_api_speed_pl.py::test_dash_api_load_speed_pl
+-------------------------------- live log setup --------------------------------
+21/06/2026 10:16:25 __init__.set_default                     L0053 INFO   | Completeness level not set during test execution. Setting to default level: 1
+21/06/2026 10:16:25 __init__.check_test_completeness         L0151 INFO   | Test has no defined levels. Continue without test completeness checks
+21/06/2026 10:16:25 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:16:25 conftest.enhance_inventory               L0440 INFO   | Inventory file: ['../ansible/lab']
+21/06/2026 10:16:27 ptfhost_utils.run_icmp_responder_session L0326 INFO   | Skip running icmp_responder at session level, it is only for dualtor testbed with active-active mux ports.
+21/06/2026 10:16:27 conftest.enable_nat_for_dpuhosts         L0645 INFO   | dpuhost_names: ['keysight-css01-dpu0']
+21/06/2026 10:16:27 dut_utils.is_enabled_nat_for_dpu         L0822 INFO   | NAT is not enabled
+21/06/2026 10:16:27 dut_utils.get_dpu_names_and_ssh_ports    L0848 INFO   | dpu_name_ssh_port_dict: {'dpu0': '5021'}
+21/06/2026 10:16:35 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:16:45 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:16:49 dut_utils.check_nat_is_enabled_and_set_c L0858 INFO   | NAT is enabled successfully
+21/06/2026 10:16:49 multi_asic.critical_services_tracking_li L0107 INFO   | Removing teamd from default services for switch_type DPU
+21/06/2026 10:16:55 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:16:56 smartswitch_util.correlate_dpu_info_with L0039 INFO   | dpuhost.dpu_mgmt_ip:169.254.200.1, dpu_index: 0
+21/06/2026 10:16:57 smartswitch_util.get_dpu_dataplane_port  L0017 INFO   | DPU dataplane interface: Ethernet224
+21/06/2026 10:16:57 smartswitch_util.get_data_port_on_dpu    L0026 INFO   | Failed to get data port on dpu for Ethernet224, so returning default port: Ethernet0
+21/06/2026 10:16:58 smartswitch_util.correlate_dpu_info_with L0055 INFO   | dpuhost.data_port_on_npu: Ethernet224, dpuhost.npu_data_port_ip: 18.0.202.0, dpuhost.npu_dataplane_mac: 24:d5:e4:32:4e:11, dpuhost.data_port_on_dpu: Ethernet0, dpuhost.dpu_data_port_ip: 18.0.202.1, dpuhost.dpu_dataplane_mac: 08:f4:f0:8f:11:af
+21/06/2026 10:16:58 dut_utils.creds_on_dut                   L0636 INFO   | dut keysight-css01 belongs to groups ['lab', 'sonic', 'sonic_cisco_smartswitch', 'fanout']
+21/06/2026 10:16:58 dut_utils.creds_on_dut                   L0661 INFO   | skip empty var file /home/dash/sonic-mgmt/sonic-mgmt/tests/common/helpers/../../../ansible/group_vars/all/corefile_uploader.yml
+21/06/2026 10:16:58 dut_utils.creds_on_dut                   L0661 INFO   | skip empty var file /home/dash/sonic-mgmt/sonic-mgmt/tests/common/helpers/../../../ansible/group_vars/all/env.yml
+21/06/2026 10:16:58 transport._log                           L1938 INFO   | Connected (version 2.0, client OpenSSH_10.0p2)
+21/06/2026 10:17:02 transport._log                           L1938 INFO   | Auth banner: b'Debian GNU/Linux 13 \\n \\l\n\n'
+21/06/2026 10:17:02 transport._log                           L1938 INFO   | Authentication (password) failed.
+21/06/2026 10:17:02 transport._log                           L1938 INFO   | Connected (version 2.0, client OpenSSH_10.0p2)
+21/06/2026 10:17:03 transport._log                           L1938 INFO   | Auth banner: b'Debian GNU/Linux 13 \\n \\l\n\n'
+21/06/2026 10:17:03 transport._log                           L1938 INFO   | Authentication (password) successful!
+21/06/2026 10:17:04 conftest.fanouthosts                     L1142 INFO   | SmartSwitch topology has no fanout
+21/06/2026 10:17:04 __init__.sanity_check_full               L0216 INFO   | Prepare sanity check
+21/06/2026 10:17:04 __init__.sanity_check_full               L0233 INFO   | Found marker: m.name=topology, m.args=('smartswitch',), m.kwargs={}
+21/06/2026 10:17:04 __init__.sanity_check_full               L0233 INFO   | Found marker: m.name=skip_check_dut_health, m.args=(), m.kwargs={}
+21/06/2026 10:17:04 __init__.sanity_check_full               L0233 INFO   | Found marker: m.name=disable_loganalyzer, m.args=(), m.kwargs={}
+21/06/2026 10:17:04 __init__.sanity_check_full               L0233 INFO   | Found marker: m.name=sanity_check, m.args=(), m.kwargs={'skip_sanity': True}
+21/06/2026 10:17:04 __init__.sanity_check_full               L0239 INFO   | Process marker sanity_check in script. m.args=(), m.kwargs={'skip_sanity': True}
+21/06/2026 10:17:04 __init__.sanity_check_full               L0258 INFO   | Skip sanity check according to configuration of test script.
+21/06/2026 10:17:05 conftest.temporarily_disable_route_check L3282 INFO   | Skipping temporarily_disable_route_check fixture
+21/06/2026 10:17:05 yang_utils.run_yang_validation           L0017 INFO   | Running YANG validation on keysight-css01 (pre-test)
+21/06/2026 10:17:05 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:17:10 yang_utils.run_yang_validation           L0029 INFO   | YANG validation passed on keysight-css01 (pre-test)
+21/06/2026 10:17:10 conftest.generate_params_dut_hostname    L1743 INFO   | Using DUTs ['keysight-css01'] in testbed 'keysight-css01'
+21/06/2026 10:17:10 conftest.set_rand_one_dut_hostname       L0736 INFO   | Randomly select dut keysight-css01 for testing
+21/06/2026 10:17:16 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:17:26 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:17:36 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:17:46 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:17:54 __init__.loganalyzer                     L0077 INFO   | Log analyzer is disabled
+21/06/2026 10:17:54 __init__.memory_utilization              L0143 INFO   | Hostname: keysight-css01, Hwsku: Cisco-8102-28FH-DPU-O, Platform: x86_64-8102_28fh_dpu_o-r0
+21/06/2026 10:17:54 memory_utilization.parse_and_register_co L0420 INFO   | Loading memory monitoring commands for hwsku: Cisco-8102-28FH-DPU-O
+21/06/2026 10:17:54 memory_utilization.register_command      L0023 INFO   | Registering command: name=monit, cmd=sudo monit validate, memory_params={'memory_usage': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 10}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 70}}}, memory_check=<function parse_monit_validate_output at 0x7cb8d4327e20>
+21/06/2026 10:17:54 memory_utilization.register_command      L0023 INFO   | Registering command: name=top, cmd=top -b -n 1, memory_params={'bgpd': {'memory_increase_threshold': {'type': 'value', 'value': 128}, 'memory_high_threshold': None}, 'zebra': {'memory_increase_threshold': {'type': 'value', 'value': 128}, 'memory_high_threshold': None}}, memory_check=<function parse_top_output at 0x7cb8d43274c0>
+21/06/2026 10:17:54 memory_utilization.register_command      L0023 INFO   | Registering command: name=free, cmd=free -m, memory_params={'used': {'memory_increase_threshold': {'type': 'percentage', 'value': '20%'}, 'memory_high_threshold': None}}, memory_check=<function parse_free_output at 0x7cb8d4327d80>
+21/06/2026 10:17:54 memory_utilization.register_command      L0023 INFO   | Registering command: name=docker, cmd=docker stats --no-stream, memory_params={'snmp': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 2}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 4}}, 'pmon': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 2}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 8}}, 'lldp': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 2}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 4}}, 'gnmi': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 2}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 6}}, 'radv': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 2}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 3}}, 'syncd': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 7}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 22}}, 'bgp': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 4}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 14}}, 'teamd': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 2}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 5}}, 'swss': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 5}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 10}}, 'database': {'memory_increase_threshold': {'type': 'percentage_points', 'value': 2}, 'memory_high_threshold': {'type': 'percentage_points', 'value': 6}}}, memory_check=<function parse_docker_stats_output at 0x7cb8d4327ec0>
+21/06/2026 10:17:54 memory_utilization.register_command      L0023 INFO   | Registering command: name=frr_bgp, cmd=vtysh -c "show memory bgp", memory_params={'used': {'memory_increase_threshold': [{'type': 'percentage', 'value': '50%'}, {'type': 'value', 'value': 64}, {'type': 'comparison', 'value': 'max'}], 'memory_high_threshold': {'type': 'value', 'value': 256}}}, memory_check=<function parse_frr_memory_output at 0x7cb8d4327f60>
+21/06/2026 10:17:54 memory_utilization.register_command      L0023 INFO   | Registering command: name=frr_zebra, cmd=vtysh -c "show memory zebra", memory_params={'used': {'memory_increase_threshold': [{'type': 'percentage', 'value': '50%'}, {'type': 'value', 'value': 64}, {'type': 'comparison', 'value': 'max'}], 'memory_increase_fail_threshold': {'type': 'value', 'value': 128}, 'memory_high_threshold': {'type': 'value', 'value': 128}}}, memory_check=<function parse_frr_memory_output at 0x7cb8d4327f60>
+21/06/2026 10:17:54 conftest.setup_dualtor_mux_ports         L3800 INFO   | skip setup dualtor mux cables on non-dualtor testbed
+21/06/2026 10:17:56 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:17:59 memory_utilization.parse_frr_memory_outp L0686 INFO   | Total FRR memory used: 17.7 MB, holding: 11534336.0 bytes, small: 0.0 bytes, ordinary: 7011328.0 bytes
+21/06/2026 10:17:59 memory_utilization.parse_frr_memory_outp L0686 INFO   | Total FRR memory used: 39.4 MB, holding: 36700160.0 bytes, small: 0.0 bytes, ordinary: 4661248.0 bytes
+21/06/2026 10:17:59 __init__.pytest_runtest_setup            L0064 INFO   | Before test: collected memory_values {'before_test': {'keysight-css01': {'monit': {'memory_usage': 4.3}, 'top': {'zebra': 13.7, 'bgpd': 16.7}, 'free': {'used': 5343}, 'docker': {'snmp': 0.0, 'pmon': 0.3, 'lldp': 0.0, 'gnmi': 0.1, 'bgp': 0.1, 'radv': 0.0, 'teamd': 0.0, 'syncd': 1.0, 'swss': 0.1, 'database': 0.1}, 'frr_bgp': {'used': 17.7}, 'frr_zebra': {'used': 39.4}}}, 'after_test': {'keysight-css01': {}}}
+-------------------------------- live log call ---------------------------------
+21/06/2026 10:17:59 __init__.terminate                       L0345 INFO   | [Parallel Fixture] Terminating parallel fixture manager
+21/06/2026 10:18:00 test_dash_api_speed_pl.test_dash_api_loa L0051 INFO   | Pre-flight: assuming DPU0 is up at 169.254.200.1 (no automated check)
+21/06/2026 10:18:00 test_dash_api_speed_pl.test_dash_api_loa L0055 INFO   | Rendering DASH configs into /home/dash/sonic-mgmt/sonic-mgmt/tests/dash/dash_cfg_bl6m2_rb
+21/06/2026 10:18:00 test_dash_api_speed_pl.test_dash_api_loa L0085 INFO   | _ENI_COUNT=1: pushing 3/4 rendered files
+21/06/2026 10:18:00 test_dash_api_speed_pl.test_dash_api_loa L0088 INFO   | Rendered 3 config files to load for dpu0
+21/06/2026 10:18:00 test_dash_api_speed_pl.test_dash_api_loa L0092 INFO   | NPU hwsku: Cisco-8102-28FH-DPU-O
+21/06/2026 10:18:00 test_dash_api_speed_pl.test_dash_api_loa L0098 INFO   | DPU0 dataplane IP: 18.0.202.1
+21/06/2026 10:18:09 dash_api_speed_common.dpu_pre_config     L0352 INFO   | DPU: adding Ethernet0 IP 18.0.202.1/31 (if not present)
+21/06/2026 10:18:12 dash_api_speed_common.dpu_pre_config     L0363 INFO   | DPU: dataplane default route already selected, leaving as-is
+21/06/2026 10:18:12 dash_api_speed_common.dpu_pre_config     L0365 INFO   | DPU: creating Loopback0 interface (if not present)
+21/06/2026 10:18:13 dash_api_speed_common.dpu_pre_config     L0367 INFO   | DPU: adding Loopback0 IP 221.0.0.1/32
+21/06/2026 10:18:14 dash_api_speed_common.dpu_pre_config     L0369 INFO   | DPU: adding Loopback1 IP 221.0.1.1/32
+21/06/2026 10:18:18 dash_api_speed_common.dpu_pre_config     L0384 INFO   | DPU: setting VXLAN UDP dport to 4789 (attempt 1)
+21/06/2026 10:18:23 dash_api_speed_common.dpu_pre_config     L0392 INFO   | DPU: SWITCH_TABLE:switch vxlan_port now = 4789
+21/06/2026 10:18:23 dash_api_speed_common.dpu_pre_config     L0410 INFO   | DPU: adding underlay PA return route 221.1.0.0/16 -> 18.0.202.0
+21/06/2026 10:18:24 dash_api_speed_common.dpu_pre_config     L0410 INFO   | DPU: adding underlay PA return route 221.2.0.0/16 -> 18.0.202.0
+21/06/2026 10:18:25 dash_api_speed_common.dpu_pre_config     L0410 INFO   | DPU: adding underlay PA return route 221.4.0.0/16 -> 18.0.202.0
+21/06/2026 10:18:27 dash_api_speed_common.dpu_pre_config     L0426 INFO   | DPU: PA 221.1.0.1 routes via dataplane nexthop 18.0.202.0: 221.1.0.1 via 18.0.202.0 dev Ethernet0 src 18.0.202.1 uid 0
+21/06/2026 10:18:27 dash_api_speed_common.dpu_pre_config     L0426 INFO   | DPU: PA 221.2.0.1 routes via dataplane nexthop 18.0.202.0: 221.2.0.1 via 18.0.202.0 dev Ethernet0 src 18.0.202.1 uid 0
+21/06/2026 10:18:28 dash_api_speed_common.dpu_pre_config     L0426 INFO   | DPU: PA 221.4.0.1 routes via dataplane nexthop 18.0.202.0: 221.4.0.1 via 18.0.202.0 dev Ethernet0 src 18.0.202.1 uid 0
+21/06/2026 10:18:33 dash_api_speed_common.dpu_pre_config     L0447 INFO   | DPU: permanent ARP 18.0.202.0 lladdr 24:d5:e4:32:4e:11 dev Ethernet0 (attempt 1)
+21/06/2026 10:18:33 dash_api_speed_common.dpu_pre_config     L0457 INFO   | DPU: show ip route
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: Codes: K - kernel route, C - connected, S - static, R - RIP,
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route:        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route:        T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route:        F - PBR, f - OpenFabric,
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route:        > - selected route, * - FIB route, q - queued route, r - rejected route
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route:
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: S>*0.0.0.0/0 [1/0] via 18.0.202.0, Ethernet0, 00:14:21
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: C>*18.0.202.0/31 is directly connected, Ethernet0, 00:50:38
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: K 18.0.202.0/31 [0/0] is directly connected, Ethernet0, 00:50:42
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: C>*169.254.200.0/24 is directly connected, eth0-midplane, 00:50:48
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: C>*221.0.0.1/32 is directly connected, Loopback0, 00:14:19
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: C>*221.0.1.1/32 is directly connected, Loopback1, 00:14:18
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: S>*221.1.0.0/16 [1/0] via 18.0.202.0, Ethernet0, 00:14:09
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: S>*221.2.0.0/16 [1/0] via 18.0.202.0, Ethernet0, 00:14:08
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0460 INFO   |   DPU route: S>*221.4.0.0/16 [1/0] via 18.0.202.0, Ethernet0, 00:14:07
+21/06/2026 10:18:34 dash_api_speed_common.dpu_pre_config     L0462 INFO   | DPU: show ip interfaces
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: Interface      Master    IPv4 address/mask    Admin/Oper    BGP Neighbor    Neighbor IP
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: -------------  --------  -------------------  ------------  --------------  -------------
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: Ethernet0                18.0.202.1/31        up/up         N/A             N/A
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: Loopback0                221.0.0.1/32         up/up         N/A             N/A
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: Loopback1                221.0.1.1/32         up/up         N/A             N/A
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: docker0                  240.127.1.1/24       up/down       N/A             N/A
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: eth0-midplane            169.254.200.1/24     up/up         N/A             N/A
+21/06/2026 10:18:36 dash_api_speed_common.dpu_pre_config     L0465 INFO   |   DPU iface: lo                       127.0.0.1/16         up/up         N/A             N/A
+21/06/2026 10:18:36 dash_api_speed_common.npu_pre_config     L0269 INFO   | NPU: adding permanent static ARP entries for dataplane next-hops
+21/06/2026 10:18:37 dash_api_speed_common.npu_pre_config     L0280 INFO   |   NPU: permanent ARP 220.0.1.2 lladdr 80:09:02:02:00:01 dev Ethernet0 (attempt 1)
+21/06/2026 10:18:38 dash_api_speed_common.npu_pre_config     L0280 INFO   |   NPU: permanent ARP 220.0.2.2 lladdr 80:09:02:02:00:02 dev Ethernet8 (attempt 1)
+21/06/2026 10:18:39 dash_api_speed_common.npu_pre_config     L0280 INFO   |   NPU: permanent ARP 220.0.3.2 lladdr 80:09:02:02:00:03 dev Ethernet16 (attempt 1)
+21/06/2026 10:18:40 dash_api_speed_common.npu_pre_config     L0280 INFO   |   NPU: permanent ARP 220.0.4.2 lladdr 80:09:02:02:00:04 dev Ethernet24 (attempt 1)
+21/06/2026 10:18:40 dash_api_speed_common.npu_pre_config     L0288 INFO   | NPU: removing stale PA more-specific routes
+21/06/2026 10:18:47 dash_api_speed_common.npu_pre_config     L0292 INFO   | NPU: installing per-port PA return routes (221.1->Eth0, 221.2->Eth8)
+21/06/2026 10:18:51 dash_api_speed_common.npu_pre_config     L0302 WARNING|   NPU: PA 221.1.0.1 NOT via 220.0.1.2 -> direction not isolated on its port: 221.1.0.1 via 10.36.76.1 dev eth0 table default src 10.36.77.121 uid 0
+21/06/2026 10:18:51 dash_api_speed_common.npu_pre_config     L0302 WARNING|   NPU: PA 221.2.0.1 NOT via 220.0.2.2 -> direction not isolated on its port: 221.2.0.1 via 10.36.76.1 dev eth0 table default src 10.36.77.121 uid 0
+21/06/2026 10:18:51 dash_api_speed_common.npu_pre_config     L0305 INFO   | NPU: pinging DPU midplane IP 169.254.200.1 to populate ARP
+21/06/2026 10:18:54 dash_api_speed_common.npu_pre_config     L0309 INFO   | NPU ARP entry for 169.254.200.1: 169.254.200.1 dev bridge-midplane lladdr 08:f4:f0:8f:11:ac REACHABLE
+21/06/2026 10:18:54 dash_api_speed_common.npu_pre_config     L0311 INFO   | NPU: show ip route
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: Codes: K - kernel route, C - connected, S - static, R - RIP,
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route:        O - OSPF, I - IS-IS, B - BGP, E - EIGRP, N - NHRP,
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route:        T - Table, v - VNC, V - VNC-Direct, A - Babel, D - SHARP,
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route:        F - PBR, f - OpenFabric,
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route:        > - selected route, * - FIB route, q - queued route, r - rejected route
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route:
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*10.36.76.0/22 is directly connected, eth0, 00:54:26
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.0.202.0/31 is directly connected, Ethernet224, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 18.0.202.0/31 [0/0] is directly connected, Ethernet224, 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.1.202.0/31 is directly connected, Ethernet232, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.2.202.0/31 is directly connected, Ethernet240, 00:50:59
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.3.202.0/31 is directly connected, Ethernet248, 00:50:56
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 18.3.202.0/31 [0/0] is directly connected, Ethernet248, 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.4.202.0/31 is directly connected, Ethernet256, 00:50:58
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 18.4.202.0/31 [0/0] is directly connected, Ethernet256, 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.5.202.0/31 is directly connected, Ethernet264, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 18.5.202.0/31 [0/0] is directly connected, Ethernet264, 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.6.202.0/31 is directly connected, Ethernet272, 00:50:58
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 18.6.202.0/31 [0/0] is directly connected, Ethernet272, 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*18.7.202.0/31 is directly connected, Ethernet280, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 18.7.202.0/31 [0/0] is directly connected, Ethernet280, 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*169.254.200.0/24 is directly connected, bridge-midplane, 00:54:26
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 220.0.1.0/24 [0/0] is directly connected, Ethernet0, inactive 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 220.0.2.0/24 [0/0] is directly connected, Ethernet8, inactive 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 220.0.3.0/24 [0/0] is directly connected, Ethernet16, inactive 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: K 220.0.4.0/24 [0/0] is directly connected, Ethernet24, inactive 00:53:51
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.1/32 [1/0] via 18.0.202.1, Ethernet224, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.2/32 [1/0] via 18.1.202.1, Ethernet232, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.3/32 [1/0] via 18.2.202.1, Ethernet240, 00:50:59
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.4/32 [1/0] via 18.3.202.1, Ethernet248, 00:50:56
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.5/32 [1/0] via 18.4.202.1, Ethernet256, 00:50:58
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.6/32 [1/0] via 18.5.202.1, Ethernet264, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.7/32 [1/0] via 18.6.202.1, Ethernet272, 00:50:58
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.0.8/32 [1/0] via 18.7.202.1, Ethernet280, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.1.1/32 [1/0] via 18.0.202.1, Ethernet224, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.2.2/32 [1/0] via 18.1.202.1, Ethernet232, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.3.3/32 [1/0] via 18.2.202.1, Ethernet240, 00:50:59
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.4.4/32 [1/0] via 18.3.202.1, Ethernet248, 00:50:56
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.5.5/32 [1/0] via 18.4.202.1, Ethernet256, 00:50:58
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.6.6/32 [1/0] via 18.5.202.1, Ethernet264, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.7.7/32 [1/0] via 18.6.202.1, Ethernet272, 00:50:58
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: S>*221.0.8.8/32 [1/0] via 18.7.202.1, Ethernet280, 00:51:00
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0314 INFO   |   NPU route: C>*240.127.1.0/24 is directly connected, docker0, 00:54:26
+21/06/2026 10:18:56 dash_api_speed_common.npu_pre_config     L0316 INFO   | NPU: show ip interfaces
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Interface        Master    IPv4 address/mask    Admin/Oper    BGP Neighbor    Neighbor IP
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: ---------------  --------  -------------------  ------------  --------------  -------------
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet0                  220.0.1.1/24         up/down       N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet8                  220.0.2.1/24         up/down       N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet16                 220.0.3.1/24         up/down       N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet24                 220.0.4.1/24         up/down       N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet224                18.0.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet232                18.1.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet240                18.2.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet248                18.3.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet256                18.4.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet264                18.5.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet272                18.6.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: Ethernet280                18.7.202.0/31        up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: bridge-midplane            169.254.200.254/24   up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: docker0                    240.127.1.1/24       up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: eth0                       10.36.77.121/22      up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0319 INFO   |   NPU iface: lo                         127.0.0.1/16         up/up         N/A             N/A
+21/06/2026 10:18:58 dash_api_speed_common.npu_pre_config     L0321 INFO   | NPU: pinging DPU dataplane IP 18.0.202.1
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   PING 18.0.202.1 (18.0.202.1) 56(84) bytes of data.
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   64 bytes from 18.0.202.1: icmp_seq=1 ttl=64 time=0.172 ms
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   64 bytes from 18.0.202.1: icmp_seq=2 ttl=64 time=0.970 ms
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   64 bytes from 18.0.202.1: icmp_seq=3 ttl=64 time=0.831 ms
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   64 bytes from 18.0.202.1: icmp_seq=4 ttl=64 time=0.195 ms
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   64 bytes from 18.0.202.1: icmp_seq=5 ttl=64 time=0.250 ms
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   --- 18.0.202.1 ping statistics ---
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   5 packets transmitted, 5 received, 0% packet loss, time 4052ms
+21/06/2026 10:19:03 dash_api_speed_common.npu_pre_config     L0324 INFO   |   rtt min/avg/max/mdev = 0.172/0.483/0.970/0.344 ms
+21/06/2026 10:19:03 dash_api_speed_common._detect_server_tls L0607 INFO   | NPU gNMI server cmdline: /usr/sbin/telemetry -logtostderr --port 50051 --server_crt /etc/sonic/telemetry/gnmiserver.crt --server_key /etc/sonic/telemetry/gnmiserver.key --ca_crt /etc/sonic/telemetry/gnmiCA.pem -zmq_address=tcp://127.0.0.1:8100 -gnmi_native_write=true -v=10
+/usr/sbin/telemetry -logtostderr --server_crt /etc/sonic/telemetry/streamingtelemetryserver.cer --server_key /etc/sonic/telemetry/streamingtelemetryserver.key --ca_crt /etc/sonic/telemetry/dsmsroot.cer --port 50051 -v=2 --threshold 100 --idle_conn_duration 5 -gnmi_native_write=false
+21/06/2026 10:19:04 dash_api_speed_common._stage_npu_certs   L0645 INFO   |   Staged NPU cert gnmiCA.pem -> /home/dash/sonic-mgmt/sonic-mgmt/tests/dash/dash_cfg_bl6m2_rb/gnmi_certs/gnmiCA.pem
+21/06/2026 10:19:05 dash_api_speed_common._stage_npu_certs   L0645 INFO   |   Staged NPU cert gnmiserver.crt -> /home/dash/sonic-mgmt/sonic-mgmt/tests/dash/dash_cfg_bl6m2_rb/gnmi_certs/gnmiserver.crt
+21/06/2026 10:19:06 dash_api_speed_common._stage_npu_certs   L0645 INFO   |   Staged NPU cert gnmiserver.key -> /home/dash/sonic-mgmt/sonic-mgmt/tests/dash/dash_cfg_bl6m2_rb/gnmi_certs/gnmiserver.key
+21/06/2026 10:19:06 dash_api_speed_common.load_json_via_gnmi L0741 INFO   | gNMI push via native client /home/dash/sonic-mgmt/sonic-mgmt/tests/dash/gnmi_agent_extracted -> 10.36.77.121:50051 (dpu 0, MTLS)
+21/06/2026 10:19:06 dash_api_speed_common._wait_gnmi_ready   L0687 INFO   | gNMI server 10.36.77.121:50051 is ready
+21/06/2026 10:19:07 dash_api_speed_common.load_json_via_gnmi L0755 INFO   | DPU_APPL_DB DBSIZE before push: 9
+21/06/2026 10:19:07 dash_api_speed_common.load_json_via_gnmi L0806 INFO   |   [1/3] pushing pl_100.dpu0.000apl.json (2 ops: DASH_APPLIANCE_TABLE:1S/0D, DASH_ROUTING_TYPE_TABLE:1S/0D) ...
+21/06/2026 10:19:09 dash_api_speed_common.load_json_via_gnmi L0862 INFO   |   [1/3] done    pl_100.dpu0.000apl.json                   1.26s  rc=0
+21/06/2026 10:19:09 dash_api_speed_common.load_json_via_gnmi L0806 INFO   |   [2/3] pushing pl_100.dpu0.000eni.json (364 ops: DASH_ENI_TABLE:1S/0D, DASH_ROUTE_RULE_TABLE:1S/0D, DASH_ROUTE_TABLE:361S/0D, DASH_VNET_TABLE:1S/0D) ...
+21/06/2026 10:19:11 dash_api_speed_common.load_json_via_gnmi L0862 INFO   |   [2/3] done    pl_100.dpu0.000eni.json                   1.30s  rc=0
+21/06/2026 10:19:12 dash_api_speed_common.load_json_via_gnmi L0806 INFO   |   [3/3] pushing pl_100.dpu0.000map.json (64001 ops: DASH_ENI_ROUTE_TABLE:1S/0D, DASH_VNET_MAPPING_TABLE:64000S/0D) ...
+21/06/2026 10:19:20 dash_api_speed_common.load_json_via_gnmi L0862 INFO   |   [3/3] done    pl_100.dpu0.000map.json                   8.57s  rc=0
+21/06/2026 10:19:21 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 1 keys matching 'DASH_APPLIANCE_TABLE:*'
+21/06/2026 10:19:21 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_APPLIANCE_TABLE:appliance-1000
+21/06/2026 10:19:22 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 1 keys matching 'DASH_ENI_ROUTE_TABLE:*'
+21/06/2026 10:19:22 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ENI_ROUTE_TABLE:eni-1000
+21/06/2026 10:19:22 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 1 keys matching 'DASH_ENI_TABLE:*'
+21/06/2026 10:19:22 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ENI_TABLE:eni-1000
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 1 keys matching 'DASH_ROUTE_RULE_TABLE:*'
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ROUTE_RULE_TABLE:eni-1000:100:221.2.0.0/32
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 361 keys matching 'DASH_ROUTE_TABLE:*'
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ROUTE_TABLE:route-group-1000:1.8.2.0/23
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ROUTE_TABLE:route-group-1000:1.18.32.128/25
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ROUTE_TABLE:route-group-1000:1.4.1.0/24
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ROUTE_TABLE:route-group-1000:1.16.24.0/21
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ROUTE_TABLE:route-group-1000:1.4.36.0/22
+21/06/2026 10:19:23 dash_api_speed_common._verify_dpu_appl_d L0495 INFO   |     ... and 356 more
+21/06/2026 10:19:24 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 1 keys matching 'DASH_ROUTING_TYPE_TABLE:*'
+21/06/2026 10:19:24 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_ROUTING_TYPE_TABLE:privatelink
+21/06/2026 10:19:26 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 64000 keys matching 'DASH_VNET_MAPPING_TABLE:*'
+21/06/2026 10:19:26 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_VNET_MAPPING_TABLE:vnet-2000:1.20.22.79
+21/06/2026 10:19:26 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_VNET_MAPPING_TABLE:vnet-2000:1.18.2.221
+21/06/2026 10:19:26 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_VNET_MAPPING_TABLE:vnet-2000:1.12.48.51
+21/06/2026 10:19:26 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_VNET_MAPPING_TABLE:vnet-2000:1.8.10.109
+21/06/2026 10:19:26 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_VNET_MAPPING_TABLE:vnet-2000:1.12.49.41
+21/06/2026 10:19:26 dash_api_speed_common._verify_dpu_appl_d L0495 INFO   |     ... and 63995 more
+21/06/2026 10:19:27 dash_api_speed_common._verify_dpu_appl_d L0491 INFO   |   DPU_APPL_DB after all files: 1 keys matching 'DASH_VNET_TABLE:*'
+21/06/2026 10:19:27 dash_api_speed_common._verify_dpu_appl_d L0493 INFO   |     sample: DASH_VNET_TABLE:vnet-2000
+21/06/2026 10:19:27 dash_api_speed_common.load_json_via_gnmi L0885 INFO   | DPU_APPL_DB DBSIZE after push: 64367 (was: 9)
+21/06/2026 10:19:27 test_dash_api_speed_pl.test_dash_api_loa L0118 INFO   | Cleaned up rendered config dir: /home/dash/sonic-mgmt/sonic-mgmt/tests/dash/dash_cfg_bl6m2_rb
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0174 INFO   | ========================================================================
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0175 INFO   |   DASH API LOAD SPEED TEST — RESULTS
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0176 INFO   | ========================================================================
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0178 INFO   |
+  Per-file load times:
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0179 INFO   |   File                                          Time (s)
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0180 INFO   |   --------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0182 INFO   |   pl_100.dpu0.000apl.json                           1.26
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0182 INFO   |   pl_100.dpu0.000eni.json                           1.30
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0182 INFO   |   pl_100.dpu0.000map.json                           8.57
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0183 INFO   |   --------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0184 INFO   |   TOTAL                                            24.34
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0186 INFO   |   Average per file                                  8.11
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0187 INFO   |   Files loaded: 3
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0197 INFO   |
+  Memory usage — NPU (MiB):
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0198 INFO   |   Container                         Before     After     Delta
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0199 INFO   |   ----------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   acms                                62.3      62.3      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   bgp                                102.3     102.3      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-ha                             36.5      36.5      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu0                         36.6      36.6      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu1                         36.5      36.5      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu2                         36.5      36.5      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu3                         36.5      36.5      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu4                         40.9      40.9      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu5                         36.5      36.5      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu6                         36.6      36.6      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dash-hadpu7                         36.6      36.6      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   database                            43.4      43.6      +0.2
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   database-chassis                    76.1      76.3      +0.2
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu0                        26.7      58.6     +31.9
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu1                        26.2      26.4      +0.2
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu2                        26.2      26.2      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu3                        26.1      26.4      +0.2
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu4                        26.2      26.2      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu5                        26.4      26.2      -0.2
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu6                        26.1      26.4      +0.2
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   databasedpu7                        26.1      26.1      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dhcp_relay                          34.1      34.1      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   dhcp_server                         71.1      71.2      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   eventd                              26.5      26.5      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   gnmi                                58.6     117.0     +58.4
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   lldp                                52.2      52.2      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   pmon                               429.0     428.5      -0.5
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   radv                                21.4      21.4      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   restapi                             21.9      21.9      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   snmp                                55.3      55.4      +0.1
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   swss                               128.4     128.4      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   syncd                             1328.1    1328.1      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   sysmgr                              25.7      25.7      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   teamd                               26.9      26.9      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   telemetry                           59.5      57.9      -1.6
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   vnet-monitor                        96.8      96.8      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0210 INFO   |   ----------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0211 INFO   |   Containers total                  3263.1    3352.4     +89.3
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0216 INFO   |   System used (free -m)             5403.0    5606.0    +203.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0221 INFO   |   System free                     120705.0  120444.0    -261.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0221 INFO   |   System available                122427.0  122224.0    -203.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0223 INFO   |   System total                    127831.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0197 INFO   |
+  Memory usage — DPU (MiB):
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0198 INFO   |   Container                         Before     After     Delta
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0199 INFO   |   ----------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   acms                                60.6      60.6      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   bgp                                114.7     114.7      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   database                            59.5      59.4      -0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   eventd                              24.3      24.3      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   gnmi                                66.1      66.1      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   pmon                               115.7     115.7      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   polaris                           2206.7    2318.3    +111.6
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   swss                               381.7     553.1    +171.4
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   syncd                              193.2     345.1    +151.9
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   sysmgr                              23.7      23.7      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0208 INFO   |   telemetry                           92.0      92.0      +0.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0210 INFO   |   ----------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0211 INFO   |   Containers total                  3338.1    3773.0    +434.9
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0216 INFO   |   System used (free -m)             4317.0    4783.0    +466.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0221 INFO   |   System free                       1347.0     901.0    -446.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0221 INFO   |   System available                  1940.0    1475.0    -465.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0223 INFO   |   System total                      6258.0
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0227 INFO   |
+  Memory timeline — free memory after each file push (MiB):
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0228 INFO   |   #       File                                          Ops   NPU free  NPU avail   DPU free  DPU avail
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0230 INFO   |   ------------------------------------------------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0232 INFO   |   1       pl_100.dpu0.000apl.json                         2     120683     122406       1295       1904
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0232 INFO   |   2       pl_100.dpu0.000eni.json                       364     120686     122409       1249       1880
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0232 INFO   |   3       pl_100.dpu0.000map.json                     64001     120533     122313        883       1563
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0238 INFO   |   ------------------------------------------------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0239 INFO   |           MINIMUM                                               120533     122313        883       1563
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0246 INFO   |
+  DPU Redis memory — DPU_APPL_DB (bytes):
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0247 INFO   |   Key                                                       Before       After       Delta
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0248 INFO   |   --------------------------------------------------------------------------------------
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0252 INFO   |   used_memory (total)                                      1556176    33615416   +32059240
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0254 INFO   |   used_memory_human                                          1.48M      32.06M
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0262 INFO   |   DASH_VNET_MAPPING_TABLE:vnet-2000:1.18.2.221                   0         320        +320
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0262 INFO   |   DASH_VNET_MAPPING_TABLE:vnet-2000:1.20.22.79                   0         320        +320
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0262 INFO   |   DASH_VNET_MAPPING_TABLE:vnet-2000:1.4.0.1                    320           0        -320
+21/06/2026 10:19:37 dash_api_speed_common._print_results     L0264 INFO   | ========================================================================
+21/06/2026 10:19:39 test_dash_api_speed_pl.test_dash_api_loa L0136 INFO   | DPU0 midplane reachability after push: True (expected False — midplane route removed)
+21/06/2026 10:19:39 test_dash_api_speed_pl.test_dash_api_loa L0138 INFO   | Verifying DPU0 is alive via dataplane ping to 18.0.202.1 ...
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |   PING 18.0.202.1 (18.0.202.1) 56(84) bytes of data.
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |   64 bytes from 18.0.202.1: icmp_seq=1 ttl=64 time=0.709 ms
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |   64 bytes from 18.0.202.1: icmp_seq=2 ttl=64 time=0.551 ms
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |   64 bytes from 18.0.202.1: icmp_seq=3 ttl=64 time=0.216 ms
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |   --- 18.0.202.1 ping statistics ---
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |   3 packets transmitted, 3 received, 0% packet loss, time 2042ms
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0142 INFO   |   rtt min/avg/max/mdev = 0.216/0.492/0.709/0.205 ms
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0147 INFO   | DPU0 dataplane reachability after push: OK
+21/06/2026 10:19:41 test_dash_api_speed_pl.test_dash_api_loa L0159 INFO   | DPU: waiting for 1 ENIs programmed in hardware (timeout 120s)...
+21/06/2026 10:19:42 test_dash_api_speed_pl.test_dash_api_loa L0174 INFO   | DPU: ENIs found: 1 / 1 (COUNTERS_ENI_NAME_MAP=0, ASIC_DB ENI=1)
+PASSED                                                                   [100%]
+------------------------------ live log teardown -------------------------------
+21/06/2026 10:19:47 memory_utilization.parse_frr_memory_outp L0686 INFO   | Total FRR memory used: 17.7 MB, holding: 11534336.0 bytes, small: 0.0 bytes, ordinary: 7011328.0 bytes
+21/06/2026 10:19:47 memory_utilization.parse_frr_memory_outp L0686 INFO   | Total FRR memory used: 39.4 MB, holding: 36700160.0 bytes, small: 0.0 bytes, ordinary: 4661248.0 bytes
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: monit-memory_usage
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for monit:memory_usage: 70.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for monit:memory_usage: 10.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: top-bgpd
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for top:bgpd: 128.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: top-zebra
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for top:zebra: 128.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: free-used
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for free:used: 1068.6
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-snmp
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0064 WARNING| Skipping memory check for docker-snmp due to zero value
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-pmon
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for docker:pmon: 8.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for docker:pmon: 2.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-lldp
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0064 WARNING| Skipping memory check for docker-lldp due to zero value
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-gnmi
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for docker:gnmi: 6.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for docker:gnmi: 2.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-radv
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0064 WARNING| Skipping memory check for docker-radv due to zero value
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-syncd
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for docker:syncd: 22.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for docker:syncd: 7.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-bgp
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for docker:bgp: 14.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for docker:bgp: 4.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-teamd
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0064 WARNING| Skipping memory check for docker-teamd due to zero value
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-swss
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for docker:swss: 10.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for docker:swss: 5.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: docker-database
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for docker:database: 6.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for docker:database: 2.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: frr_bgp-used
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for frr_bgp:used: 256.0
+21/06/2026 10:19:47 memory_utilization._parse_threshold      L0247 INFO   | Selected max threshold from list: 64.0 (from values: [8.8, 64.0])
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for frr_bgp:used: 64.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0053 INFO   | Checking thresholds for command: frr_zebra-used
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0075 INFO   | Calculated high threshold for frr_zebra:used: 128.0
+21/06/2026 10:19:47 memory_utilization._parse_threshold      L0247 INFO   | Selected max threshold from list: 64.0 (from values: [19.7, 64.0])
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0097 INFO   | Calculated increase threshold for frr_zebra:used: 64.0
+21/06/2026 10:19:47 memory_utilization.check_memory_threshol L0102 INFO   | Calculated increase fail threshold for frr_zebra:used: 128.0
+21/06/2026 10:19:47 __init__.pytest_runtest_teardown         L0124 INFO   | After test: collected memory_values {'before_test': {'keysight-css01': {'monit': {'memory_usage': 4.3}, 'top': {'zebra': 13.7, 'bgpd': 16.7}, 'free': {'used': 5343}, 'docker': {'snmp': 0.0, 'pmon': 0.3, 'lldp': 0.0, 'gnmi': 0.1, 'bgp': 0.1, 'radv': 0.0, 'teamd': 0.0, 'syncd': 1.0, 'swss': 0.1, 'database': 0.1}, 'frr_bgp': {'used': 17.7}, 'frr_zebra': {'used': 39.4}}}, 'after_test': {'keysight-css01': {'monit': {'memory_usage': 4.3}, 'top': {'zebra': 13.7, 'bgpd': 16.7}, 'free': {'used': 5494}, 'docker': {'snmp': 0.0, 'pmon': 0.3, 'lldp': 0.0, 'gnmi': 0.1, 'bgp': 0.1, 'radv': 0.0, 'teamd': 0.0, 'syncd': 1.0, 'swss': 0.1, 'database': 0.1}, 'frr_bgp': {'used': 17.7}, 'frr_zebra': {'used': 39.4}}}}
+21/06/2026 10:19:47 __init__.reset                           L0404 INFO   | [Parallel Fixture] Resetting parallel fixture manager
+21/06/2026 10:19:47 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:19:57 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:20:07 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:20:18 __init__._monitor_workers                L0199 INFO   | [Parallel Fixture] Current worker threads status:
+No alive worker thread found.
+21/06/2026 10:20:21 yang_utils.run_yang_validation           L0017 INFO   | Running YANG validation on keysight-css01 (post-test)
+21/06/2026 10:20:26 yang_utils.run_yang_validation           L0029 INFO   | YANG validation passed on keysight-css01 (post-test)
+21/06/2026 10:20:26 conftest.temporarily_disable_route_check L3284 INFO   | Skipping temporarily_disable_route_check fixture
+------------------------------ live log logreport ------------------------------
+21/06/2026 10:20:27 __init__.terminate                       L0345 INFO   | [Parallel Fixture] Terminating parallel fixture manager
+
+
+=============================== warnings summary ===============================
+../../../../../opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852
+  /opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; tests.common.plugins.ptfadapter
+    self.import_plugin(import_spec)
+
+../../../../../opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852
+  /opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; tests.common.plugins.ansible_fixtures
+    self.import_plugin(import_spec)
+
+../../../../../opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852
+  /opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; tests.common.plugins.loganalyzer
+    self.import_plugin(import_spec)
+
+../../../../../opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852
+  /opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; tests.common.plugins.sanity_check
+    self.import_plugin(import_spec)
+
+../../../../../opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852
+  /opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; tests.common.plugins.test_completeness
+    self.import_plugin(import_spec)
+
+../../../../../opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852
+  /opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; tests.common.dualtor
+    self.import_plugin(import_spec)
+
+../../../../../opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852
+  /opt/venv/lib/python3.12/site-packages/_pytest/config/__init__.py:852: PytestAssertRewriteWarning: Module already imported so cannot be rewritten; tests.common.fixtures.duthost_utils
+    self.import_plugin(import_spec)
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.MessageMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+<frozen importlib._bootstrap>:488
+  <frozen importlib._bootstrap>:488: DeprecationWarning: Type google._upb._message.ScalarMapContainer uses PyType_Spec with a metaclass that has custom tp_new. This is deprecated and will no longer be allowed in Python 3.14.
+
+../../../../../opt/venv/lib/python3.12/site-packages/google/protobuf/internal/well_known_types.py:93
+  /opt/venv/lib/python3.12/site-packages/google/protobuf/internal/well_known_types.py:93: DeprecationWarning: datetime.datetime.utcfromtimestamp() is deprecated and scheduled for removal in a future version. Use timezone-aware objects to represent datetimes in UTC: datetime.datetime.fromtimestamp(timestamp, datetime.UTC).
+    _EPOCH_DATETIME_NAIVE = datetime.datetime.utcfromtimestamp(0)
+
+ptf_runner.py:3
+  /home/dash/sonic-mgmt/sonic-mgmt/tests/ptf_runner.py:3: DeprecationWarning: 'pipes' is deprecated and slated for removal in Python 3.13
+    import pipes
+
+dash/test_dash_api_speed_pl.py::test_dash_api_load_speed_pl
+  /opt/venv/lib/python3.12/site-packages/pytest_ansible/host_manager/v213.py:13: DeprecationWarning: Host management is deprecated and will be removed in a future release
+    class HostManagerV213(BaseHostManager):
+
+dash/test_dash_api_speed_pl.py::test_dash_api_load_speed_pl
+dash/test_dash_api_speed_pl.py::test_dash_api_load_speed_pl
+dash/test_dash_api_speed_pl.py::test_dash_api_load_speed_pl
+dash/test_dash_api_speed_pl.py::test_dash_api_load_speed_pl
+dash/test_dash_api_speed_pl.py::test_dash_api_load_speed_pl
+  /opt/venv/lib/python3.12/site-packages/ansible/plugins/loader.py:1485: UserWarning: AnsibleCollectionFinder has already been configured
+    warnings.warn('AnsibleCollectionFinder has already been configured')
+
+dash/test_dash_api_speed_pl.py: 151 warnings
+  /usr/lib/python3.12/multiprocessing/popen_fork.py:66: DeprecationWarning: This process (pid=1302210) is multi-threaded, use of fork() may lead to deadlocks in the child.
+    self.pid = os.fork()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+---------------------------- live log sessionfinish ----------------------------
+21/06/2026 10:20:27 __init__.pytest_terminal_summary         L0067 INFO   | Can not get Allure report URL. Please check logs
+INFO:root:[Parallel Fixture] Terminating parallel fixture manager
+INFO:root:Can not get Allure report URL. Please check logs
+================= 1 passed, 168 warnings in 254.19s (0:04:14) ==================

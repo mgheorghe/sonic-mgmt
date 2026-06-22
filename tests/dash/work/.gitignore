@@ -1,0 +1,7 @@
+# Run artifacts under work/ — keep text summaries/logs in git, never the large
+# binary captures (var/log tarballs, pcaps, sairedis recordings).
+*.tgz
+*.tar.gz
+*.pcap
+*.pcapng
+sairedis.rec
