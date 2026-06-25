@@ -87,7 +87,7 @@ def _collect_redis_memory(dpuhost):
             try:
                 result["_used_memory"] = int(line.split(":")[1])
             except ValueError:
-                pass
+                pass  # non-integer used_memory value — skip this line
         elif line.startswith("used_memory_human:"):
             result["_used_memory_human"] = line.split(":", 1)[1].strip()
 
@@ -339,19 +339,20 @@ def _prepare_gnmi(localhost, duthost, dpuhost, config_dir, creds, action="push")
                 mode.upper() if tls_paths else "plaintext")
 
     _wait_gnmi_ready(localhost, ip, port, tls_paths=tls_paths)
+    # Credentials are deliberately NOT stored in this dict; they are passed separately to
+    # _apply_gnmi_file so the secret never co-mingles with fields (ip/port) that get logged.
     return {"ip": ip, "port": port, "dpu_index": dpu_index, "extracted_dir": extracted_dir,
-            "gnmi_user": shlex.quote(creds["sonicadmin_user"]),
-            "gnmi_pass": shlex.quote(creds["sonicadmin_password"]),
             "tls_prefix": tls_prefix, "tls_paths": tls_paths}
 
 
-def _apply_gnmi_file(localhost, conn, cfg_path, attempts=8):
+def _apply_gnmi_file(localhost, conn, cfg_path, creds, attempts=8):
     # Run gnmi_client update -f cfg_path; retry only on transient errors (no per-file pre-probe).
     # File OP drives SET/DEL.
     ip, port, tls_paths = conn["ip"], conn["port"], conn["tls_paths"]
+    gnmi_user, gnmi_pass = shlex.quote(creds["sonicadmin_user"]), shlex.quote(creds["sonicadmin_password"])
     cmd = (f"cd {conn['extracted_dir']} && {conn['tls_prefix']}PYTHONPATH=. python3 gnmi_client.py"
            f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {conn['dpu_index']} -n 8"  # noqa: E231
-           f" -u {conn['gnmi_user']} -p {conn['gnmi_pass']} update -f {cfg_path}")
+           f" -u {gnmi_user} -p {gnmi_pass} update -f {cfg_path}")
     rc, stderr, stdout = -1, "", ""
     for _ in range(attempts):
         out = localhost.shell(cmd, module_ignore_errors=True)
@@ -393,7 +394,7 @@ def load_config_via_gnmi(localhost, duthost, dpuhost, config_dir, files,
         logger.info("  [%d/%d] pushing %s (%d ops: %s) ...", idx, len(files), filename, op_count, summary)
 
         t_start = time.time()
-        rc, stderr, stdout = _apply_gnmi_file(localhost, conn, os.path.join(config_dir, filename))
+        rc, stderr, stdout = _apply_gnmi_file(localhost, conn, os.path.join(config_dir, filename), creds)
         elapsed = time.time() - t_start
         timings[filename] = elapsed
 
@@ -425,7 +426,6 @@ def load_config_via_gnmi(localhost, duthost, dpuhost, config_dir, files,
     # _assert_programmed requires exact equality.
     before_n = _db_int(db_before)
     deadline = time.time() + _VERIFY_SETTLE_SECS
-    after_n = before_n
     while True:
         after_n = _db_int(dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True))
         if after_n - before_n >= expected_total_sets or time.time() >= deadline:
@@ -475,7 +475,7 @@ def cleanup_config_via_gnmi(localhost, duthost, dpuhost, config_dir, files, cred
             logger.warning("  cleanup [%d/%d] build DEL file failed %s: %s", idx, len(ordered), filename, e)
             print("  cleanup [%d/%d] %-40s  SKIP(build)" % (idx, len(ordered), filename))
             continue
-        rc, stderr, stdout = _apply_gnmi_file(localhost, conn, del_path, attempts=5)
+        rc, stderr, stdout = _apply_gnmi_file(localhost, conn, del_path, creds, attempts=5)
         ok = rc == 0 and "Traceback" not in stderr and "RpcError" not in stderr
         if not ok:
             errors += 1

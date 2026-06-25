@@ -12,7 +12,7 @@ import sys
 import uuid
 from multiprocessing import Pool, cpu_count
 
-from jinja2 import Environment, FileSystemLoader
+from jinja2 import Environment, FileSystemLoader, select_autoescape
 
 
 # ============================================================================
@@ -206,6 +206,7 @@ def make_env():
     tpl_dir = os.path.join(os.path.dirname(os.path.abspath(__file__)), 'templates')
     env = Environment(
         loader=FileSystemLoader(tpl_dir),
+        autoescape=select_autoescape(),
         trim_blocks=True,
         lstrip_blocks=True,
         keep_trailing_newline=True,
