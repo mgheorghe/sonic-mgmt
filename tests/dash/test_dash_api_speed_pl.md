@@ -146,7 +146,7 @@ pytest dash/test_dash_api_speed_pl.py \
 
 ## Expected output
 
-Sample run below: **32 ENIs × 64K mappings/ENI × 10K routes/ENI** 
+Sample run below: **32 ENIs × 64K mappings/ENI × 10K routes/ENI**
 (`OVERRIDE_ENI_COUNT=32`, mappings/routes at their defaults). This renders **97
 config files** (1 appliance + 32×{grp, eni, map}) and programs ~2.05M mappings +
 320K routes. Long per-file / per-ENI / timeline lists are elided with `...`.

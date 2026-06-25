@@ -1,4 +1,5 @@
-# Helpers for test_dash_api_speed_pl: gNMI config push/cleanup + memory reporting (no dataplane pre-config; see the .md).
+# Helpers for test_dash_api_speed_pl: gNMI config push/cleanup + memory reporting.
+# No dataplane pre-config; see the .md.
 import json
 import logging
 import os
@@ -128,7 +129,7 @@ def _print_per_eni_load_times(timings, total_elapsed):
         row_total = sum(k.values())
         grand += row_total
         print("  %-10s  %8.2f  %8.2f  %8.2f  %10.2f"
-              % (f"eni {idx:03d}", k.get("grp", 0.0), k.get("eni", 0.0), k.get("map", 0.0), row_total))
+              % (f"eni {idx:03d}", k.get("grp", 0.0), k.get("eni", 0.0), k.get("map", 0.0), row_total))  # noqa: E231
     print("  " + "-" * 56)
     eni_count = len(per_eni)
     print("  %-10s  %40.2f" % ("SUM(push)", grand))
@@ -345,7 +346,8 @@ def _prepare_gnmi(localhost, duthost, dpuhost, config_dir, creds, action="push")
 
 
 def _apply_gnmi_file(localhost, conn, cfg_path, attempts=8):
-    # Run gnmi_client update -f cfg_path; retry only on transient errors (no per-file pre-probe). File OP drives SET/DEL.
+    # Run gnmi_client update -f cfg_path; retry only on transient errors (no per-file pre-probe).
+    # File OP drives SET/DEL.
     ip, port, tls_paths = conn["ip"], conn["port"], conn["tls_paths"]
     cmd = (f"cd {conn['extracted_dir']} && {conn['tls_prefix']}PYTHONPATH=. python3 gnmi_client.py"
            f" --batch_val {_BATCH_VAL} -l warning -t {ip}:{port} -i {conn['dpu_index']} -n 8"  # noqa: E231
@@ -362,7 +364,8 @@ def _apply_gnmi_file(localhost, conn, cfg_path, attempts=8):
 
 def load_config_via_gnmi(localhost, duthost, dpuhost, config_dir, files,
                          creds, timings=None, mem_timeline=None, mem_every=1):
-    # [WIP] Push DASH config (apl->grp->eni->map) via gNMI; times each file, samples mem every mem_every files, returns counts {landed (DBSIZE delta), expected_total, per_table (SET ops sent), db_before/after}.
+    # [WIP] Push DASH config (apl->grp->eni->map) via gNMI; times each file, samples mem every mem_every files.
+    # Returns counts {landed (DBSIZE delta), expected_total, per_table (SET ops sent), db_before/after}.
     if timings is None:
         timings = {}
     if mem_timeline is None:
@@ -410,13 +413,16 @@ def load_config_via_gnmi(localhost, duthost, dpuhost, config_dir, files,
             try:
                 npu, dpu = _collect_free_memory(duthost), _collect_free_memory(dpuhost)
                 mem_timeline.append({"idx": idx, "file": filename, "ops": op_count,
-                                     "npu_free": npu.get("_system_free", 0), "npu_available": npu.get("_system_available", 0),
-                                     "dpu_free": dpu.get("_system_free", 0), "dpu_available": dpu.get("_system_available", 0)})
+                                     "npu_free": npu.get("_system_free", 0),
+                                     "npu_available": npu.get("_system_available", 0),
+                                     "dpu_free": dpu.get("_system_free", 0),
+                                     "dpu_available": dpu.get("_system_available", 0)})
             except Exception:
                 logger.debug("  [%d/%d] mem snapshot failed (non-fatal)", idx, len(files))
 
     # Verify via DBSIZE delta (O(1)), not KEYS (blocks redis on large keyspaces).
-    # Poll until the delta reaches the sent SET count (async commit may lag the push) or timeout; _assert_programmed requires exact equality.
+    # Poll until the delta reaches the sent SET count (async commit may lag the push) or timeout.
+    # _assert_programmed requires exact equality.
     before_n = _db_int(db_before)
     deadline = time.time() + _VERIFY_SETTLE_SECS
     after_n = before_n
@@ -437,7 +443,8 @@ def load_config_via_gnmi(localhost, duthost, dpuhost, config_dir, files,
 
 
 def cleanup_config_via_gnmi(localhost, duthost, dpuhost, config_dir, files, creds, mode="precise"):
-    # [WIP] Restore DPU state. mode="flushdb": one FLUSHDB (instant, wipes ALL keys, dedicated DPU only). mode="precise": gNMI DELETE each file in reverse via sibling *.del.json (safe on shared DPU, ~as slow as push).
+    # [WIP] Restore DPU state. mode="flushdb": one FLUSHDB (instant, wipes ALL keys, dedicated DPU only).
+    # mode="precise": gNMI DELETE each file in reverse via sibling *.del.json (safe on shared DPU, ~as slow as push).
     if mode == "flushdb":
         db_before = dpuhost.shell("sonic-db-cli DPU_APPL_DB DBSIZE", module_ignore_errors=True)
         res = dpuhost.shell("sonic-db-cli DPU_APPL_DB FLUSHDB", module_ignore_errors=True)

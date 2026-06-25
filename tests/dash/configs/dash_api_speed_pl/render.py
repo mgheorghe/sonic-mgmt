@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
-# Jinja2 generator for DASH Private-Link config (same JSON as dpugen/dash.py). CLI: python render.py [-o out] [-p params]; templates in templates/.
+# Jinja2 generator for DASH Private-Link config (same JSON as dpugen/dash.py).
+# CLI: python render.py [-o out] [-p params]; templates in templates/.
 
 import argparse
 import hashlib
@@ -360,7 +361,8 @@ def generate(params, output_dir, prefix='pl_100'):
                 'r_vni_id':           r_vni,
                 'vtep_remote':        filt_ipv4(eni_par),
                 'eni_hex':            eni_hex,
-                # Bluefield: CA2PA overlay SIP mask must be bits 80-112 (wide /96 rejected); use 1:ffff:ffff:: (sonic-mgmt#23765).
+                # Bluefield: CA2PA overlay SIP mask must be bits 80-112 (wide /96 rejected);
+                # use 1:ffff:ffff:: (sonic-mgmt#23765).
                 'overlay_sip_prefix': f'1:100:{eni_hex}::'  # noqa: E231
                                       f'/1:ffff:ffff::',  # noqa: E231,E131
                 'ip_r_start':         eni_ip_r,

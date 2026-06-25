@@ -1,4 +1,5 @@
-# DASH API load-speed test: render per-ENI private-link config, push via gNMI, report per-ENI/total time + memory. Scale via OVERRIDE_* below; see test_dash_api_speed_pl.md.
+# DASH API load-speed test: render per-ENI private-link config, push via gNMI, report per-ENI/total time + memory.
+# Scale via OVERRIDE_* below; see test_dash_api_speed_pl.md.
 import fnmatch
 import importlib.util
 import logging
@@ -57,7 +58,8 @@ def _resolve_scale(npu_hwsku):
 
 
 def _build_render_params(eni_count, mapping_count, route_count):
-    # Map per-ENI scale knobs onto render.DEFAULTS for one DPU; print actual map/route counts (decomposition may under-shoot) and return params.
+    # Map per-ENI scale knobs onto render.DEFAULTS for one DPU; print actual map/route counts.
+    # Decomposition may under-shoot; return params.
     p = dict(render.DEFAULTS)
     p["DPUS"] = 1
     p["ENI_COUNT"] = eni_count
