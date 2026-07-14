@@ -24,4 +24,6 @@ keysight-nss01-dpu0,10.36.78.150/24,Mellanox-SN4280-O28,DevSonic,,sonic
 keysight-nss01-dpu1,10.36.78.150/24,Mellanox-SN4280-O28,DevSonic,,sonic
 keysight-css01,10.36.77.121/24,Cisco-8102-28FH-DPU-O,DevSonic,,sonic
 keysight-css01-dpu0,10.36.77.121/24,Cisco-8102-28FH-DPU-O,DevSonic,,sonic
+keysight-console,10.36.76.10/24,Cisco,ConsoleServer,telnet,sonic,
+keysight-pdu,10.36.77.188,Apc,Pdu,snmp,
 sonic-mgmt-keysight,10.36.79.161/24,TestServ,Server,,ubuntu
